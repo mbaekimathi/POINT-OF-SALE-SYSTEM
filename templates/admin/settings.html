@@ -1,0 +1,352 @@
+{% extends "role_base.html" %}
+
+{% block title %}Settings - Admin Panel{% endblock %}
+
+{% block sidebar_icon %}crown{% endblock %}
+{% block sidebar_title %}Admin Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Role Page View -->
+<a href="/admin/role-page-view" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-eye text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Role Page View</p>
+        <p class="text-xs text-white/70">View all roles</p>
+    </div>
+</a>
+
+<!-- Human Resource Management -->
+<a href="/admin/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resources</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+
+<!-- Item Management -->
+<a href="/admin/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Analytics -->
+<a href="/admin/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+
+<!-- Settings -->
+<a href="/admin/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System configuration</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Settings Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">System Settings</h1>
+            <p class="text-gray-600 text-lg">Configure your hotel POS system, manage preferences, and customize operations.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-cog text-xl"></i>
+            <span class="font-bold text-lg">System Configuration</span>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Navigation Tabs -->
+<div class="mb-8">
+    <div class="flex space-x-2 bg-gray-100 p-2 rounded-2xl">
+        <button class="settings-tab active bg-white text-primary-orange px-6 py-3 rounded-xl font-semibold shadow-lg" data-tab="hotel">
+            <i class="fas fa-hotel mr-2"></i>
+            Hotel Information
+        </button>
+    </div>
+</div>
+
+<!-- Hotel Information Settings -->
+<div id="hotel-settings" class="settings-content">
+    <div class="max-w-4xl mx-auto">
+        <form id="hotelSettingsForm" class="space-y-8">
+            <!-- Basic Information -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Basic Information</h2>
+                    <p class="text-gray-600 mt-2">Configure your hotel's basic details</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Hotel Name *</label>
+                            <input type="text" id="hotelName" name="hotel_name" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter hotel name">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Company Email *</label>
+                            <input type="email" id="companyEmail" name="company_email" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter company email">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Company Phone Number *</label>
+                            <input type="tel" id="companyPhone" name="company_phone" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter phone number">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Address</label>
+                            <textarea id="hotelAddress" name="hotel_address" rows="3"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                      placeholder="Enter hotel address"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Payment Information</h2>
+                    <p class="text-gray-600 mt-2">Configure payment method for receipts and transactions</p>
+                </div>
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-4">Payment Method *</label>
+                            <div class="space-y-4">
+                                <label class="flex items-center p-4 border border-gray-300 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="payment_method" value="buy_goods" class="mr-4 text-primary-orange focus:ring-primary-orange" checked>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-shopping-cart text-2xl text-primary-orange mr-4"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Buy Goods Till</div>
+                                            <div class="text-sm text-gray-600">Use M-Pesa Buy Goods till number for payments</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center p-4 border border-gray-300 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="payment_method" value="paybill" class="mr-4 text-primary-orange focus:ring-primary-orange">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-credit-card text-2xl text-primary-orange mr-4"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Paybill</div>
+                                            <div class="text-sm text-gray-600">Use M-Pesa Paybill with business and account numbers</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Buy Goods Till Fields -->
+                        <div id="buyGoodsFields" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Till Number *</label>
+                                <input type="text" id="tillNumber" name="till_number"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Enter till number">
+                            </div>
+                        </div>
+
+                        <!-- Paybill Fields -->
+                        <div id="paybillFields" class="grid grid-cols-1 lg:grid-cols-2 gap-6 hidden">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Business Number *</label>
+                                <input type="text" id="businessNumber" name="business_number"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Enter business number">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Account Number *</label>
+                                <input type="text" id="accountNumber" name="account_number"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Enter account number">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
+                    <i class="fas fa-save mr-3"></i>
+                    Save Hotel Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load existing hotel settings
+        loadHotelSettings();
+
+        // Payment method toggle functionality
+        const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+        const buyGoodsFields = document.getElementById('buyGoodsFields');
+        const paybillFields = document.getElementById('paybillFields');
+
+        paymentMethodRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'buy_goods') {
+                    buyGoodsFields.classList.remove('hidden');
+                    paybillFields.classList.add('hidden');
+                    // Clear paybill fields
+                    document.getElementById('businessNumber').value = '';
+                    document.getElementById('accountNumber').value = '';
+                } else if (this.value === 'paybill') {
+                    buyGoodsFields.classList.add('hidden');
+                    paybillFields.classList.remove('hidden');
+                    // Clear till number field
+                    document.getElementById('tillNumber').value = '';
+                }
+            });
+        });
+
+        // Form submission
+        const hotelSettingsForm = document.getElementById('hotelSettingsForm');
+        hotelSettingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveHotelSettings();
+        });
+    });
+
+    async function loadHotelSettings() {
+        try {
+            const response = await fetch('/api/hotel-settings');
+            if (response.ok) {
+                const settings = await response.json();
+                populateForm(settings);
+            }
+        } catch (error) {
+            console.error('Error loading hotel settings:', error);
+        }
+    }
+
+    function populateForm(settings) {
+        if (settings.hotel_name) {
+            document.getElementById('hotelName').value = settings.hotel_name;
+        }
+        if (settings.company_email) {
+            document.getElementById('companyEmail').value = settings.company_email;
+        }
+        if (settings.company_phone) {
+            document.getElementById('companyPhone').value = settings.company_phone;
+        }
+        if (settings.hotel_address) {
+            document.getElementById('hotelAddress').value = settings.hotel_address;
+        }
+        if (settings.payment_method) {
+            const paymentMethodRadio = document.querySelector(`input[name="payment_method"][value="${settings.payment_method}"]`);
+            if (paymentMethodRadio) {
+                paymentMethodRadio.checked = true;
+                paymentMethodRadio.dispatchEvent(new Event('change'));
+            }
+        }
+        if (settings.till_number) {
+            document.getElementById('tillNumber').value = settings.till_number;
+        }
+        if (settings.business_number) {
+            document.getElementById('businessNumber').value = settings.business_number;
+        }
+        if (settings.account_number) {
+            document.getElementById('accountNumber').value = settings.account_number;
+        }
+    }
+
+    async function saveHotelSettings() {
+        const form = document.getElementById('hotelSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Validate required fields
+        if (!settings.hotel_name || !settings.company_email || !settings.company_phone) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Validate payment method specific fields
+        if (settings.payment_method === 'buy_goods' && !settings.till_number) {
+            showNotification('Please enter the till number', 'error');
+            return;
+        }
+        if (settings.payment_method === 'paybill' && (!settings.business_number || !settings.account_number)) {
+            showNotification('Please enter both business number and account number', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/hotel-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Hotel settings saved successfully!', 'success');
+            } else {
+                showNotification(result.message || 'Failed to save settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving hotel settings:', error);
+            showNotification('Error saving settings. Please try again.', 'error');
+        }
+    }
+
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-semibold ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

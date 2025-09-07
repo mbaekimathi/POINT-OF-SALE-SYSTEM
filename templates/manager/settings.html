@@ -1,0 +1,260 @@
+{% extends "role_base.html" %}
+
+{% block title %}Settings - Manager Panel{% endblock %}
+
+{% block sidebar_icon %}user-tie{% endblock %}
+{% block sidebar_title %}Manager Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Dashboard -->
+<a href="/manager/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+
+<!-- Human Resource -->
+<a href="/manager/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resource</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+
+<!-- Item Management -->
+<a href="/manager/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Analytics -->
+<a href="/manager/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+
+<!-- Settings -->
+<a href="/manager/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System configuration</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Manager Settings Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Settings</h1>
+            <p class="text-gray-600 text-lg">Configure system settings and preferences for your operations.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-user-tie text-xl"></i>
+            <span class="font-bold text-lg">Manager</span>
+        </div>
+    </div>
+</div>
+
+<!-- Manager Settings Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Settings Categories -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">System Settings</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-6">
+                    <!-- General Settings -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">General Settings</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Business Name</p>
+                                    <p class="text-sm text-gray-600">Hotel POS System</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Currency</p>
+                                    <p class="text-sm text-gray-600">Kenyan Shilling (KSh)</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Time Zone</p>
+                                    <p class="text-sm text-gray-600">East Africa Time (GMT+3)</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- POS Settings -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">POS Settings</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Receipt Printer</p>
+                                    <p class="text-sm text-gray-600">Bluetooth Thermal Printer</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Configure
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Tax Rate</p>
+                                    <p class="text-sm text-gray-600">16% VAT</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Receipt Numbering</p>
+                                    <p class="text-sm text-gray-600">Auto-increment (1001, 1002...)</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Security Settings</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Session Timeout</p>
+                                    <p class="text-sm text-gray-600">30 minutes</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-800">Password Policy</p>
+                                    <p class="text-sm text-gray-600">Strong passwords required</p>
+                                </div>
+                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Settings Actions -->
+    <div class="space-y-8">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Settings Actions</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <a href="#" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                        <i class="fas fa-save mr-3"></i>
+                        Save All Changes
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-undo mr-3"></i>
+                        Reset to Default
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                        <i class="fas fa-download mr-3"></i>
+                        Export Settings
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                        <i class="fas fa-upload mr-3"></i>
+                        Import Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">System Status</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Database</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Online
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Printer</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Connected
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Backup</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Up to Date
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Security</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Secure
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+

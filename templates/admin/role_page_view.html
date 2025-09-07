@@ -1,0 +1,358 @@
+{% extends "role_base.html" %}
+
+{% block title %}Role Page View - Admin Panel{% endblock %}
+
+{% block sidebar_icon %}crown{% endblock %}
+{% block sidebar_title %}Admin Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Role Page View -->
+<a href="/admin/role-page-view" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-eye text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Role Page View</p>
+        <p class="text-xs text-white/70">View all roles</p>
+    </div>
+</a>
+
+<!-- Human Resource Management -->
+<a href="/admin/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resources</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+
+<!-- Item Management -->
+<a href="/admin/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Analytics -->
+<a href="/admin/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+
+<!-- Settings -->
+<a href="/admin/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System configuration</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Role Page View Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Role Page View</h1>
+            <p class="text-gray-600 text-lg">Manage and view all user roles and their permissions in the system.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-eye text-xl"></i>
+            <span class="font-bold text-lg">Role Management</span>
+        </div>
+    </div>
+</div>
+
+<!-- Role Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+    <!-- Admin Role -->
+    <div class="bg-white rounded-3xl p-8 shadow-2xl card-hover border border-gray-100">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-crown text-white text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Administrator</h3>
+            <p class="text-gray-600 text-sm mb-4">Full system access and control</p>
+            <div class="space-y-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <i class="fas fa-check mr-1"></i>
+                    All Permissions
+                </span>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Users: <span class="font-semibold text-gray-800">2</span></p>
+                <p>Active: <span class="font-semibold text-green-600">2</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Role -->
+    <div class="bg-white rounded-3xl p-8 shadow-2xl card-hover border border-gray-100">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-gradient-to-r from-primary-blue to-secondary-blue rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-user-tie text-white text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Manager</h3>
+            <p class="text-gray-600 text-sm mb-4">Team and operations management</p>
+            <div class="space-y-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-users mr-1"></i>
+                    Staff Management
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    Reports
+                </span>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Users: <span class="font-semibold text-gray-800">3</span></p>
+                <p>Active: <span class="font-semibold text-green-600">3</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cashier Role -->
+    <div class="bg-white rounded-3xl p-8 shadow-2xl card-hover border border-gray-100">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-gradient-to-r from-primary-orange to-secondary-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-cash-register text-white text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Cashier</h3>
+            <p class="text-gray-600 text-sm mb-4">Point of sale operations</p>
+            <div class="space-y-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <i class="fas fa-shopping-cart mr-1"></i>
+                    POS Access
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <i class="fas fa-credit-card mr-1"></i>
+                    Payments
+                </span>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Users: <span class="font-semibold text-gray-800">5</span></p>
+                <p>Active: <span class="font-semibold text-green-600">4</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Butchery Role -->
+    <div class="bg-white rounded-3xl p-8 shadow-2xl card-hover border border-gray-100">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-drumstick-bite text-white text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Butchery</h3>
+            <p class="text-gray-600 text-sm mb-4">Meat preparation and inventory</p>
+            <div class="space-y-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <i class="fas fa-boxes mr-1"></i>
+                    Inventory
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <i class="fas fa-tools mr-1"></i>
+                    Preparation
+                </span>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Users: <span class="font-semibold text-gray-800">2</span></p>
+                <p>Active: <span class="font-semibold text-green-600">2</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Role -->
+    <div class="bg-white rounded-3xl p-8 shadow-2xl card-hover border border-gray-100">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-user text-white text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Employee</h3>
+            <p class="text-gray-600 text-sm mb-4">Basic system access</p>
+            <div class="space-y-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-tasks mr-1"></i>
+                    Tasks
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-calendar mr-1"></i>
+                    Schedule
+                </span>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Users: <span class="font-semibold text-gray-800">12</span></p>
+                <p>Active: <span class="font-semibold text-green-600">10</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Permissions Matrix -->
+<div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+    <div class="p-8 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-gray-800">Role Permissions Matrix</h2>
+            <button class="bg-primary-orange text-white px-6 py-3 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-semibold">
+                <i class="fas fa-edit mr-2"></i>
+                Edit Permissions
+            </button>
+        </div>
+    </div>
+    <div class="p-8">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-4 px-6 font-semibold text-gray-800">Permission</th>
+                        <th class="text-center py-4 px-6 font-semibold text-gray-800">Admin</th>
+                        <th class="text-center py-4 px-6 font-semibold text-gray-800">Manager</th>
+                        <th class="text-center py-4 px-6 font-semibold text-gray-800">Cashier</th>
+                        <th class="text-center py-4 px-6 font-semibold text-gray-800">Butchery</th>
+                        <th class="text-center py-4 px-6 font-semibold text-gray-800">Employee</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr>
+                        <td class="py-4 px-6 font-medium text-gray-800">User Management</td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-6 font-medium text-gray-800">System Settings</td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-6 font-medium text-gray-800">Staff Management</td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-6 font-medium text-gray-800">Point of Sale</td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-6 font-medium text-gray-800">Inventory Management</td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-6 font-medium text-gray-800">Reports & Analytics</td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-check text-green-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                        <td class="text-center py-4 px-6">
+                            <i class="fas fa-times text-red-500 text-xl"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handlers for role management actions
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Role management action clicked:', this.textContent.trim());
+                // Add your role management functionality here
+            });
+        });
+    });
+</script>
+{% endblock %}
+

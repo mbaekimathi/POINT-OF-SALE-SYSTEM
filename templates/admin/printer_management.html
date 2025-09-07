@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printer Management - Kwetu Deliveries</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .printer-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .printer-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .status-connected { color: #28a745; }
+        .status-disconnected { color: #6c757d; }
+        .status-error { color: #dc3545; }
+        .scanning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .scanning-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/admin/dashboard">
+                <i class="fas fa-store"></i> Kwetu Deliveries
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user"></i> {{ employee_name }} ({{ employee_role.title() }})
+                </span>
+                <a class="btn btn-outline-light btn-sm" href="/employee/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-print"></i> Printer Management</h2>
+                    <div>
+                        <button class="btn btn-primary" onclick="scanForPrinters()">
+                            <i class="fas fa-search"></i> Scan for Printers
+                        </button>
+                        <button class="btn btn-success" onclick="showAddPrinterModal()">
+                            <i class="fas fa-plus"></i> Add Printer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printers List -->
+                <div id="printersList">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading printers...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Printer Modal -->
+    <div class="modal fade" id="addPrinterModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Printer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPrinterForm">
+                        <div class="mb-3">
+                            <label for="printerName" class="form-label">Printer Name</label>
+                            <input type="text" class="form-control" id="printerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="connectionType" class="form-label">Connection Type</label>
+                            <select class="form-select" id="connectionType" required>
+                                <option value="">Select connection type</option>
+                                <option value="bluetooth">Bluetooth</option>
+                                <option value="wifi">WiFi</option>
+                                <option value="usb">USB</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="connectionAddress" class="form-label">Connection Address</label>
+                            <input type="text" class="form-control" id="connectionAddress" required>
+                            <div class="form-text">For Bluetooth: MAC address, For WiFi: IP address, For USB: Port name</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="printerModel" class="form-label">Printer Model</label>
+                            <input type="text" class="form-control" id="printerModel">
+                        </div>
+                        <div class="mb-3">
+                            <label for="paperWidth" class="form-label">Paper Width (mm)</label>
+                            <select class="form-select" id="paperWidth">
+                                <option value="58">58mm (Standard)</option>
+                                <option value="80">80mm (Wide)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="isDefault">
+                            <label class="form-check-label" for="isDefault">
+                                Set as default printer
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addPrinter()">Add Printer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanning Overlay -->
+    <div class="scanning-overlay" id="scanningOverlay">
+        <div class="scanning-content">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Scanning...</span>
+            </div>
+            <h4>Scanning for Printers</h4>
+            <p>Please wait while we scan for available printers...</p>
+            <p class="text-muted">This may take up to 30 seconds</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let printers = [];
+        let foundPrinters = [];
+
+        // Load printers on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPrinters();
+        });
+
+        function loadPrinters() {
+            fetch('/api/printers')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        printers = data.printers;
+                        displayPrinters();
+                    } else {
+                        showAlert('Error loading printers: ' + data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error loading printers', 'danger');
+                });
+        }
+
+        function displayPrinters() {
+            const container = document.getElementById('printersList');
+            
+            if (printers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-print fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Printers Configured</h4>
+                        <p class="text-muted">Click "Scan for Printers" to find available printers or "Add Printer" to configure manually.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="row">';
+            printers.forEach(printer => {
+                const statusClass = `status-${printer.status}`;
+                const statusIcon = printer.status === 'connected' ? 'fa-check-circle' : 
+                                 printer.status === 'error' ? 'fa-exclamation-circle' : 'fa-times-circle';
+                
+                html += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="printer-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="mb-0">${printer.name}</h5>
+                                <div class="d-flex gap-2">
+                                    ${printer.is_default ? '<span class="badge bg-primary">Default</span>' : ''}
+                                    <span class="badge ${printer.status === 'connected' ? 'bg-success' : printer.status === 'error' ? 'bg-danger' : 'bg-secondary'}">
+                                        <i class="fas ${statusIcon}"></i> ${printer.status}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-${printer.connection_type === 'bluetooth' ? 'bluetooth' : printer.connection_type === 'wifi' ? 'wifi' : 'usb'}"></i>
+                                    ${printer.connection_type.toUpperCase()}
+                                </small>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Address: ${printer.connection_address}</small>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Model: ${printer.printer_model}</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="testPrinter(${printer.id})">
+                                    <i class="fas fa-print"></i> Test
+                                </button>
+                                ${!printer.is_default ? `
+                                    <button class="btn btn-sm btn-outline-success" onclick="setDefaultPrinter(${printer.id})">
+                                        <i class="fas fa-star"></i> Set Default
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-danger" onclick="deletePrinter(${printer.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function scanForPrinters() {
+            document.getElementById('scanningOverlay').style.display = 'flex';
+            
+            fetch('/api/printers/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('scanningOverlay').style.display = 'none';
+                
+                if (data.success) {
+                    foundPrinters = data.printers;
+                    if (foundPrinters.length > 0) {
+                        showFoundPrinters();
+                    } else {
+                        showAlert('No printers found. Make sure your printer is powered on and discoverable.', 'warning');
+                    }
+                } else {
+                    showAlert('Error scanning for printers: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                document.getElementById('scanningOverlay').style.display = 'none';
+                console.error('Error:', error);
+                showAlert('Error scanning for printers', 'danger');
+            });
+        }
+
+        function showFoundPrinters() {
+            let html = '<div class="alert alert-info"><h5>Found Printers</h5><div class="row">';
+            
+            foundPrinters.forEach(printer => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">${printer.name}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-${printer.connection_type === 'bluetooth' ? 'bluetooth' : printer.connection_type === 'wifi' ? 'wifi' : 'usb'}"></i>
+                                        ${printer.connection_type.toUpperCase()}
+                                    </small><br>
+                                    <small class="text-muted">Address: ${printer.connection_address}</small>
+                                </p>
+                                <button class="btn btn-sm btn-primary" onclick="addFoundPrinter('${printer.name}', '${printer.connection_type}', '${printer.connection_address}', '${printer.printer_model}')">
+                                    <i class="fas fa-plus"></i> Add This Printer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+            
+            const container = document.getElementById('printersList');
+            container.innerHTML = html + container.innerHTML;
+        }
+
+        function addFoundPrinter(name, connectionType, address, model) {
+            document.getElementById('printerName').value = name;
+            document.getElementById('connectionType').value = connectionType;
+            document.getElementById('connectionAddress').value = address;
+            document.getElementById('printerModel').value = model;
+            
+            const modal = new bootstrap.Modal(document.getElementById('addPrinterModal'));
+            modal.show();
+        }
+
+        function showAddPrinterModal() {
+            document.getElementById('addPrinterForm').reset();
+            const modal = new bootstrap.Modal(document.getElementById('addPrinterModal'));
+            modal.show();
+        }
+
+        function addPrinter() {
+            const formData = {
+                name: document.getElementById('printerName').value,
+                connection_type: document.getElementById('connectionType').value,
+                connection_address: document.getElementById('connectionAddress').value,
+                printer_model: document.getElementById('printerModel').value,
+                paper_width: parseInt(document.getElementById('paperWidth').value),
+                is_default: document.getElementById('isDefault').checked
+            };
+
+            fetch('/api/printers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Printer added successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('addPrinterModal')).hide();
+                    loadPrinters();
+                } else {
+                    showAlert('Error adding printer: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error adding printer', 'danger');
+            });
+        }
+
+        function testPrinter(printerId) {
+            fetch(`/api/printers/${printerId}/test`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Test print sent successfully', 'success');
+                    loadPrinters(); // Refresh to update status
+                } else {
+                    showAlert('Test print failed: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error testing printer', 'danger');
+            });
+        }
+
+        function setDefaultPrinter(printerId) {
+            fetch(`/api/printers/${printerId}/default`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Default printer updated successfully', 'success');
+                    loadPrinters();
+                } else {
+                    showAlert('Error setting default printer: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error setting default printer', 'danger');
+            });
+        }
+
+        function deletePrinter(printerId) {
+            if (confirm('Are you sure you want to delete this printer?')) {
+                fetch(`/api/printers/${printerId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Printer deleted successfully', 'success');
+                        loadPrinters();
+                    } else {
+                        showAlert('Error deleting printer: ' + data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error deleting printer', 'danger');
+                });
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

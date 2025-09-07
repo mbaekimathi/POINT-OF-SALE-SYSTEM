@@ -1,0 +1,315 @@
+{% extends "role_base.html" %}
+
+{% block title %}Cashier Dashboard - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}cash-register{% endblock %}
+{% block sidebar_title %}Cashier Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Point of Sale -->
+<a href="/cashier/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process orders</p>
+    </div>
+</a>
+
+<!-- Order Management -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-list-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Order Management</p>
+        <p class="text-xs text-white/70">Manage orders</p>
+    </div>
+</a>
+
+<!-- Payment Processing -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-credit-card text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Payments</p>
+        <p class="text-xs text-white/70">Process payments</p>
+    </div>
+</a>
+
+<!-- Receipts -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipts</p>
+        <p class="text-xs text-white/70">Print & manage</p>
+    </div>
+</a>
+
+<!-- Reports -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-bar text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Reports</p>
+        <p class="text-xs text-white/70">Sales reports</p>
+    </div>
+</a>
+
+<!-- My Off Days -->
+<a href="/employee/off-days" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">My Off Days</p>
+        <p class="text-xs text-white/70">View time off</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Cashier Dashboard Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Cashier Dashboard</h1>
+            <p class="text-gray-600 text-lg">Welcome back, {{ employee_name }}! Ready to process orders and payments.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-cash-register text-xl"></i>
+            <span class="font-bold text-lg">Cashier</span>
+        </div>
+    </div>
+</div>
+
+<!-- Cashier Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Today's Sales -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Today's Sales</p>
+                <p class="text-2xl font-bold text-gray-800">$2,450.00</p>
+                <p class="text-green-600 text-sm">+8% from yesterday</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Processed -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Orders Processed</p>
+                <p class="text-2xl font-bold text-gray-800">47</p>
+                <p class="text-blue-600 text-sm">This shift</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-receipt text-blue-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Orders -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Pending Orders</p>
+                <p class="text-2xl font-bold text-gray-800">5</p>
+                <p class="text-orange-600 text-sm">Waiting for payment</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clock text-orange-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Order -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Average Order</p>
+                <p class="text-2xl font-bold text-gray-800">$52.13</p>
+                <p class="text-purple-600 text-sm">Per transaction</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Active Orders -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Active Orders</h2>
+                    <a href="#" class="text-primary-orange hover:text-secondary-orange font-medium">
+                        View All
+                    </a>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Order Item 1 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#001</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 5 - John Doe</p>
+                                <p class="text-sm text-gray-600">2x Burger, 1x Fries, 1x Coke</p>
+                                <p class="text-xs text-gray-500">Ordered: 2:30 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">$24.50</p>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm">
+                                Process Payment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Item 2 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#002</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 3 - Jane Smith</p>
+                                <p class="text-sm text-gray-600">1x Pizza, 2x Salad</p>
+                                <p class="text-xs text-gray-500">Ordered: 2:45 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">$18.75</p>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm">
+                                Process Payment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Item 3 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#003</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 7 - Mike Johnson</p>
+                                <p class="text-sm text-gray-600">3x Pasta, 1x Wine</p>
+                                <p class="text-xs text-gray-500">Ordered: 3:00 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">$32.00</p>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm">
+                                Process Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cashier Quick Actions -->
+    <div class="space-y-8">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <a href="#" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-plus mr-3"></i>
+                        New Order
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                        <i class="fas fa-credit-card mr-3"></i>
+                        Process Payment
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                        <i class="fas fa-print mr-3"></i>
+                        Print Receipt
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                        <i class="fas fa-exchange-alt mr-3"></i>
+                        Refund/Return
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Payment Methods</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-credit-card text-blue-600"></i>
+                            <span class="text-gray-600">Credit Card</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-money-bill-wave text-green-600"></i>
+                            <span class="text-gray-600">Cash</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Active</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-mobile-alt text-purple-600"></i>
+                            <span class="text-gray-600">Mobile Payment</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handlers for cashier actions
+        document.querySelectorAll('button, a[href="#"]').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Cashier action clicked:', this.textContent.trim());
+                // Add your cashier functionality here
+            });
+        });
+    });
+</script>
+{% endblock %}

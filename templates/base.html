@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hotel POS System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-orange': '#FF6B35',
+                        'secondary-orange': '#FF8C42',
+                        'light-orange': '#FFB366',
+                        'primary-blue': '#1E3A8A',
+                        'secondary-blue': '#3B82F6',
+                        'light-blue': '#93C5FD',
+                        'dark-blue': '#1E40AF'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        .sidebar-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
+        }
+        
+        .card-hover {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B35 0%, #1E3A8A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b-4 border-primary-orange">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo and Title -->
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:text-primary-orange hover:bg-gray-100">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center ml-4 lg:ml-0">
+                        <div class="w-10 h-10 bg-gradient-to-r from-primary-orange to-primary-blue rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hotel text-white text-lg"></i>
+                        </div>
+                        <h1 class="ml-3 text-2xl font-bold text-gray-800">Hotel POS</h1>
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+                        <i class="fas fa-clock"></i>
+                        <span id="current-time"></span>
+                    </div>
+                    
+                    <!-- Employee Login Button -->
+                    <button id="employee-login-btn" class="bg-primary-orange text-white px-4 py-2 rounded-lg hover:bg-secondary-orange transition-colors duration-200 font-medium">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        <span class="hidden sm:inline">Employee Login</span>
+                        <span class="sm:hidden">Login</span>
+                    </button>
+                    
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                            <div class="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                            <span class="hidden md:block text-gray-700 font-medium">Guest</span>
+                            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:transition-none">
+            <div class="flex flex-col h-full">
+                <!-- Sidebar Header -->
+                <div class="flex items-center justify-between h-16 bg-gradient-to-r from-primary-orange to-primary-blue px-4">
+                    <h2 class="text-white font-semibold text-lg">Navigation</h2>
+                    <!-- Close button for mobile -->
+                    <button id="sidebar-close" class="lg:hidden text-white hover:text-gray-200 p-1">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <nav class="flex-1 px-4 py-6 space-y-2">
+                    <a href="/pos" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
+                        <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
+                        <span>Point of Sale</span>
+                    </a>
+                    
+                    <a href="/admin/off-days-management" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
+                        <i class="fas fa-calendar-times w-5 h-5 mr-3"></i>
+                        <span>Off Days</span>
+                    </a>
+                    
+                    <a href="#" id="employee-login-nav" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt w-5 h-5 mr-3"></i>
+                        <span>Employee Login</span>
+                    </a>
+                    
+                    <a href="#" id="settings-nav" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
+                        <i class="fas fa-cog w-5 h-5 mr-3"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                
+                <!-- Sidebar Footer -->
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
+                            <i class="fas fa-power-off text-white text-sm"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Logout</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-0">
+            <!-- Mobile Sidebar Overlay -->
+            <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+            
+            <!-- Page Content -->
+            <div class="p-6">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <div class="w-8 h-8 bg-gradient-to-r from-primary-orange to-primary-blue rounded-lg flex items-center justify-center">
+                        <i class="fas fa-hotel text-white text-sm"></i>
+                    </div>
+                    <span class="text-gray-600 text-sm">© 2024 Hotel POS System. All rights reserved.</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Employee Login/Registration Modal -->
+    <div id="employee-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-effect bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-white/20">
+                <div class="flex items-center justify-between">
+                    <h2 id="modal-title" class="text-2xl font-bold text-white">Employee Login</h2>
+                    <button id="close-modal" class="text-white/70 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <!-- Login Form -->
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">Employee Code (4 digits)</label>
+                        <input type="text" id="employee-code" name="employee_code" maxlength="4" 
+                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                               placeholder="Enter your 4-digit code" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">Password</label>
+                        <input type="password" id="password" name="password" 
+                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                               placeholder="Enter your password" required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary-orange text-white py-3 rounded-lg font-semibold hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Login
+                    </button>
+                </form>
+
+                <!-- Registration Form -->
+                <form id="register-form" class="space-y-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Full Name</label>
+                            <input type="text" id="full-name" name="full_name" 
+                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter full name" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Email</label>
+                            <input type="email" id="email" name="email" 
+                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter email" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">Phone Number</label>
+                        <input type="tel" id="phone-number" name="phone_number" 
+                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                               placeholder="Enter phone number" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">Employee Code (4 digits)</label>
+                        <input type="text" id="reg-employee-code" name="employee_code" maxlength="4" 
+                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                               placeholder="Choose a 4-digit code" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Password</label>
+                            <input type="password" id="reg-password" name="password" 
+                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter password" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">Confirm Password</label>
+                            <input type="password" id="confirm-password" name="confirm_password" 
+                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Confirm password" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">Profile Photo (Optional)</label>
+                        <input type="file" id="profile-photo" name="profile_photo" accept="image/*" 
+                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-orange file:text-white hover:file:bg-secondary-orange">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary-blue text-white py-3 rounded-lg font-semibold hover:bg-secondary-blue transition-colors duration-200">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Register
+                    </button>
+                </form>
+
+                <!-- Toggle between Login and Register -->
+                <div class="mt-6 text-center">
+                    <p class="text-white/70 text-sm">
+                        <span id="toggle-text">Don't have an account?</span>
+                        <button id="toggle-form" class="text-primary-orange hover:text-secondary-orange font-medium ml-1">
+                            Sign up here
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-effect bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-white/20">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-white">Settings</h2>
+                    <button id="close-settings-modal" class="text-white/70 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 space-y-6">
+
+                <!-- Display Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-white">Display Settings</h3>
+                    
+                    <!-- Show Till Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-white/90 font-medium">Show Till</label>
+                            <p class="text-white/70 text-sm">Display till/cash drawer information</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="till-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                        </label>
+                    </div>
+
+                    <!-- Include Tax Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-white/90 font-medium">Include Tax</label>
+                            <p class="text-white/70 text-sm">Include tax in price calculations</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="tax-toggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                        </label>
+                    </div>
+
+                    <!-- Show Images Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-white/90 font-medium">Show Images</label>
+                            <p class="text-white/70 text-sm">Display item images in menu</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="images-toggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Printer Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-white">Printer Settings</h3>
+                    
+                    <!-- Double Printing Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-white/90 font-medium">Double Printing</label>
+                            <p class="text-white/70 text-sm">Print receipts twice for backup</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="double-print-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-3 pt-4">
+                    <button id="save-settings" class="flex-1 bg-primary-orange text-white py-3 rounded-lg font-semibold hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Settings
+                    </button>
+                    <button id="cancel-settings" class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const sidebarClose = document.getElementById('sidebar-close');
+
+        // Function to close sidebar
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+
+        // Function to open sidebar
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarOverlay.classList.remove('hidden');
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                openSidebar();
+            } else {
+                closeSidebar();
+            }
+        });
+
+        // Close sidebar when close button is clicked
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', closeSidebar);
+        }
+
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        // Update time every second
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Close sidebar on window resize if mobile
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+        });
+
+        // Employee Modal functionality
+        const employeeLoginBtn = document.getElementById('employee-login-btn');
+        const employeeLoginNav = document.getElementById('employee-login-nav');
+        const employeeModal = document.getElementById('employee-modal');
+        const closeModal = document.getElementById('close-modal');
+        const toggleForm = document.getElementById('toggle-form');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const modalTitle = document.getElementById('modal-title');
+        const toggleText = document.getElementById('toggle-text');
+        let isLoginForm = true;
+
+        // Open modal
+        employeeLoginBtn.addEventListener('click', () => {
+            employeeModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Open modal from sidebar navigation
+        employeeLoginNav.addEventListener('click', (e) => {
+            e.preventDefault();
+            employeeModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            employeeModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+
+        // Close modal when clicking outside
+        employeeModal.addEventListener('click', (e) => {
+            if (e.target === employeeModal) {
+                employeeModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Toggle between login and register forms
+        toggleForm.addEventListener('click', () => {
+            isLoginForm = !isLoginForm;
+            
+            if (isLoginForm) {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                modalTitle.textContent = 'Employee Login';
+                toggleText.textContent = "Don't have an account?";
+                toggleForm.textContent = 'Sign up here';
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                modalTitle.textContent = 'Employee Registration';
+                toggleText.textContent = 'Already have an account?';
+                toggleForm.textContent = 'Login here';
+            }
+        });
+
+        // Employee code input validation (only numbers)
+        const employeeCode = document.getElementById('employee-code');
+        if (employeeCode) {
+            employeeCode.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        }
+
+        const regEmployeeCode = document.getElementById('reg-employee-code');
+        if (regEmployeeCode) {
+            regEmployeeCode.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        }
+
+        // Login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(loginForm);
+            const data = {
+                employee_code: formData.get('employee_code'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/employee/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Login successful
+                    showNotification('Login successful! Welcome back.', 'success');
+                    employeeModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    
+                    // Update UI to show logged in state
+                    updateLoggedInUI(result.employee);
+                    
+                    // Redirect to role-specific dashboard
+                    if (result.redirect_url) {
+                        setTimeout(() => {
+                            window.location.href = result.redirect_url;
+                        }, 1000); // Small delay to show success message
+                    }
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('An error occurred during login', 'error');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Registration form submission
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(registerForm);
+            
+            // Validate password confirmation
+            if (formData.get('password') !== formData.get('confirm_password')) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/employee/register', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    // Switch back to login form
+                    toggleForm.click();
+                    registerForm.reset();
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('An error occurred during registration', 'error');
+                console.error('Registration error:', error);
+            }
+        });
+
+        // Notification system
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Update UI for logged in state
+        function updateLoggedInUI(employee) {
+            const loginBtn = document.getElementById('employee-login-btn');
+            loginBtn.innerHTML = `
+                <i class="fas fa-user mr-2"></i>
+                <span class="hidden sm:inline">${employee.name}</span>
+                <span class="sm:hidden">${employee.name.split(' ')[0]}</span>
+            `;
+            loginBtn.className = 'bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200 font-medium';
+            loginBtn.onclick = () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = '/employee/logout';
+                }
+            };
+        }
+
+        // Settings Modal functionality
+        const settingsNav = document.getElementById('settings-nav');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsModal = document.getElementById('close-settings-modal');
+        const cancelSettings = document.getElementById('cancel-settings');
+        const saveSettings = document.getElementById('save-settings');
+        const printerToggle = document.getElementById('printer-toggle');
+        const printerOptions = document.getElementById('printer-options');
+        const tillToggle = document.getElementById('till-toggle');
+        const taxToggle = document.getElementById('tax-toggle');
+        const imagesToggle = document.getElementById('images-toggle');
+        const doublePrintToggle = document.getElementById('double-print-toggle');
+
+        // Debug: Check if all elements are found
+        console.log('Settings elements found:', {
+            settingsNav: !!settingsNav,
+            settingsModal: !!settingsModal,
+            closeSettingsModal: !!closeSettingsModal,
+            cancelSettings: !!cancelSettings,
+            saveSettings: !!saveSettings,
+            printerToggle: !!printerToggle,
+            printerOptions: !!printerOptions,
+            tillToggle: !!tillToggle,
+            taxToggle: !!taxToggle,
+            imagesToggle: !!imagesToggle,
+            doublePrintToggle: !!doublePrintToggle
+        });
+        
+        // Debug: Log actual elements for inspection
+        console.log('Settings elements details:', {
+            settingsNav: settingsNav,
+            settingsModal: settingsModal,
+            saveSettings: saveSettings,
+            printerToggle: printerToggle,
+            tillToggle: tillToggle,
+            taxToggle: taxToggle,
+            imagesToggle: imagesToggle,
+            doublePrintToggle: doublePrintToggle
+        });
+
+        // Open settings modal
+        if (settingsNav && settingsModal) {
+        settingsNav.addEventListener('click', (e) => {
+            e.preventDefault();
+                console.log('Opening settings modal');
+            settingsModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+        } else {
+            console.error('Settings navigation or modal not found');
+        }
+
+        // Close settings modal
+        function closeSettings() {
+            settingsModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal event listeners with null checks
+        if (closeSettingsModal) {
+        closeSettingsModal.addEventListener('click', closeSettings);
+        } else {
+            console.error('closeSettingsModal element not found');
+        }
+        
+        if (cancelSettings) {
+        cancelSettings.addEventListener('click', closeSettings);
+        } else {
+            console.error('cancelSettings element not found');
+        }
+
+        // Close modal when clicking outside
+        if (settingsModal) {
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                closeSettings();
+            }
+        });
+        } else {
+            console.error('settingsModal element not found');
+        }
+
+        // Show/hide printer options based on printer toggle
+        if (printerToggle && printerOptions) {
+        printerToggle.addEventListener('change', () => {
+            if (printerToggle.checked) {
+                printerOptions.classList.remove('hidden');
+                // Check browser compatibility when printer options are shown
+                checkAndDisplayBrowserCompatibility();
+            } else {
+                printerOptions.classList.add('hidden');
+                // Hide all printer sub-options when printer is disabled
+                    const printerStatus = document.getElementById('printer-status');
+                    const availablePrinters = document.getElementById('available-printers');
+                    const manualPrinterConfig = document.getElementById('manual-printer-config');
+                    const browserCompatibilityWarning = document.getElementById('browser-compatibility-warning');
+                    
+                    if (printerStatus) printerStatus.classList.add('hidden');
+                    if (availablePrinters) availablePrinters.classList.add('hidden');
+                    if (manualPrinterConfig) manualPrinterConfig.classList.add('hidden');
+                    if (browserCompatibilityWarning) browserCompatibilityWarning.classList.add('hidden');
+                    
+                // Disconnect printer if connected
+                if (currentPrinter) {
+                    disconnectPrinter();
+                }
+            }
+        });
+        } else {
+            console.error('printerToggle or printerOptions element not found');
+        }
+
+        // Check and display browser compatibility information
+        function checkAndDisplayBrowserCompatibility() {
+            const compatibility = checkBrowserCompatibility();
+            const warningDiv = document.getElementById('browser-compatibility-warning');
+            const messageDiv = document.getElementById('compatibility-message');
+            const bluetoothIndicator = document.getElementById('bluetooth-support-indicator');
+            const usbIndicator = document.getElementById('usb-support-indicator');
+            
+            // Update support indicators
+            if (compatibility.supportsBluetooth) {
+                bluetoothIndicator.textContent = '✓ Supported';
+                bluetoothIndicator.className = 'ml-2 text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300';
+            } else {
+                bluetoothIndicator.textContent = '✗ Chrome/Edge only';
+                bluetoothIndicator.className = 'ml-2 text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-300';
+            }
+            
+            if (compatibility.supportsSerial) {
+                usbIndicator.textContent = '✓ Supported';
+                usbIndicator.className = 'ml-2 text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-300';
+            } else {
+                usbIndicator.textContent = '✗ Chrome/Edge only';
+                usbIndicator.className = 'ml-2 text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-300';
+            }
+            
+            // Show warning if browser has limited support
+            if (!compatibility.supportsBluetooth || !compatibility.supportsSerial) {
+                let message = `You're using ${compatibility.browserName}. `;
+                
+                if (!compatibility.supportsBluetooth && !compatibility.supportsSerial) {
+                    message += 'Bluetooth and USB printing require Chrome or Edge. WiFi printing is available in all browsers.';
+                } else if (!compatibility.supportsBluetooth) {
+                    message += 'Bluetooth printing requires Chrome or Edge. USB and WiFi printing are available.';
+                } else if (!compatibility.supportsSerial) {
+                    message += 'USB printing requires Chrome or Edge. Bluetooth and WiFi printing are available.';
+                }
+                
+                messageDiv.textContent = message;
+                warningDiv.classList.remove('hidden');
+            } else {
+                warningDiv.classList.add('hidden');
+            }
+        }
+
+        // Printer type selection handler
+        document.querySelectorAll('input[name="printer-type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const printerType = e.target.value;
+                const availablePrinters = document.getElementById('available-printers');
+                const manualConfig = document.getElementById('manual-printer-config');
+                
+                // Show appropriate configuration based on printer type
+                if (printerType === 'bluetooth' || printerType === 'wifi') {
+                    availablePrinters.classList.remove('hidden');
+                    manualConfig.classList.remove('hidden');
+                } else if (printerType === 'usb') {
+                    availablePrinters.classList.add('hidden');
+                    manualConfig.classList.remove('hidden');
+                }
+                
+                // Clear previous scan results
+                document.getElementById('printers-list').innerHTML = '';
+            });
+        });
+
+        // Scan for printers
+        const scanPrintersBtn = document.getElementById('scan-printers');
+        if (scanPrintersBtn) {
+            scanPrintersBtn.addEventListener('click', async () => {
+            const printerType = document.querySelector('input[name="printer-type"]:checked')?.value;
+            if (!printerType) {
+                showNotification('Please select a printer type first', 'error');
+                return;
+            }
+            
+            const scanButton = document.getElementById('scan-printers');
+            const printersList = document.getElementById('printers-list');
+            
+            // Show scanning state
+            scanButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Scanning...';
+            scanButton.disabled = true;
+            printersList.innerHTML = '<div class="text-white/70 text-sm text-center py-2">Scanning for printers...</div>';
+            
+            try {
+                const printers = await scanForPrinters(printerType);
+                // Store the scanned printers for connection
+                window.lastScannedPrinters = printers;
+                displayAvailablePrinters(printers);
+            } catch (error) {
+                console.error('Error scanning for printers:', error);
+                printersList.innerHTML = `<div class="text-red-400 text-sm text-center py-2">${error.message}</div>`;
+                showNotification(error.message, 'error');
+            } finally {
+                scanButton.innerHTML = '<i class="fas fa-search mr-2"></i>Scan for Printers';
+                scanButton.disabled = false;
+            }
+        });
+        } else {
+            console.error('scan-printers button not found');
+        }
+
+        // Connect to manual printer
+        const connectManualPrinterBtn = document.getElementById('connect-manual-printer');
+        if (connectManualPrinterBtn) {
+            connectManualPrinterBtn.addEventListener('click', async () => {
+            const printerName = document.getElementById('printer-name').value.trim();
+            const printerAddress = document.getElementById('printer-address').value.trim();
+            const printerType = document.querySelector('input[name="printer-type"]:checked')?.value;
+            
+            if (!printerName || !printerAddress || !printerType) {
+                showNotification('Please fill in all printer details', 'error');
+                return;
+            }
+            
+            const connectButton = document.getElementById('connect-manual-printer');
+            connectButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Connecting...';
+            connectButton.disabled = true;
+            
+            try {
+                const success = await connectToPrinter({
+                    name: printerName,
+                    address: printerAddress,
+                    type: printerType
+                });
+                
+                if (success) {
+                    updatePrinterStatus('Connected', 'success');
+                    showNotification(`Connected to ${printerName}`, 'success');
+                } else {
+                    showNotification('Failed to connect to printer', 'error');
+                }
+            } catch (error) {
+                console.error('Error connecting to printer:', error);
+                showNotification('Error connecting to printer', 'error');
+            } finally {
+                connectButton.innerHTML = '<i class="fas fa-link mr-2"></i>Connect';
+                connectButton.disabled = false;
+            }
+        });
+        } else {
+            console.error('connect-manual-printer button not found');
+        }
+
+        // Disconnect printer
+        const disconnectPrinterBtn = document.getElementById('disconnect-printer');
+        if (disconnectPrinterBtn) {
+            disconnectPrinterBtn.addEventListener('click', async () => {
+            try {
+                await disconnectPrinter();
+                updatePrinterStatus('Not Connected', 'disconnected');
+                showNotification('Printer disconnected', 'info');
+            } catch (error) {
+                console.error('Error disconnecting printer:', error);
+                showNotification('Error disconnecting printer', 'error');
+            }
+        });
+        } else {
+            console.error('disconnect-printer button not found');
+        }
+
+
+        // Bluetooth scanning interface event listeners
+        const cancelBluetoothScanBtn = document.getElementById('cancel-bluetooth-scan');
+        if (cancelBluetoothScanBtn) {
+            cancelBluetoothScanBtn.addEventListener('click', () => {
+            hideBluetoothScanningInterface();
+            updateScanningStatus('Cancelled', false);
+        });
+        } else {
+            console.error('cancel-bluetooth-scan button not found');
+        }
+
+        const pairBluetoothDeviceBtn = document.getElementById('pair-bluetooth-device');
+        if (pairBluetoothDeviceBtn) {
+            pairBluetoothDeviceBtn.addEventListener('click', async () => {
+            if (!selectedBluetoothDevice) {
+                showNotification('Please select a device first', 'error');
+                return;
+            }
+
+            try {
+                const pairButton = document.getElementById('pair-bluetooth-device');
+                pairButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Pairing...';
+                pairButton.disabled = true;
+
+                const success = await connectToPrinter({
+                    name: selectedBluetoothDevice.name || 'Unknown Bluetooth Device',
+                    address: selectedBluetoothDevice.id,
+                    type: 'bluetooth',
+                    device: selectedBluetoothDevice
+                });
+
+                if (success) {
+                    updateScanningStatus('Connected', false);
+                    updatePrinterStatus('Connected', 'success');
+                    showNotification(`Connected to ${selectedBluetoothDevice.name}`, 'success');
+                    
+                    // Hide the scanning interface after successful connection
+                    setTimeout(() => {
+                        hideBluetoothScanningInterface();
+                    }, 2000);
+                } else {
+                    showNotification('Failed to connect to device', 'error');
+                    pairButton.innerHTML = '<i class="fas fa-link mr-1"></i>Pair';
+                    pairButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error pairing Bluetooth device:', error);
+                showNotification('Error connecting to device', 'error');
+                
+                const pairButton = document.getElementById('pair-bluetooth-device');
+                if (pairButton) {
+                pairButton.innerHTML = '<i class="fas fa-link mr-1"></i>Pair';
+                pairButton.disabled = false;
+                }
+            }
+        });
+        } else {
+            console.error('pair-bluetooth-device button not found');
+        }
+
+        // Save settings
+        if (saveSettings) {
+            console.log('Save settings button found, adding event listener');
+            saveSettings.addEventListener('click', (event) => {
+                console.log('Save settings click event triggered', event);
+                try {
+                    console.log('Save settings clicked - starting save process');
+                    
+                    // Debug: Check if all elements exist
+                    console.log('Element check:', {
+                        printerToggle: !!printerToggle,
+                        tillToggle: !!tillToggle,
+                        taxToggle: !!taxToggle,
+                        imagesToggle: !!imagesToggle,
+                        doublePrintToggle: !!doublePrintToggle
+                    });
+                    
+                    // Debug: Check current values
+                    console.log('Current toggle values:', {
+                        printer: printerToggle ? printerToggle.checked : 'N/A',
+                        till: tillToggle ? tillToggle.checked : 'N/A',
+                        tax: taxToggle ? taxToggle.checked : 'N/A',
+                        images: imagesToggle ? imagesToggle.checked : 'N/A',
+                        doublePrint: doublePrintToggle ? doublePrintToggle.checked : 'N/A'
+                    });
+                    
+            const settings = {
+                printer: {
+                            enabled: printerToggle ? printerToggle.checked : false,
+                    type: document.querySelector('input[name="printer-type"]:checked')?.value || null,
+                    doublePrint: doublePrintToggle ? doublePrintToggle.checked : false
+                },
+                till: {
+                            show: tillToggle ? tillToggle.checked : false
+                },
+                tax: {
+                            include: taxToggle ? taxToggle.checked : true
+                },
+                images: {
+                            show: imagesToggle ? imagesToggle.checked : true
+                        }
+                    };
+
+                    console.log('Settings object created:', settings);
+
+                    // Test localStorage
+                    console.log('Testing localStorage...');
+                    try {
+                        localStorage.setItem('test-key', 'test-value');
+                        const testValue = localStorage.getItem('test-key');
+                        console.log('localStorage test successful:', testValue);
+                        localStorage.removeItem('test-key');
+                    } catch (storageError) {
+                        console.error('localStorage test failed:', storageError);
+                        throw new Error('localStorage not available: ' + storageError.message);
+                    }
+
+            // Save to localStorage
+                    console.log('Saving to localStorage...');
+            localStorage.setItem('pos-settings', JSON.stringify(settings));
+                    console.log('Settings saved to localStorage');
+                    
+                    // Verify save
+                    const savedSettings = localStorage.getItem('pos-settings');
+                    console.log('Verification - saved settings:', savedSettings);
+            
+            // Show success message
+                    console.log('Showing success notification...');
+            showNotification('Settings saved successfully!', 'success');
+                    console.log('Success notification shown');
+            
+            // Close modal
+                    console.log('Closing settings modal...');
+            closeSettings();
+                    console.log('Settings modal closed');
+            
+                    // Apply settings
+                    console.log('Applying settings...');
+            applySettings(settings);
+                    console.log('Settings applied');
+                    
+                    console.log('Save process completed successfully');
+                    
+                } catch (error) {
+                    console.error('Error saving settings:', error);
+                    console.error('Error stack:', error.stack);
+                    showNotification('Error saving settings: ' + error.message, 'error');
+                }
+            });
+            console.log('Save settings event listener added successfully');
+        } else {
+            console.error('Save settings button not found - element:', saveSettings);
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+            try {
+                console.log('Loading settings from localStorage...');
+            const savedSettings = localStorage.getItem('pos-settings');
+                
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                    console.log('Loaded settings:', settings);
+                
+                // Apply saved settings to form
+                    if (printerToggle) printerToggle.checked = settings.printer?.enabled || false;
+                    if (tillToggle) tillToggle.checked = settings.till?.show || false;
+                    if (taxToggle) taxToggle.checked = settings.tax?.include !== false; // Default to true
+                    if (imagesToggle) imagesToggle.checked = settings.images?.show !== false; // Default to true
+                    if (doublePrintToggle) doublePrintToggle.checked = settings.printer?.doublePrint || false;
+                
+                // Show/hide printer options
+                    if (settings.printer?.enabled && printerOptions) {
+                    printerOptions.classList.remove('hidden');
+                }
+                
+                // Set printer type
+                if (settings.printer?.type) {
+                    const printerTypeRadio = document.querySelector(`input[name="printer-type"][value="${settings.printer.type}"]`);
+                    if (printerTypeRadio) {
+                        printerTypeRadio.checked = true;
+                    }
+                }
+                
+                // Apply settings
+                applySettings(settings);
+                } else {
+                    console.log('No saved settings found, using defaults');
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Apply settings to the POS system
+        function applySettings(settings) {
+            console.log('Applying settings:', settings);
+            
+            try {
+                // Update tax calculation
+            if (window.updateTaxSetting) {
+                window.updateTaxSetting(settings.tax.include);
+                    console.log('Tax setting updated:', settings.tax.include);
+                } else {
+                    console.log('updateTaxSetting function not found');
+            }
+            
+                // Update image display
+            if (window.updateImageDisplay) {
+                window.updateImageDisplay(settings.images.show);
+                    console.log('Image display setting updated:', settings.images.show);
+                } else {
+                    console.log('updateImageDisplay function not found');
+                }
+                
+                // Update till/cash drawer display
+                if (window.updateTillDisplay) {
+                    window.updateTillDisplay(settings.till.show);
+                    console.log('Till display setting updated:', settings.till.show);
+                } else {
+                    console.log('updateTillDisplay function not found');
+                }
+                
+                // If on POS page, trigger immediate updates
+                if (window.location.pathname === '/pos') {
+                    console.log('On POS page, triggering immediate updates');
+                    
+                    // Trigger custom event for settings change
+                    window.dispatchEvent(new CustomEvent('settingsUpdated', { detail: settings }));
+                    
+                    // Force re-render of menu items if images setting changed
+                    if (window.renderMenuItems) {
+                        window.renderMenuItems();
+                    }
+                    
+                    // Force re-calculation of order summary if tax setting changed
+                    if (window.updateOrderSummary) {
+                        window.updateOrderSummary();
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error applying settings:', error);
+            }
+        }
+
+        // Load settings when page loads
+        loadSettings();
+
+        // Test function to verify settings save (can be called from console)
+        window.testSettingsSave = function() {
+            console.log('Testing settings save...');
+            
+            // Test localStorage
+            const testSettings = {
+                printer: { enabled: true, type: 'bluetooth' },
+                till: { show: true },
+                tax: { include: true },
+                images: { show: false }
+            };
+            
+            localStorage.setItem('pos-settings', JSON.stringify(testSettings));
+            const retrieved = localStorage.getItem('pos-settings');
+            console.log('Test save successful:', JSON.parse(retrieved));
+            
+            // Reload settings
+            loadSettings();
+        };
+        
+        // Test function to manually trigger save (can be called from console)
+        window.manualSaveSettings = function() {
+            console.log('Manually triggering save settings...');
+            if (saveSettings) {
+                console.log('Save button found, triggering click...');
+                saveSettings.click();
+            } else {
+                console.error('Save button not found');
+            }
+        };
+        
+        // Test function to check all settings elements
+        window.checkSettingsElements = function() {
+            console.log('Checking all settings elements...');
+            const elements = {
+                'settings-nav': document.getElementById('settings-nav'),
+                'settings-modal': document.getElementById('settings-modal'),
+                'save-settings': document.getElementById('save-settings'),
+                'printer-toggle': document.getElementById('printer-toggle'),
+                'till-toggle': document.getElementById('till-toggle'),
+                'tax-toggle': document.getElementById('tax-toggle'),
+                'images-toggle': document.getElementById('images-toggle'),
+                'double-print-toggle': document.getElementById('double-print-toggle')
+            };
+            
+            Object.entries(elements).forEach(([id, element]) => {
+                console.log(`${id}:`, element ? 'FOUND' : 'NOT FOUND', element);
+            });
+            
+            return elements;
+        };
+
+
+
+        // Check browser compatibility
+        function checkBrowserCompatibility() {
+            const userAgent = navigator.userAgent;
+            
+            // More accurate Chrome detection
+            const isChrome = /Chrome/.test(userAgent) && !/Edg/.test(userAgent) && !/OPR/.test(userAgent);
+            const isEdge = /Edg/.test(userAgent);
+            const isFirefox = /Firefox/.test(userAgent);
+            const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
+            const isOpera = /OPR/.test(userAgent);
+            
+            // Check for Web Bluetooth API availability
+            const supportsBluetooth = !!(navigator.bluetooth && typeof navigator.bluetooth.requestDevice === 'function');
+            const supportsSerial = !!(navigator.serial && typeof navigator.serial.requestPort === 'function');
+            
+            // Determine browser name
+            let browserName = 'Unknown';
+            if (isChrome) browserName = 'Chrome';
+            else if (isEdge) browserName = 'Edge';
+            else if (isFirefox) browserName = 'Firefox';
+            else if (isSafari) browserName = 'Safari';
+            else if (isOpera) browserName = 'Opera';
+            
+            // Debug information
+            console.log('Browser Detection:', {
+                userAgent,
+                isChrome,
+                isEdge,
+                isFirefox,
+                isSafari,
+                isOpera,
+                supportsBluetooth,
+                supportsSerial,
+                browserName,
+                navigatorBluetooth: !!navigator.bluetooth,
+                navigatorSerial: !!navigator.serial
+            });
+            
+            return {
+                isChrome,
+                isEdge,
+                isFirefox,
+                isSafari,
+                isOpera,
+                supportsBluetooth,
+                supportsSerial,
+                browserName
+            };
+        }
+
+
+        // Check printer connection status on page load
+        function checkPrinterStatus() {
+            // Printer functionality removed
+            return;
+        }
+
+        // Initialize printer status check
+        checkPrinterStatus();
+    </script>
+    
+    <!-- Global Bluetooth Printer Manager -->
+    <script src="/static/js/bluetooth-printer-manager.js"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

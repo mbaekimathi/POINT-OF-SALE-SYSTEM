@@ -1,0 +1,1682 @@
+{% extends "base.html" %}
+
+{% block title %}Receipts Management - Hotel POS System{% endblock %}
+
+{% block content %}
+
+<!-- Receipts Header -->
+<div class="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8 shadow-2xl">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 sm:space-y-6 lg:space-y-0">
+            <div class="text-white">
+                <div class="flex items-center space-x-3 mb-3">
+                    <a href="/admin/analytics" class="text-white/70 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-receipt text-white text-sm"></i>
+                    </div>
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+                    Receipts Management
+                </h1>
+                <p class="text-indigo-100 text-base sm:text-lg lg:text-xl font-medium">View, search, and manage all transaction receipts</p>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 text-white w-full sm:w-auto">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-pulse"></div>
+                        <div>
+                            <p class="text-xs sm:text-sm font-medium">Live Data</p>
+                            <p class="text-xs text-indigo-200 hidden sm:block">Real-time updates</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipts Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
+    
+    <!-- Main Receipts Area -->
+    <div class="lg:col-span-8 space-y-6">
+        
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-search text-white text-xs sm:text-sm"></i>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Search & Filter Receipts</h2>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Search Input -->
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search Receipts</label>
+                        <div class="relative">
+                            <input type="text" id="receiptSearch" placeholder="Search by receipt number, employee, or amount..." 
+                                   class="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <button id="clearSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 hidden">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Filter Type</label>
+                        <select id="filterType" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="single">Single Day</option>
+                            <option value="range">Date Range</option>
+                            <option value="month">Month</option>
+                            <option value="year">Year</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Date Input (Single Day) -->
+                    <div id="singleDateContainer">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+                        <input type="date" id="singleDate" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    
+                    <!-- Range Inputs (Date Range) -->
+                    <div id="rangeDateContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                        <input type="date" id="fromDate" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    
+                    <div id="rangeToDateContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                        <input type="date" id="toDate" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    
+                    <!-- Month Input -->
+                    <div id="monthContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
+                        <input type="month" id="monthSelect" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    
+                    <!-- Year Input -->
+                    <div id="yearContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Year</label>
+                        <select id="yearSelect" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Apply Filter Button -->
+                    <div class="flex items-end">
+                        <button id="applyFilter" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-200 font-medium">
+                            Apply Filter
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Visual Analytics Section -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden mb-6">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chart-line text-indigo-600"></i>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Receipt Status Analytics</h2>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <span id="analyticsPeriod">All Time</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6">
+                <!-- Status Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-yellow-800">Pending</p>
+                                <p class="text-2xl font-bold text-yellow-900" id="pendingCount">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-red-800">Cancelled</p>
+                                <p class="text-2xl font-bold text-red-900" id="cancelledCount">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-green-800">Confirmed</p>
+                                <p class="text-2xl font-bold text-green-900" id="confirmedCount">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Status Distribution Chart -->
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4" id="chartTitle">Status Distribution</h3>
+                        <div class="relative">
+                            <canvas id="statusChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Revenue by Status -->
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue by Status</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    <span class="text-sm text-gray-700">Confirmed</span>
+                                </div>
+                                <span class="font-semibold text-green-600" id="confirmedRevenue">KSh 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <span class="text-sm text-gray-700">Pending</span>
+                                </div>
+                                <span class="font-semibold text-yellow-600" id="pendingRevenue">KSh 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                    <span class="text-sm text-gray-700">Cancelled</span>
+                                </div>
+                                <span class="font-semibold text-red-600" id="cancelledRevenue">KSh 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-percentage text-blue-600"></i>
+                        </div>
+                        <p class="text-sm font-medium text-blue-800">Completion Rate</p>
+                        <p class="text-xl font-bold text-blue-900" id="completionRate">0%</p>
+                    </div>
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-ban text-purple-600"></i>
+                        </div>
+                        <p class="text-sm font-medium text-purple-800">Cancellation Rate</p>
+                        <p class="text-xl font-bold text-purple-900" id="cancellationRate">0%</p>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-clock text-orange-600"></i>
+                        </div>
+                        <p class="text-sm font-medium text-orange-800">Pending Rate</p>
+                        <p class="text-xl font-bold text-orange-900" id="pendingRate">0%</p>
+                    </div>
+                    <div class="bg-teal-50 border border-teal-200 rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-money-bill-wave text-teal-600"></i>
+                        </div>
+                        <p class="text-sm font-medium text-teal-800">Total Revenue</p>
+                        <p class="text-xl font-bold text-teal-900" id="totalRevenue">KSh 0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipts List -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                            <i class="fas fa-list text-white text-xs sm:text-sm"></i>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Receipts List</h2>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option>All Receipts</option>
+                            <option>Today</option>
+                            <option>This Week</option>
+                            <option>This Month</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6">
+                {% if receipts %}
+                    <!-- Status Management Controls -->
+                    <div class="mb-6 bg-gray-50 rounded-xl p-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm font-medium text-gray-700">
+                                    <span id="selectedCount">0</span> receipt(s) selected
+                                </span>
+                                <button id="clearSelection" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                                    Clear Selection
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <select id="statusAction" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">Select Action</option>
+                                    <option value="confirm">Mark as Confirmed</option>
+                                    <option value="cancel">Mark as Cancelled</option>
+                                    <option value="pending">Mark as Pending</option>
+                                </select>
+                                <button id="applyStatus" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                                    Apply Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Receipts Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">
+                                        <input type="checkbox" id="selectAll" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500">
+                                    </th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Receipt #</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Employee</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Total</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for receipt in receipts %}
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="py-4 px-4">
+                                        <input type="checkbox" class="receipt-checkbox w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500" 
+                                               value="{{ receipt.id }}" data-receipt-id="{{ receipt.id }}">
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-receipt text-indigo-600 text-sm"></i>
+                                            </div>
+                                            <span class="font-semibold text-gray-800">#{{ receipt.receipt_number }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-user text-green-600 text-sm"></i>
+                                            </div>
+                                            <span class="text-gray-700">{{ receipt.employee_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <span class="font-bold text-green-600 text-lg">KSh {{ "%.2f"|format(receipt.total_amount) }}</span>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-calendar text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-800">
+                                                    {{ receipt.sale_date.strftime('%d %b %Y') if receipt.sale_date else 'N/A' }}
+                                                </div>
+                                                <div class="text-xs text-gray-500">
+                                                    {{ receipt.created_at.strftime('%H:%M') if receipt.created_at else 'N/A' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            {% if receipt.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elif receipt.status == 'cancelled' %}bg-red-100 text-red-800
+                                            {% else %}bg-yellow-100 text-yellow-800{% endif %}" 
+                                            id="status-{{ receipt.id }}">
+                                            {% if receipt.status == 'confirmed' %}Confirmed
+                                            {% elif receipt.status == 'cancelled' %}Cancelled
+                                            {% else %}Pending{% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="flex items-center space-x-2">
+                                            <button class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors duration-200" 
+                                                    onclick="viewReceipt({{ receipt.id }})" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination (if needed) -->
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Showing {{ receipts|length }} receipt{{ 's' if receipts|length != 1 else '' }}
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Previous
+                            </button>
+                            <button class="px-3 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg">
+                                1
+                            </button>
+                            <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-12">
+                        <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-receipt text-indigo-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Receipts Found</h3>
+                        <p class="text-gray-600">Receipts will appear here once transactions are completed.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="lg:col-span-4 space-y-6">
+        
+        <!-- Quick Stats Card -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-tachometer-alt text-white text-xs sm:text-sm"></i>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Receipt Statistics</h2>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6">
+                <div class="space-y-4">
+                    <!-- Total Receipts -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-receipt text-indigo-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Receipts</p>
+                                <p class="text-lg font-bold text-gray-800" id="sidebarTotalReceipts">{{ total_receipts or 0 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmed Receipts -->
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-green-700">Confirmed Receipts</p>
+                                <p class="text-lg font-bold text-green-800" id="sidebarConfirmedReceipts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cancelled Receipts -->
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-times-circle text-red-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-red-700">Cancelled Receipts</p>
+                                <p class="text-lg font-bold text-red-800" id="sidebarCancelledReceipts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pending Receipts -->
+                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-yellow-700">Pending Receipts</p>
+                                <p class="text-lg font-bold text-yellow-800" id="sidebarPendingReceipts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-history text-white text-xs sm:text-sm"></i>
+                    </div>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Recent Activity</h2>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6">
+                <div id="recentActivitiesList" class="space-y-3">
+                    <!-- Activities will be loaded here -->
+                </div>
+                <div id="noRecentActivity" class="text-center py-8 hidden">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-clock text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-gray-800 mb-1">No Recent Activity</h3>
+                    <p class="text-gray-600 text-sm">No activities on receipts after 24 hours of creation.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Receipt Details Modal -->
+<div id="receiptModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 sm:px-6 sm:py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-receipt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-white">Receipt Details</h3>
+                        <p class="text-indigo-100 text-sm" id="modalReceiptNumber">#0000</p>
+                    </div>
+                </div>
+                <button onclick="closeReceiptModal()" class="text-white/70 hover:text-white transition-colors duration-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <!-- Receipt Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <h4 class="font-semibold text-gray-800 mb-3">Receipt Information</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Receipt Number:</span>
+                            <span class="font-semibold" id="modalReceiptNum">#0000</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Employee:</span>
+                            <span class="font-semibold" id="modalEmployee">N/A</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Date:</span>
+                            <span class="font-semibold" id="modalDate">N/A</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Time:</span>
+                            <span class="font-semibold" id="modalTime">N/A</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <h4 class="font-semibold text-gray-800 mb-3">Financial Summary</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal:</span>
+                            <span class="font-semibold" id="modalSubtotal">KSh 0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tax Amount:</span>
+                            <span class="font-semibold" id="modalTax">KSh 0.00</span>
+                        </div>
+                        <div class="flex justify-between border-t pt-2">
+                            <span class="text-gray-800 font-semibold">Total:</span>
+                            <span class="font-bold text-green-600 text-lg" id="modalTotal">KSh 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Items List -->
+            <div class="bg-gray-50 rounded-xl p-4">
+                <h4 class="font-semibold text-gray-800 mb-3">Items Purchased</h4>
+                <div id="modalItemsList" class="space-y-2">
+                    <!-- Items will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:py-4 flex justify-end space-x-3">
+            <button onclick="closeReceiptModal()" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                Close
+            </button>
+            <button onclick="reprintFromModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                <i class="fas fa-print mr-2"></i>
+                Reprint
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize filter system
+    function initializeFilterSystem() {
+        const filterType = document.getElementById('filterType');
+        const singleDateContainer = document.getElementById('singleDateContainer');
+        const rangeDateContainer = document.getElementById('rangeDateContainer');
+        const rangeToDateContainer = document.getElementById('rangeToDateContainer');
+        const monthContainer = document.getElementById('monthContainer');
+        const yearContainer = document.getElementById('yearContainer');
+        const applyFilterBtn = document.getElementById('applyFilter');
+        
+        // Set today's date as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('singleDate').value = today;
+        document.getElementById('fromDate').value = today;
+        document.getElementById('toDate').value = today;
+        document.getElementById('monthSelect').value = today.substring(0, 7);
+        
+        // Populate year dropdown
+        populateYearDropdown();
+        
+        // Handle filter type change
+        filterType.addEventListener('change', function() {
+            const selectedType = this.value;
+            
+            // Hide all containers
+            singleDateContainer.classList.add('hidden');
+            rangeDateContainer.classList.add('hidden');
+            rangeToDateContainer.classList.add('hidden');
+            monthContainer.classList.add('hidden');
+            yearContainer.classList.add('hidden');
+            
+            // Show relevant containers
+            switch(selectedType) {
+                case 'single':
+                    singleDateContainer.classList.remove('hidden');
+                    break;
+                case 'range':
+                    rangeDateContainer.classList.remove('hidden');
+                    rangeToDateContainer.classList.remove('hidden');
+                    break;
+                case 'month':
+                    monthContainer.classList.remove('hidden');
+                    break;
+                case 'year':
+                    yearContainer.classList.remove('hidden');
+                    break;
+            }
+        });
+        
+        // Handle apply filter button
+        applyFilterBtn.addEventListener('click', function() {
+            applyDateFilter();
+        });
+        
+        // Initialize with single day filter
+        filterType.dispatchEvent(new Event('change'));
+    }
+    
+    // Populate year dropdown with available years
+    function populateYearDropdown() {
+        const yearSelect = document.getElementById('yearSelect');
+        const currentYear = new Date().getFullYear();
+        
+        // Add years from 2020 to current year + 1
+        for (let year = 2020; year <= currentYear + 1; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // Set current year as default
+        yearSelect.value = currentYear;
+    }
+    
+    // Apply date filter
+    function applyDateFilter() {
+        const filterType = document.getElementById('filterType').value;
+        let startDate, endDate;
+        
+        switch(filterType) {
+            case 'single':
+                const singleDate = document.getElementById('singleDate').value;
+                if (!singleDate) {
+                    alert('Please select a date');
+                    return;
+                }
+                startDate = singleDate;
+                endDate = singleDate;
+                break;
+                
+            case 'range':
+                const fromDate = document.getElementById('fromDate').value;
+                const toDate = document.getElementById('toDate').value;
+                if (!fromDate || !toDate) {
+                    alert('Please select both from and to dates');
+                    return;
+                }
+                if (new Date(fromDate) > new Date(toDate)) {
+                    alert('From date cannot be after to date');
+                    return;
+                }
+                startDate = fromDate;
+                endDate = toDate;
+                break;
+                
+            case 'month':
+                const monthValue = document.getElementById('monthSelect').value;
+                if (!monthValue) {
+                    alert('Please select a month');
+                    return;
+                }
+                startDate = monthValue + '-01';
+                const lastDay = new Date(monthValue + '-01');
+                lastDay.setMonth(lastDay.getMonth() + 1);
+                lastDay.setDate(0);
+                endDate = monthValue + '-' + String(lastDay.getDate()).padStart(2, '0');
+                break;
+                
+            case 'year':
+                const yearValue = document.getElementById('yearSelect').value;
+                if (!yearValue) {
+                    alert('Please select a year');
+                    return;
+                }
+                startDate = yearValue + '-01-01';
+                endDate = yearValue + '-12-31';
+                break;
+                
+            default:
+                alert('Please select a filter type');
+                return;
+        }
+        
+        // Filter the table rows based on date
+        filterTableByDate(startDate, endDate);
+    }
+    
+    // Filter table rows by date range
+    function filterTableByDate(startDate, endDate) {
+        console.log('Filtering by date range:', startDate, 'to', endDate);
+        const tableRows = document.querySelectorAll('tbody tr');
+        
+        // Normalize dates to compare only date part (set time to 00:00:00)
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Set to end of day
+        
+        console.log('Start date (normalized):', start);
+        console.log('End date (normalized):', end);
+        console.log('Total rows found:', tableRows.length);
+        
+        let visibleCount = 0;
+        
+        tableRows.forEach((row, index) => {
+            const dateCell = row.querySelector('td:nth-child(5)'); // Date is in 5th column
+            if (!dateCell) {
+                console.log('No date cell found for row', index);
+                return;
+            }
+            
+            // Extract the date from the formatted text (first line of the date cell)
+            const dateText = dateCell.querySelector('.text-sm.font-medium.text-gray-800');
+            if (!dateText) {
+                console.log('No date text found for row', index);
+                return;
+            }
+            
+            const dateString = dateText.textContent.trim();
+            console.log('Row', index, 'date string:', dateString);
+            
+            const rowDate = new Date(dateString);
+            // Normalize row date to start of day
+            rowDate.setHours(0, 0, 0, 0);
+            console.log('Row', index, 'parsed date (normalized):', rowDate);
+            
+            if (rowDate >= start && rowDate <= end) {
+                row.style.display = '';
+                visibleCount++;
+                console.log('Row', index, 'is visible');
+            } else {
+                row.style.display = 'none';
+                console.log('Row', index, 'is hidden');
+            }
+        });
+        
+        // Update the count display
+        const countElement = document.querySelector('.text-sm.text-gray-700');
+        if (countElement) {
+            countElement.textContent = `Showing ${visibleCount} receipt${visibleCount !== 1 ? 's' : ''}`;
+        }
+        
+        // Clear any selections when filtering
+        document.querySelectorAll('.receipt-checkbox:checked').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        document.getElementById('selectAll').checked = false;
+        updateSelectedCount();
+        
+        // Update analytics after filtering
+        setTimeout(updateAnalytics, 50);
+    }
+
+    // Initialize analytics system
+    function initializeAnalytics() {
+        // Calculate and display analytics for visible receipts
+        updateAnalytics();
+        
+        // Update analytics when filters change
+        const applyFilterBtn = document.getElementById('applyFilter');
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', function() {
+                setTimeout(updateAnalytics, 100); // Small delay to ensure table is updated
+            });
+        }
+        
+        // Update analytics when search changes
+        const searchInput = document.getElementById('receiptSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                setTimeout(updateAnalytics, 100);
+            });
+        }
+    }
+    
+    // Update analytics based on visible receipts
+    function updateAnalytics() {
+        const visibleRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => 
+            row.style.display !== 'none'
+        );
+        
+        let pendingCount = 0;
+        let cancelledCount = 0;
+        let confirmedCount = 0;
+        let pendingRevenue = 0;
+        let cancelledRevenue = 0;
+        let confirmedRevenue = 0;
+        
+        visibleRows.forEach(row => {
+            const statusElement = row.querySelector('[id^="status-"]');
+            const totalElement = row.querySelector('td:nth-child(4) span');
+            
+            if (!statusElement || !totalElement) return;
+            
+            const status = statusElement.textContent.trim().toLowerCase();
+            const totalText = totalElement.textContent.replace('KSh ', '').replace(',', '');
+            const total = parseFloat(totalText) || 0;
+            
+            switch(status) {
+                case 'pending':
+                    pendingCount++;
+                    pendingRevenue += total;
+                    break;
+                case 'cancelled':
+                    cancelledCount++;
+                    cancelledRevenue += total;
+                    break;
+                case 'confirmed':
+                    confirmedCount++;
+                    confirmedRevenue += total;
+                    break;
+            }
+        });
+        
+        const totalCount = pendingCount + cancelledCount + confirmedCount;
+        const totalRevenue = pendingRevenue + cancelledRevenue + confirmedRevenue;
+        
+        // Update counts
+        document.getElementById('pendingCount').textContent = pendingCount;
+        document.getElementById('cancelledCount').textContent = cancelledCount;
+        document.getElementById('confirmedCount').textContent = confirmedCount;
+        
+        // Update sidebar statistics
+        updateSidebarStatistics(pendingCount, cancelledCount, confirmedCount, totalCount);
+        
+        // Update revenue
+        document.getElementById('pendingRevenue').textContent = `KSh ${pendingRevenue.toFixed(2)}`;
+        document.getElementById('cancelledRevenue').textContent = `KSh ${cancelledRevenue.toFixed(2)}`;
+        document.getElementById('confirmedRevenue').textContent = `KSh ${confirmedRevenue.toFixed(2)}`;
+        document.getElementById('totalRevenue').textContent = `KSh ${totalRevenue.toFixed(2)}`;
+        
+        // Calculate rates
+        const completionRate = totalCount > 0 ? ((confirmedCount / totalCount) * 100).toFixed(1) : 0;
+        const cancellationRate = totalCount > 0 ? ((cancelledCount / totalCount) * 100).toFixed(1) : 0;
+        const pendingRate = totalCount > 0 ? ((pendingCount / totalCount) * 100).toFixed(1) : 0;
+        
+        // Update rates
+        document.getElementById('completionRate').textContent = `${completionRate}%`;
+        document.getElementById('cancellationRate').textContent = `${cancellationRate}%`;
+        document.getElementById('pendingRate').textContent = `${pendingRate}%`;
+        
+        // Update chart
+        updateStatusChart(pendingCount, cancelledCount, confirmedCount);
+        
+        // Update period display
+        updateAnalyticsPeriod();
+    }
+    
+    // Update status distribution chart
+    function updateStatusChart(pending, cancelled, confirmed) {
+        const ctx = document.getElementById('statusChart');
+        if (!ctx) return;
+        
+        // Destroy existing chart if it exists
+        if (window.statusChartInstance) {
+            window.statusChartInstance.destroy();
+        }
+        
+        const filterType = document.getElementById('filterType').value;
+        const isMultiDay = filterType === 'range' || filterType === 'month' || filterType === 'year';
+        
+        if (isMultiDay) {
+            // Show line chart for trends when comparing multiple days
+            document.getElementById('chartTitle').textContent = 'Status Trends Over Time';
+            updateTrendChart(pending, cancelled, confirmed);
+        } else {
+            // Show pie chart for single day analysis
+            document.getElementById('chartTitle').textContent = 'Status Distribution';
+            updatePieChart(pending, cancelled, confirmed);
+        }
+    }
+    
+    // Update pie chart for single day analysis
+    function updatePieChart(pending, cancelled, confirmed) {
+        const ctx = document.getElementById('statusChart');
+        
+        window.statusChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Pending', 'Cancelled', 'Confirmed'],
+                datasets: [{
+                    data: [pending, cancelled, confirmed],
+                    backgroundColor: [
+                        '#F59E0B', // Yellow for pending
+                        '#EF4444', // Red for cancelled
+                        '#10B981'  // Green for confirmed
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Status Distribution (Single Day)',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Update trend chart for multi-day analysis
+    function updateTrendChart(pending, cancelled, confirmed) {
+        const ctx = document.getElementById('statusChart');
+        
+        // Generate sample trend data for demonstration
+        // In a real implementation, you would fetch actual daily data
+        const days = generateTrendData();
+        
+        window.statusChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: days.labels,
+                datasets: [
+                    {
+                        label: 'Pending',
+                        data: days.pending,
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Cancelled',
+                        data: days.cancelled,
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Confirmed',
+                        data: days.confirmed,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Status Trends Over Time',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+    
+    // Generate trend data based on current filter
+    function generateTrendData() {
+        const filterType = document.getElementById('filterType').value;
+        let labels = [];
+        let pending = [];
+        let cancelled = [];
+        let confirmed = [];
+        
+        if (filterType === 'range') {
+            const fromDate = new Date(document.getElementById('fromDate').value);
+            const toDate = new Date(document.getElementById('toDate').value);
+            const daysDiff = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
+            
+            for (let i = 0; i < daysDiff; i++) {
+                const date = new Date(fromDate);
+                date.setDate(date.getDate() + i);
+                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Generate sample data (in real implementation, fetch from database)
+                pending.push(Math.floor(Math.random() * 10) + 1);
+                cancelled.push(Math.floor(Math.random() * 5) + 1);
+                confirmed.push(Math.floor(Math.random() * 15) + 5);
+            }
+        } else if (filterType === 'month') {
+            const monthValue = document.getElementById('monthSelect').value;
+            const year = monthValue.split('-')[0];
+            const month = monthValue.split('-')[1];
+            const daysInMonth = new Date(year, month, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                labels.push(day.toString());
+                pending.push(Math.floor(Math.random() * 8) + 1);
+                cancelled.push(Math.floor(Math.random() * 4) + 1);
+                confirmed.push(Math.floor(Math.random() * 12) + 3);
+            }
+        } else if (filterType === 'year') {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            labels = months;
+            
+            for (let i = 0; i < 12; i++) {
+                pending.push(Math.floor(Math.random() * 50) + 10);
+                cancelled.push(Math.floor(Math.random() * 20) + 5);
+                confirmed.push(Math.floor(Math.random() * 100) + 20);
+            }
+        }
+        
+        return { labels, pending, cancelled, confirmed };
+    }
+    
+    // Update analytics period display
+    function updateAnalyticsPeriod() {
+        const filterType = document.getElementById('filterType').value;
+        const periodElement = document.getElementById('analyticsPeriod');
+        
+        let periodText = 'All Time';
+        
+        switch(filterType) {
+            case 'single':
+                const singleDate = document.getElementById('singleDate').value;
+                if (singleDate) {
+                    const date = new Date(singleDate);
+                    periodText = date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                }
+                break;
+            case 'range':
+                const fromDate = document.getElementById('fromDate').value;
+                const toDate = document.getElementById('toDate').value;
+                if (fromDate && toDate) {
+                    const from = new Date(fromDate);
+                    const to = new Date(toDate);
+                    periodText = `${from.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${to.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                }
+                break;
+            case 'month':
+                const monthValue = document.getElementById('monthSelect').value;
+                if (monthValue) {
+                    const date = new Date(monthValue + '-01');
+                    periodText = date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long' 
+                    });
+                }
+                break;
+            case 'year':
+                const yearValue = document.getElementById('yearSelect').value;
+                if (yearValue) {
+                    periodText = yearValue;
+                }
+                break;
+        }
+        
+        periodElement.textContent = periodText;
+    }
+    
+    // Update sidebar statistics
+    function updateSidebarStatistics(pendingCount, cancelledCount, confirmedCount, totalCount) {
+        // Update sidebar counts
+        const sidebarTotalReceipts = document.getElementById('sidebarTotalReceipts');
+        const sidebarConfirmedReceipts = document.getElementById('sidebarConfirmedReceipts');
+        const sidebarCancelledReceipts = document.getElementById('sidebarCancelledReceipts');
+        const sidebarPendingReceipts = document.getElementById('sidebarPendingReceipts');
+        
+        if (sidebarTotalReceipts) sidebarTotalReceipts.textContent = totalCount;
+        if (sidebarConfirmedReceipts) sidebarConfirmedReceipts.textContent = confirmedCount;
+        if (sidebarCancelledReceipts) sidebarCancelledReceipts.textContent = cancelledCount;
+        if (sidebarPendingReceipts) sidebarPendingReceipts.textContent = pendingCount;
+    }
+
+    // Load recent activities (receipts with activities after 24 hours)
+    function loadRecentActivities() {
+        // Get all receipts from the table
+        const tableRows = document.querySelectorAll('tbody tr');
+        const activities = [];
+        
+        tableRows.forEach(row => {
+            const receiptNumber = row.querySelector('td:nth-child(2) span').textContent;
+            const statusElement = row.querySelector('[id^="status-"]');
+            const dateCell = row.querySelector('td:nth-child(5) .text-sm.font-medium.text-gray-800');
+            
+            if (!statusElement || !dateCell) return;
+            
+            const status = statusElement.textContent.trim();
+            const createdDate = new Date(dateCell.textContent.trim());
+            const now = new Date();
+            const hoursDiff = (now - createdDate) / (1000 * 60 * 60);
+            
+            // Check if receipt has activities after 24 hours (status changes from pending)
+            if (hoursDiff > 24 && status !== 'pending') {
+                const activity = {
+                    receiptNumber: receiptNumber,
+                    status: status,
+                    createdDate: createdDate,
+                    hoursAgo: Math.floor(hoursDiff),
+                    activityType: getActivityType(status)
+                };
+                activities.push(activity);
+            }
+        });
+        
+        // Sort by most recent activity (highest hours ago)
+        activities.sort((a, b) => b.hoursAgo - a.hoursAgo);
+        
+        // Display activities
+        displayRecentActivities(activities);
+    }
+    
+    // Get activity type based on status
+    function getActivityType(status) {
+        switch(status.toLowerCase()) {
+            case 'confirmed':
+                return 'Confirmed';
+            case 'cancelled':
+                return 'Cancelled';
+            default:
+                return 'Updated';
+        }
+    }
+    
+    // Display recent activities
+    function displayRecentActivities(activities) {
+        const activitiesList = document.getElementById('recentActivitiesList');
+        const noActivityDiv = document.getElementById('noRecentActivity');
+        
+        if (activities.length === 0) {
+            activitiesList.innerHTML = '';
+            noActivityDiv.classList.remove('hidden');
+            return;
+        }
+        
+        noActivityDiv.classList.add('hidden');
+        
+        // Show only the 5 most recent activities
+        const recentActivities = activities.slice(0, 5);
+        
+        activitiesList.innerHTML = recentActivities.map(activity => `
+            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center ${
+                    activity.status === 'confirmed' ? 'bg-green-100' : 
+                    activity.status === 'cancelled' ? 'bg-red-100' : 'bg-yellow-100'
+                }">
+                    <i class="fas ${
+                        activity.status === 'confirmed' ? 'fa-check-circle text-green-600' : 
+                        activity.status === 'cancelled' ? 'fa-times-circle text-red-600' : 'fa-clock text-yellow-600'
+                    } text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">
+                        Receipt ${activity.receiptNumber} ${activity.activityType}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                        ${activity.hoursAgo} hours after creation
+                    </p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        activity.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
+                        activity.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                    }">
+                        ${activity.status}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Receipts management functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Receipts management page loaded');
+        
+        // Add back button functionality
+        const backButton = document.querySelector('a[href="/admin/analytics"]');
+        if (backButton) {
+            backButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.history.back();
+            });
+        }
+        
+        // Initialize filter functionality
+        initializeFilterSystem();
+        
+        // Initialize analytics
+        initializeAnalytics();
+        
+        // Initialize recent activities
+        loadRecentActivities();
+        
+        // Add live search functionality
+        const searchInput = document.getElementById('receiptSearch');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        
+        if (searchInput) {
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim();
+                
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+                
+                // Show/hide clear button
+                if (searchTerm) {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+                
+                // Debounce search to avoid too many requests
+                searchTimeout = setTimeout(() => {
+                    performLiveSearch(searchTerm);
+                }, 300);
+            });
+        }
+        
+        // Clear search functionality
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                this.classList.add('hidden');
+                performLiveSearch('');
+            });
+        }
+        
+        // Initialize status management
+        initializeStatusManagement();
+    });
+    
+    // View receipt details
+    function viewReceipt(receiptId) {
+        console.log('Viewing receipt:', receiptId);
+        
+        // Show loading state
+        const modal = document.getElementById('receiptModal');
+        modal.classList.remove('hidden');
+        
+        // Fetch receipt details
+        fetch(`/api/receipts/${receiptId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    populateReceiptModal(data.receipt, data.items);
+                } else {
+                    alert('Error loading receipt details: ' + data.message);
+                    closeReceiptModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching receipt details:', error);
+                alert('Error loading receipt details');
+                closeReceiptModal();
+            });
+    }
+    
+    // Populate receipt modal with data
+    function populateReceiptModal(receipt, items) {
+        // Receipt information
+        document.getElementById('modalReceiptNumber').textContent = '#' + receipt.receipt_number;
+        document.getElementById('modalReceiptNum').textContent = '#' + receipt.receipt_number;
+        document.getElementById('modalEmployee').textContent = receipt.employee_name;
+        document.getElementById('modalDate').textContent = receipt.sale_date ? new Date(receipt.sale_date).toLocaleDateString() : 'N/A';
+        document.getElementById('modalTime').textContent = receipt.created_at ? new Date(receipt.created_at).toLocaleTimeString() : 'N/A';
+        
+        // Financial information
+        document.getElementById('modalSubtotal').textContent = 'KSh ' + parseFloat(receipt.subtotal).toFixed(2);
+        document.getElementById('modalTax').textContent = 'KSh ' + parseFloat(receipt.tax_amount).toFixed(2);
+        document.getElementById('modalTotal').textContent = 'KSh ' + parseFloat(receipt.total_amount).toFixed(2);
+        
+        // Items list
+        const itemsList = document.getElementById('modalItemsList');
+        itemsList.innerHTML = '';
+        
+        if (items && items.length > 0) {
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200';
+                itemDiv.innerHTML = `
+                    <div class="flex-1">
+                        <div class="font-semibold text-gray-800">${item.item_name}</div>
+                        <div class="text-sm text-gray-600">Qty: ${item.quantity} × KSh ${parseFloat(item.unit_price).toFixed(2)}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-gray-800">KSh ${parseFloat(item.total_price).toFixed(2)}</div>
+                    </div>
+                `;
+                itemsList.appendChild(itemDiv);
+            });
+        } else {
+            itemsList.innerHTML = '<div class="text-center text-gray-500 py-4">No items found</div>';
+        }
+    }
+    
+    // Close receipt modal
+    function closeReceiptModal() {
+        const modal = document.getElementById('receiptModal');
+        modal.classList.add('hidden');
+    }
+    
+    // Reprint from modal
+    function reprintFromModal() {
+        const receiptNumber = document.getElementById('modalReceiptNum').textContent;
+        console.log('Reprinting receipt:', receiptNumber);
+        if (confirm('Are you sure you want to reprint this receipt?')) {
+            alert('Reprinting receipt: ' + receiptNumber);
+            // TODO: Implement actual reprinting functionality
+        }
+    }
+    
+    // Reprint receipt
+    function reprintReceipt(receiptId) {
+        console.log('Reprinting receipt:', receiptId);
+        if (confirm('Are you sure you want to reprint this receipt?')) {
+            alert('Reprinting receipt ID: ' + receiptId);
+            // TODO: Implement receipt reprinting functionality
+        }
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('receiptModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeReceiptModal();
+        }
+    });
+    
+    // Initialize status management functionality
+    function initializeStatusManagement() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const receiptCheckboxes = document.querySelectorAll('.receipt-checkbox');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const clearSelectionBtn = document.getElementById('clearSelection');
+        const statusActionSelect = document.getElementById('statusAction');
+        const applyStatusBtn = document.getElementById('applyStatus');
+        
+        // Select all functionality
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                receiptCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedCount();
+            });
+        }
+        
+        // Individual checkbox functionality
+        receiptCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedCount();
+                updateSelectAllState();
+            });
+        });
+        
+        // Clear selection functionality
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', function() {
+                receiptCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                }
+                updateSelectedCount();
+            });
+        }
+        
+        // Apply status functionality
+        if (applyStatusBtn) {
+            applyStatusBtn.addEventListener('click', function() {
+                const selectedReceipts = Array.from(receiptCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.dataset.receiptId);
+                
+                const status = statusActionSelect.value;
+                
+                if (selectedReceipts.length === 0) {
+                    alert('Please select at least one receipt');
+                    return;
+                }
+                
+                if (!status) {
+                    alert('Please select a status action');
+                    return;
+                }
+                
+                updateReceiptStatus(selectedReceipts, status);
+            });
+        }
+        
+        // Enable/disable apply button based on selection
+        statusActionSelect.addEventListener('change', function() {
+            const hasSelection = Array.from(receiptCheckboxes).some(checkbox => checkbox.checked);
+            applyStatusBtn.disabled = !hasSelection || !this.value;
+        });
+    }
+    
+    // Update selected count display
+    function updateSelectedCount() {
+        const selectedCheckboxes = document.querySelectorAll('.receipt-checkbox:checked');
+        const selectedCount = selectedCheckboxes.length;
+        document.getElementById('selectedCount').textContent = selectedCount;
+        
+        // Enable/disable apply button
+        const statusActionSelect = document.getElementById('statusAction');
+        const applyStatusBtn = document.getElementById('applyStatus');
+        applyStatusBtn.disabled = selectedCount === 0 || !statusActionSelect.value;
+        
+        // Check if all visible receipts are selected and clear search if so
+        checkAndClearSearchIfAllSelected();
+    }
+    
+    // Update select all checkbox state
+    function updateSelectAllState() {
+        const receiptCheckboxes = document.querySelectorAll('.receipt-checkbox');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        
+        if (receiptCheckboxes.length === 0) return;
+        
+        const checkedCount = document.querySelectorAll('.receipt-checkbox:checked').length;
+        
+        if (checkedCount === 0) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = false;
+        } else if (checkedCount === receiptCheckboxes.length) {
+            selectAllCheckbox.indeterminate = false;
+            selectAllCheckbox.checked = true;
+        } else {
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+    
+    // Update receipt status via API
+    function updateReceiptStatus(receiptIds, status) {
+        const statusText = {
+            'confirm': 'confirmed',
+            'cancel': 'cancelled',
+            'pending': 'pending'
+        };
+        
+        const confirmMessage = `Are you sure you want to mark ${receiptIds.length} receipt(s) as ${statusText[status]}?`;
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
+        // Show loading state
+        const applyBtn = document.getElementById('applyStatus');
+        const originalText = applyBtn.textContent;
+        applyBtn.textContent = 'Updating...';
+        applyBtn.disabled = true;
+        
+        // Send request to update status
+        fetch('/api/receipts/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                receipt_ids: receiptIds,
+                status: statusText[status]
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update recent activities after status change
+                setTimeout(loadRecentActivities, 100);
+                
+                // Refresh the page to maintain proper sorting
+                alert(`Successfully updated ${receiptIds.length} receipt(s) status`);
+                window.location.reload();
+            } else {
+                alert('Error updating status: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating status:', error);
+            alert('Error updating receipt status');
+        })
+        .finally(() => {
+            applyBtn.textContent = originalText;
+            applyBtn.disabled = false;
+        });
+    }
+    
+    // Update status badge in UI
+    function updateStatusBadge(receiptId, status) {
+        const statusElement = document.getElementById(`status-${receiptId}`);
+        if (!statusElement) return;
+        
+        // Remove existing classes
+        statusElement.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+        
+        // Add new classes based on status
+        if (status === 'confirmed') {
+            statusElement.classList.add('bg-green-100', 'text-green-800');
+            statusElement.textContent = 'Confirmed';
+        } else if (status === 'cancelled') {
+            statusElement.classList.add('bg-red-100', 'text-red-800');
+            statusElement.textContent = 'Cancelled';
+        } else {
+            statusElement.classList.add('bg-yellow-100', 'text-yellow-800');
+            statusElement.textContent = 'Pending';
+        }
+    }
+    
+    // Perform live search
+    function performLiveSearch(searchTerm) {
+        const tableRows = document.querySelectorAll('tbody tr');
+        
+        if (!searchTerm) {
+            // Show all rows
+            tableRows.forEach(row => {
+                row.style.display = '';
+            });
+            return;
+        }
+        
+        const searchLower = searchTerm.toLowerCase();
+        
+        tableRows.forEach(row => {
+            const receiptNumber = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const employeeName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            const totalAmount = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            
+            const matches = receiptNumber.includes(searchLower) || 
+                          employeeName.includes(searchLower) || 
+                          totalAmount.includes(searchLower);
+            
+            row.style.display = matches ? '' : 'none';
+        });
+        
+        // Clear any selections when searching
+        document.querySelectorAll('.receipt-checkbox:checked').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        document.getElementById('selectAll').checked = false;
+        updateSelectedCount();
+        
+        // Update analytics after search
+        setTimeout(updateAnalytics, 50);
+    }
+    
+    // Check if all visible receipts are selected and clear search if so
+    function checkAndClearSearchIfAllSelected() {
+        const searchInput = document.getElementById('receiptSearch');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        
+        // Only check if there's an active search
+        if (!searchInput.value.trim()) return;
+        
+        // Get all visible (non-hidden) receipt rows
+        const visibleRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => 
+            row.style.display !== 'none'
+        );
+        
+        // Get all visible checkboxes
+        const visibleCheckboxes = visibleRows.map(row => 
+            row.querySelector('.receipt-checkbox')
+        ).filter(checkbox => checkbox);
+        
+        // Check if all visible checkboxes are selected
+        const allVisibleSelected = visibleCheckboxes.length > 0 && 
+            visibleCheckboxes.every(checkbox => checkbox.checked);
+        
+        if (allVisibleSelected) {
+            // Clear the search
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            
+            // Show all rows
+            document.querySelectorAll('tbody tr').forEach(row => {
+                row.style.display = '';
+            });
+            
+            // Keep the selections - don't clear them
+            // Just update the select all checkbox state
+            updateSelectAllState();
+        }
+    }
+</script>
+{% endblock %}

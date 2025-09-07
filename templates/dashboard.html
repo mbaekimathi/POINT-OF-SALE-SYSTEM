@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Hotel POS System{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+    <p class="text-gray-600">Welcome back! Here's what's happening with your hotel today.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Sales -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Total Sales Today</p>
+                <p class="text-2xl font-bold text-gray-800">$2,450.00</p>
+                <p class="text-green-600 text-sm">+12% from yesterday</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Orders Today</p>
+                <p class="text-2xl font-bold text-gray-800">127</p>
+                <p class="text-blue-600 text-sm">+8% from yesterday</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customers -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Active Customers</p>
+                <p class="text-2xl font-bold text-gray-800">89</p>
+                <p class="text-orange-600 text-sm">+5% from yesterday</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-orange-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Items -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Menu Items</p>
+                <p class="text-2xl font-bold text-gray-800">156</p>
+                <p class="text-purple-600 text-sm">All available</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-utensils text-purple-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Orders -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Recent Orders</h2>
+                    <a href="#" class="text-primary-orange hover:text-secondary-orange font-medium">
+                        View All
+                    </a>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Order Item 1 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#001</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 5 - John Doe</p>
+                                <p class="text-sm text-gray-600">2x Burger, 1x Fries, 1x Coke</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">$24.50</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Completed
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Order Item 2 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#002</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 3 - Jane Smith</p>
+                                <p class="text-sm text-gray-600">1x Pizza, 2x Salad</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">$18.75</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Preparing
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Order Item 3 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#003</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 7 - Mike Johnson</p>
+                                <p class="text-sm text-gray-600">3x Pasta, 1x Wine</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800">$32.00</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Pending
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & System Status -->
+    <div class="space-y-8">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <a href="#" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-plus mr-3"></i>
+                        New Order
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                        <i class="fas fa-utensils mr-3"></i>
+                        Manage Menu
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                        <i class="fas fa-chart-bar mr-3"></i>
+                        View Reports
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                        <i class="fas fa-users mr-3"></i>
+                        Customer List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">System Status</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Database</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Online</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Payment Gateway</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Online</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Printer</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Online</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">API Services</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handlers for quick actions
+        document.querySelectorAll('a[href="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Quick action clicked:', this.textContent.trim());
+                // Add your functionality here
+            });
+        });
+
+        // Simulate real-time updates
+        setInterval(function() {
+            // Update time-based data here
+            console.log('Updating dashboard data...');
+        }, 30000); // Update every 30 seconds
+    });
+</script>
+{% endblock %}
+

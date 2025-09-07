@@ -1,0 +1,321 @@
+{% extends "role_base.html" %}
+
+{% block title %}Butchery Dashboard - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}drumstick-bite{% endblock %}
+{% block sidebar_title %}Butchery Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Meat Orders -->
+<a href="/butchery/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-clipboard-list text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Meat Orders</p>
+        <p class="text-xs text-white/70">Manage orders</p>
+    </div>
+</a>
+
+<!-- Inventory Management -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Inventory</p>
+        <p class="text-xs text-white/70">Stock management</p>
+    </div>
+</a>
+
+<!-- Temperature Control -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-thermometer-half text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Temperature</p>
+        <p class="text-xs text-white/70">Monitor storage</p>
+    </div>
+</a>
+
+<!-- Preparation Schedule -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Schedule</p>
+        <p class="text-xs text-white/70">Prep planning</p>
+    </div>
+</a>
+
+<!-- Quality Control -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-check-circle text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Quality Control</p>
+        <p class="text-xs text-white/70">Inspection logs</p>
+    </div>
+</a>
+
+<!-- My Off Days -->
+<a href="/employee/off-days" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">My Off Days</p>
+        <p class="text-xs text-white/70">View time off</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Butchery Dashboard Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Butchery Dashboard</h1>
+            <p class="text-gray-600 text-lg">Welcome back, {{ employee_name }}! Manage your meat inventory and preparation orders.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-drumstick-bite text-xl"></i>
+            <span class="font-bold text-lg">Butchery</span>
+        </div>
+    </div>
+</div>
+
+<!-- Butchery Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Today's Orders -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Today's Orders</p>
+                <p class="text-2xl font-bold text-gray-800">23</p>
+                <p class="text-green-600 text-sm">+12% from yesterday</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clipboard-list text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Prep -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Pending Prep</p>
+                <p class="text-2xl font-bold text-gray-800">8</p>
+                <p class="text-orange-600 text-sm">Ready for preparation</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clock text-orange-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- In Progress -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">In Progress</p>
+                <p class="text-2xl font-bold text-gray-800">5</p>
+                <p class="text-blue-600 text-sm">Currently preparing</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-tools text-blue-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Completed</p>
+                <p class="text-2xl font-bold text-gray-800">15</p>
+                <p class="text-green-600 text-sm">Ready for pickup</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Meat Orders -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Meat Orders</h2>
+                    <div class="flex space-x-2">
+                        <button class="bg-primary-orange text-white px-3 py-1 rounded-lg text-sm">All</button>
+                        <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm">Pending</button>
+                        <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm">In Progress</button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Order Item 1 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#001</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 5 - John Doe</p>
+                                <p class="text-sm text-gray-600">2x Beef Steak (Medium), 1x Chicken Breast</p>
+                                <p class="text-xs text-gray-500">Ordered: 2:30 PM • Priority: High</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 mb-2">
+                                Pending
+                            </span>
+                            <button class="bg-primary-orange text-white px-4 py-2 rounded-lg hover:bg-secondary-orange transition-colors duration-200 text-sm">
+                                Start Prep
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Item 2 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#002</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 3 - Jane Smith</p>
+                                <p class="text-sm text-gray-600">1x Lamb Chops, 2x Pork Ribs</p>
+                                <p class="text-xs text-gray-500">Ordered: 2:45 PM • Priority: Medium</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-2">
+                                In Progress
+                            </span>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 text-sm">
+                                Mark Ready
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Item 3 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">#003</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Table 7 - Mike Johnson</p>
+                                <p class="text-sm text-gray-600">3x Fish Fillet, 1x Duck Breast</p>
+                                <p class="text-xs text-gray-500">Ordered: 3:00 PM • Priority: Low</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-2">
+                                Ready
+                            </span>
+                            <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm">
+                                Collected
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Butchery Quick Actions -->
+    <div class="space-y-8">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <a href="#" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-plus mr-3"></i>
+                        Add Meat Item
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                        <i class="fas fa-clipboard-list mr-3"></i>
+                        View Inventory
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                        <i class="fas fa-thermometer-half mr-3"></i>
+                        Check Temperature
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                        <i class="fas fa-calendar-alt mr-3"></i>
+                        Schedule Prep
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Status -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Inventory Status</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Beef</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">In Stock</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Chicken</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                            <span class="text-yellow-600 text-sm font-medium">Low Stock</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Pork</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 text-sm font-medium">In Stock</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Fish</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                            <span class="text-red-600 text-sm font-medium">Out of Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handlers for butchery actions
+        document.querySelectorAll('button, a[href="#"]').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Butchery action clicked:', this.textContent.trim());
+                // Add your butchery functionality here
+            });
+        });
+    });
+</script>
+{% endblock %}
