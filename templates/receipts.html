@@ -313,9 +313,7 @@
                                         <input type="checkbox" id="selectAll" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500">
                                     </th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Receipt #</th>
-                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Employee</th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Total</th>
-                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                                 </tr>
@@ -336,30 +334,7 @@
                                         </div>
                                     </td>
                                     <td class="py-4 px-4">
-                                        <div class="flex items-center space-x-2">
-                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-user text-green-600 text-sm"></i>
-                                            </div>
-                                            <span class="text-gray-700">{{ receipt.employee_name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-4">
                                         <span class="font-bold text-green-600 text-lg">KSh {{ "%.2f"|format(receipt.total_amount) }}</span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <div class="flex items-center space-x-2">
-                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-calendar text-blue-600 text-sm"></i>
-                                            </div>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-800">
-                                                    {{ receipt.sale_date.strftime('%d %b %Y') if receipt.sale_date else 'N/A' }}
-                                                </div>
-                                                <div class="text-xs text-gray-500">
-                                                    {{ receipt.created_at.strftime('%H:%M') if receipt.created_at else 'N/A' }}
-                                                </div>
-                                            </div>
-                                        </div>
                                     </td>
                                     <td class="py-4 px-4">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
@@ -548,18 +523,6 @@
                         <div class="flex justify-between">
                             <span class="text-gray-600">Receipt Number:</span>
                             <span class="font-semibold" id="modalReceiptNum">#0000</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Employee:</span>
-                            <span class="font-semibold" id="modalEmployee">N/A</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Date:</span>
-                            <span class="font-semibold" id="modalDate">N/A</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Time:</span>
-                            <span class="font-semibold" id="modalTime">N/A</span>
                         </div>
                     </div>
                 </div>
@@ -1359,9 +1322,6 @@
         // Receipt information
         document.getElementById('modalReceiptNumber').textContent = '#' + receipt.receipt_number;
         document.getElementById('modalReceiptNum').textContent = '#' + receipt.receipt_number;
-        document.getElementById('modalEmployee').textContent = receipt.employee_name;
-        document.getElementById('modalDate').textContent = receipt.sale_date ? new Date(receipt.sale_date).toLocaleDateString() : 'N/A';
-        document.getElementById('modalTime').textContent = receipt.created_at ? new Date(receipt.created_at).toLocaleTimeString() : 'N/A';
         
         // Financial information
         document.getElementById('modalSubtotal').textContent = 'KSh ' + parseFloat(receipt.subtotal).toFixed(2);

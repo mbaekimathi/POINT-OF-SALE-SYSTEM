@@ -67,79 +67,81 @@
 
 <!-- Mobile Cart Popup -->
 <div id="mobileCartPopup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
-    <div id="mobileCartContent" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transform translate-y-full transition-transform duration-300 ease-out max-h-[80vh] overflow-hidden">
-        <!-- Mobile Cart Header -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
-        <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-shopping-cart text-white text-sm"></i>
+    <div class="flex items-end justify-center min-h-screen p-2 sm:p-4">
+        <div id="mobileCartContent" class="bg-white rounded-t-2xl sm:rounded-t-3xl w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden transform transition-transform duration-300 translate-y-full shadow-2xl">
+            <!-- Mobile Cart Header -->
+            <div class="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-orange to-secondary-orange text-white">
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-white bg-opacity-20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
+                    </div>
+                    <h2 class="text-base sm:text-lg lg:text-xl font-bold text-white">Your Order</h2>
+                </div>
+                <button id="closeMobileCartBtn" class="text-white hover:text-gray-200 transition-colors p-1 sm:p-2 touch-target">
+                    <i class="fas fa-times text-lg sm:text-xl"></i>
+                </button>
             </div>
-                <h2 class="text-xl font-bold text-gray-800">Your Order</h2>
-        </div>
-            <button id="closeMobileCartBtn" class="text-gray-500 hover:text-gray-700 p-2">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
         
-        <!-- Mobile Cart Content -->
-        <div class="flex-1 overflow-y-auto p-4">
-            <!-- Mobile Order Items -->
-            <div id="mobileOrderItems" class="space-y-3 mb-4">
-                <!-- Empty cart state -->
-                <div id="mobileEmptyCart" class="text-center py-12">
-                    <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <i class="fas fa-shopping-cart text-gray-400 text-3xl"></i>
+            <!-- Mobile Cart Content -->
+            <div class="flex-1 overflow-y-auto p-3 sm:p-4">
+                <!-- Mobile Order Items -->
+                <div id="mobileOrderItems" class="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
+                    <!-- Empty cart state -->
+                    <div id="mobileEmptyCart" class="text-center py-8 sm:py-12">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                            <i class="fas fa-shopping-cart text-gray-400 text-2xl sm:text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">Your cart is empty</h3>
+                        <p class="text-sm sm:text-base text-gray-600">Add items from the menu to get started</p>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">Your cart is empty</h3>
-                    <p class="text-gray-600">Add items from the menu to get started</p>
                 </div>
-            </div>
 
-            <!-- Mobile Order Summary -->
-            <div id="mobileOrderSummary" class="border-t border-gray-200 pt-4 space-y-2 hidden">
-                <div class="flex justify-between text-gray-600 text-base">
-                    <span>Subtotal:</span>
-                    <span id="mobileSubtotal">KSh 0.00</span>
+                <!-- Mobile Order Summary -->
+                <div id="mobileOrderSummary" class="border-t border-gray-200 pt-3 sm:pt-4 space-y-2 hidden">
+                    <div class="flex justify-between text-gray-600 text-sm sm:text-base">
+                        <span>Subtotal:</span>
+                        <span id="mobileSubtotal">KSh 0.00</span>
+                    </div>
+                    <div id="mobileTaxLine" class="flex justify-between text-gray-600 text-sm sm:text-base">
+                        <span>Tax (8%):</span>
+                        <span id="mobileTax">KSh 0.00</span>
+                    </div>
+                    <div class="flex justify-between text-base sm:text-lg font-bold text-gray-800 border-t border-gray-200 pt-2">
+                        <span>Total:</span>
+                        <span id="mobileTotal">KSh 0.00</span>
+                    </div>
                 </div>
-                <div id="mobileTaxLine" class="flex justify-between text-gray-600 text-base">
-                    <span>Tax (8%):</span>
-                    <span id="mobileTax">KSh 0.00</span>
-                </div>
-                <div class="flex justify-between text-lg font-bold text-gray-800 border-t border-gray-200 pt-2">
-                    <span>Total:</span>
-                    <span id="mobileTotal">KSh 0.00</span>
-                </div>
-            </div>
 
-            <!-- Mobile Employee Validation -->
-            <div id="mobileEmployeeValidation" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mt-4 hidden">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-lg font-semibold text-blue-800 flex items-center">
-                        <i class="fas fa-user-check mr-2"></i>
-                        Employee Validation
-                    </h3>
-                    <div id="mobileEmployeeValidationStatus" class="w-3 h-3 bg-gray-400 rounded-full"></div>
-                </div>
-                <div class="space-y-3">
-                    <div id="mobileEmployeeValidationWarning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm hidden">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Please connect a Bluetooth printer first
+                <!-- Mobile Employee Validation -->
+                <div id="mobileEmployeeValidation" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4 mt-3 sm:mt-4 hidden">
+                    <div class="flex items-center justify-between mb-2 sm:mb-3">
+                        <h3 class="text-base sm:text-lg font-semibold text-blue-800 flex items-center">
+                            <i class="fas fa-user-check mr-1 sm:mr-2 text-sm sm:text-base"></i>
+                            <span class="text-sm sm:text-base">Employee Validation</span>
+                        </h3>
+                        <div id="mobileEmployeeValidationStatus" class="w-3 h-3 bg-gray-400 rounded-full"></div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Employee Code (4 digits)</label>
-                        <input type="text" id="mobileReceiptEmployeeCode" maxlength="4" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono tracking-widest"
-                               placeholder="0000" required>
-                        <div id="mobileEmployeeValidationMessage" class="mt-2 text-sm"></div>
-                    </div>
-                    <div id="mobileEmployeeInfo" class="hidden bg-white rounded-lg p-3 border border-blue-200">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-blue-600"></i>
-                            </div>
-                            <div>
-                                <div class="font-semibold text-gray-800" id="mobileEmployeeName">Employee Name</div>
-                                <div class="text-sm text-gray-600" id="mobileEmployeeCode">Code: 0000</div>
+                    <div class="space-y-2 sm:space-y-3">
+                        <div id="mobileEmployeeValidationWarning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-3 text-yellow-700 text-xs sm:text-sm hidden">
+                            <i class="fas fa-exclamation-triangle mr-1 sm:mr-2"></i>
+                            Please connect a Bluetooth printer first
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Employee Code (4 digits)</label>
+                            <input type="text" id="mobileReceiptEmployeeCode" maxlength="4" 
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-base sm:text-lg font-mono tracking-widest touch-target"
+                                   placeholder="0000" required>
+                            <div id="mobileEmployeeValidationMessage" class="mt-1 sm:mt-2 text-xs sm:text-sm"></div>
+                        </div>
+                        <div id="mobileEmployeeInfo" class="hidden bg-white rounded-lg p-2 sm:p-3 border border-blue-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-600 text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-800 text-sm sm:text-base" id="mobileEmployeeName">Employee Name</div>
+                                    <div class="text-xs sm:text-sm text-gray-600" id="mobileEmployeeCode">Code: 0000</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -555,8 +557,8 @@
         bottom: 1.5rem;
         right: 1.5rem;
         z-index: 50;
-        width: 4rem;
-        height: 4rem;
+        width: 3.5rem;
+        height: 3.5rem;
         border-radius: 50%;
         background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
         box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
@@ -567,6 +569,20 @@
         justify-content: center;
         border: none;
         outline: none;
+    }
+    
+    @media (min-width: 480px) {
+        .mobile-cart-button {
+            width: 4rem;
+            height: 4rem;
+        }
+    }
+    
+    @media (min-width: 768px) {
+        .mobile-cart-button {
+            width: 4.5rem;
+            height: 4.5rem;
+        }
     }
     
     .mobile-cart-button:hover {
@@ -660,6 +676,68 @@
         opacity: 0;
         transition: all 0.3s ease-in;
     }
+    
+    /* Enhanced responsive mobile cart */
+    @media (max-width: 320px) {
+        #mobileCartContent {
+            max-height: 90vh !important;
+            border-radius: 1rem !important;
+        }
+        
+        .mobile-cart-button {
+            width: 3.5rem !important;
+            height: 3.5rem !important;
+            bottom: 1rem !important;
+            right: 1rem !important;
+        }
+    }
+    
+    @media (min-width: 321px) and (max-width: 480px) {
+        #mobileCartContent {
+            max-height: 85vh !important;
+        }
+    }
+    
+    @media (min-width: 481px) and (max-width: 768px) {
+        #mobileCartContent {
+            max-height: 80vh !important;
+            max-width: 28rem !important;
+        }
+    }
+    
+    @media (min-width: 769px) and (max-width: 1024px) {
+        #mobileCartContent {
+            max-height: 75vh !important;
+            max-width: 32rem !important;
+        }
+    }
+    
+    /* Landscape orientation adjustments */
+    @media (max-height: 500px) and (orientation: landscape) {
+        #mobileCartContent {
+            max-height: 95vh !important;
+        }
+        
+        .mobile-cart-button {
+            bottom: 0.5rem !important;
+            right: 0.5rem !important;
+        }
+    }
+    
+    /* Very small screens */
+    @media (max-width: 280px) {
+        #mobileCartContent {
+            max-height: 95vh !important;
+            border-radius: 0.75rem !important;
+        }
+        
+        .mobile-cart-button {
+            width: 3rem !important;
+            height: 3rem !important;
+            bottom: 0.75rem !important;
+            right: 0.75rem !important;
+        }
+    }
 </style>
 <script>
     // Global variables
@@ -745,6 +823,16 @@
         return true; // Default to including tax
     }
     
+    // Get till display setting from localStorage
+    function getTillDisplaySetting() {
+        const savedSettings = localStorage.getItem('pos-settings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            return settings.till?.show || false; // Default to false
+        }
+        return false; // Default to not showing till
+    }
+    
     // Update image display setting (called from settings modal)
     window.updateImageDisplay = function(showImages) {
         console.log('Updating image display setting:', showImages);
@@ -759,18 +847,27 @@
         updateOrderSummary();
     };
     
+    // Global variable to store till display setting
+    let showTillOnReceipt = false;
+
     // Update till/cash drawer display setting (called from settings modal)
     window.updateTillDisplay = function(showTill) {
         console.log('Updating till display setting:', showTill);
-        const tillSection = document.getElementById('tillSection');
-        if (tillSection) {
-            if (showTill) {
-                tillSection.classList.remove('hidden');
-            } else {
-                tillSection.classList.add('hidden');
-            }
-        }
+        showTillOnReceipt = showTill;
+        
+        // Note: This setting only controls M-Pesa payment info on receipts
+        // No UI changes needed in the cart interface
     };
+
+    // Get current till display setting
+    function getTillSetting() {
+        // First check if we have a cached value
+        if (showTillOnReceipt !== undefined) {
+            return showTillOnReceipt;
+        }
+        // Otherwise get from localStorage
+        return getTillDisplaySetting();
+    }
     
     
     // Get appropriate icon for item category
@@ -995,6 +1092,9 @@
             const { message, type } = event.detail;
             showNotification(message, type);
         });
+        
+        // Initialize till setting from localStorage
+        showTillOnReceipt = getTillDisplaySetting();
         
         // Listen for settings updates from the settings modal
         window.addEventListener('settingsUpdated', function(event) {
@@ -1257,9 +1357,12 @@
         // Only update display if DOM is ready and system is initialized
         if (posInitialized && document.getElementById('orderItems')) {
             updateOrderDisplay();
-            // Update mobile cart
+            // Update mobile cart immediately with a small delay to ensure desktop cart is updated first
             if (window.updateMobileCart) {
-                window.updateMobileCart();
+                console.log('Updating mobile cart after adding item');
+                setTimeout(() => {
+                    window.updateMobileCart();
+                }, 10);
             }
         } else if (!posInitialized) {
             // Try to initialize if not done yet
@@ -1318,6 +1421,13 @@
         // Only update display if DOM is ready and system is initialized
         if (posInitialized && document.getElementById('orderItems')) {
             updateOrderDisplay();
+            // Update mobile cart immediately with a small delay to ensure desktop cart is updated first
+            if (window.updateMobileCart) {
+                console.log('Updating mobile cart after removing item');
+                setTimeout(() => {
+                    window.updateMobileCart();
+                }, 10);
+            }
         } else if (!posInitialized) {
             // Try to initialize if not done yet
             setTimeout(() => {
@@ -1373,9 +1483,12 @@
         // Update displays
         if (posInitialized && document.getElementById('orderItems')) {
             updateOrderDisplay();
-            // Update mobile cart
+            // Update mobile cart immediately with a small delay to ensure desktop cart is updated first
             if (window.updateMobileCart) {
-                window.updateMobileCart();
+                console.log('Updating mobile cart after quantity change');
+                setTimeout(() => {
+                    window.updateMobileCart();
+                }, 10);
             }
         }
     }
@@ -2285,7 +2398,7 @@
     function initializeMobileCart() {
         const mobileCartBtn = document.getElementById('mobileCartButton');
         const mobileCartPopup = document.getElementById('mobileCartPopup');
-        const closeMobileCart = document.getElementById('closeMobileCart');
+        const closeMobileCart = document.getElementById('closeMobileCartBtn');
         const mobileCartContent = document.getElementById('mobileCartContent');
         const cartCountBadge = document.getElementById('cartCountBadge');
         const cartCount = document.getElementById('cartCount');
@@ -2300,8 +2413,9 @@
             mobileCartBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Mobile cart button clicked');
+                console.log('Mobile cart button clicked, currentOrder length:', currentOrder.length);
                 if (window.syncMobileCartWithDesktop) {
+                    console.log('Syncing mobile cart before opening...');
                     window.syncMobileCartWithDesktop();
                 }
                 if (mobileCartPopup) {
@@ -2332,7 +2446,29 @@
         };
 
         if (closeMobileCart) {
-            closeMobileCart.addEventListener('click', window.closeMobileCartPopup);
+            console.log('Close mobile cart button found, adding event listener');
+            closeMobileCart.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Close mobile cart button clicked');
+                if (window.closeMobileCartPopup) {
+                    window.closeMobileCartPopup();
+                } else {
+                    console.error('closeMobileCartPopup function not found!');
+                }
+            });
+            
+            // Also add mousedown event as backup
+            closeMobileCart.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Close mobile cart button mousedown');
+                if (window.closeMobileCartPopup) {
+                    window.closeMobileCartPopup();
+                }
+            });
+        } else {
+            console.error('Close mobile cart button not found!');
         }
 
         // Close on backdrop click
@@ -2343,6 +2479,20 @@
                 }
             });
         }
+        
+        // Add global event delegation for close button as ultimate fallback
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'closeMobileCartBtn') {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Global close mobile cart button clicked');
+                if (window.closeMobileCartPopup) {
+                    window.closeMobileCartPopup();
+                } else {
+                    console.error('closeMobileCartPopup function not found in global handler!');
+                }
+            }
+        });
 
         // Mobile cart action buttons removed - auto-validation handles printing
 
@@ -2351,6 +2501,7 @@
             console.log('updateMobileCart called, currentOrder length:', currentOrder.length);
             updateMobileCartBadge();
             if (window.syncMobileCartWithDesktop) {
+                console.log('Syncing mobile cart with desktop...');
                 window.syncMobileCartWithDesktop();
             }
         };
@@ -2398,6 +2549,7 @@
         // Sync mobile cart with desktop cart (copy the exact same content)
         window.syncMobileCartWithDesktop = function() {
             console.log('syncMobileCartWithDesktop called, currentOrder length:', currentOrder.length);
+            console.log('currentOrder items:', currentOrder.map(item => ({id: item.id, name: item.name, quantity: item.quantity})));
             const mobileOrderItems = document.getElementById('mobileOrderItems');
             const mobileEmptyCart = document.getElementById('mobileEmptyCart');
             const mobileOrderSummary = document.getElementById('mobileOrderSummary');
@@ -2428,14 +2580,36 @@
                 mobileOrderSummary.classList.remove('hidden');
                 mobileEmployeeValidation.classList.remove('hidden');
                 
-                // Copy the exact same HTML from desktop cart
-                const desktopOrderItems = document.getElementById('orderItems');
-                if (desktopOrderItems) {
-                    // Clone the desktop cart content
-                    const desktopContent = desktopOrderItems.cloneNode(true);
-                    mobileOrderItems.innerHTML = '';
-                    mobileOrderItems.appendChild(desktopContent);
-                }
+                // Generate mobile cart HTML directly from currentOrder instead of cloning desktop cart
+                console.log('Generating mobile cart HTML for', currentOrder.length, 'items');
+                const mobileOrderItemsHTML = currentOrder.map(item => `
+                    <div class="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg" data-item-id="${item.id}">
+                        <div class="flex-1 min-w-0 mr-2">
+                            <h4 class="font-medium text-gray-800 text-xs sm:text-sm lg:text-base truncate">${item.name}</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">KSh ${item.price.toFixed(2)} each</p>
+                        </div>
+                        <div class="flex items-center space-x-1 sm:space-x-2">
+                            <button class="remove-item w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors duration-200 touch-target" data-item-id="${item.id}">
+                                <i class="fas fa-minus text-xs sm:text-sm"></i>
+                            </button>
+                            <span class="w-6 sm:w-7 lg:w-8 text-center font-medium text-xs sm:text-sm lg:text-base">${item.quantity}</span>
+                            <button class="add-item w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-primary-orange text-white rounded-full flex items-center justify-center hover:bg-secondary-orange transition-colors duration-200 touch-target" data-item-id="${item.id}">
+                                <i class="fas fa-plus text-xs sm:text-sm"></i>
+                            </button>
+                        </div>
+                        <div class="ml-1 sm:ml-2 lg:ml-4">
+                            <span class="font-semibold text-gray-800 text-xs sm:text-sm lg:text-base">KSh ${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    </div>
+                `).join('');
+                
+                mobileOrderItems.innerHTML = mobileOrderItemsHTML;
+                console.log('Mobile cart HTML generated and inserted, items count:', currentOrder.length);
+                console.log('Mobile cart HTML length:', mobileOrderItemsHTML.length);
+                console.log('Mobile cart children count after insert:', mobileOrderItems.children.length);
+                
+                // Re-attach event listeners for quantity buttons in mobile cart
+                attachMobileCartEventListeners();
                 
                 // Copy order summary values
                 const desktopSubtotal = document.getElementById('subtotal');
@@ -2458,6 +2632,64 @@
                 }
             }
         };
+        
+        // Attach event listeners for mobile cart quantity buttons
+        function attachMobileCartEventListeners() {
+            console.log('Attaching mobile cart event listeners...');
+            
+            // Add event listeners for quantity buttons in mobile cart
+            const mobileOrderItems = document.getElementById('mobileOrderItems');
+            if (mobileOrderItems) {
+                // Remove any existing listeners to avoid duplicates
+                mobileOrderItems.removeEventListener('click', handleMobileCartClick);
+                
+                // Add new event listener
+                mobileOrderItems.addEventListener('click', handleMobileCartClick);
+            }
+        }
+        
+        // Handle clicks on mobile cart quantity buttons
+        function handleMobileCartClick(e) {
+            console.log('Mobile cart click detected:', e.target);
+            
+            // Handle add item button
+            if (e.target.classList.contains('add-item') || e.target.closest('.add-item')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const button = e.target.classList.contains('add-item') ? e.target : e.target.closest('.add-item');
+                const itemId = parseInt(button.getAttribute('data-item-id'));
+                console.log('Adding item to cart from mobile:', itemId);
+                addToOrder(itemId);
+                
+                // Force immediate mobile cart update since user is interacting with mobile cart
+                setTimeout(() => {
+                    if (window.syncMobileCartWithDesktop) {
+                        console.log('Force syncing mobile cart after mobile interaction');
+                        window.syncMobileCartWithDesktop();
+                    }
+                }, 50);
+                return;
+            }
+            
+            // Handle remove item button
+            if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const button = e.target.classList.contains('remove-item') ? e.target : e.target.closest('.remove-item');
+                const itemId = parseInt(button.getAttribute('data-item-id'));
+                console.log('Removing item from cart from mobile:', itemId);
+                removeFromOrder(itemId);
+                
+                // Force immediate mobile cart update since user is interacting with mobile cart
+                setTimeout(() => {
+                    if (window.syncMobileCartWithDesktop) {
+                        console.log('Force syncing mobile cart after mobile interaction');
+                        window.syncMobileCartWithDesktop();
+                    }
+                }, 50);
+                return;
+            }
+        }
     }
 
     // Initialize mobile cart when DOM is ready
@@ -2488,6 +2720,33 @@
                             mobileCartContent.classList.remove('translate-y-full');
                         }
                     }, 10);
+                });
+            }
+            
+            // Fallback for close button
+            const closeMobileCart = document.getElementById('closeMobileCartBtn');
+            if (closeMobileCart && !closeMobileCart.hasAttribute('data-listener-added')) {
+                console.log('Adding fallback close mobile cart click listener');
+                closeMobileCart.setAttribute('data-listener-added', 'true');
+                closeMobileCart.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Fallback close mobile cart button clicked');
+                    if (window.closeMobileCartPopup) {
+                        window.closeMobileCartPopup();
+                    } else {
+                        console.error('closeMobileCartPopup function not found in fallback!');
+                    }
+                });
+                
+                // Also add mousedown as backup
+                closeMobileCart.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Fallback close mobile cart button mousedown');
+                    if (window.closeMobileCartPopup) {
+                        window.closeMobileCartPopup();
+                    }
                 });
             }
         }, 1000);
@@ -3046,32 +3305,36 @@
         receipt += 'PAYMENT METHODS:\n';
         receipt += '--------------------------------\n';
         
-        try {
-            const response = await fetch('/api/pos/hotel-settings');
-            const data = await response.json();
-            
-            if (data.success) {
-                // Add M-Pesa payment method if configured
-                if (data.payment_method === 'buy_goods' && data.till_number) {
-                    receipt += `M-Pesa Buy Goods:\n`;
-                    receipt += `Till Number: ${data.till_number}\n`;
-                    receipt += '\n';
-                } else if (data.payment_method === 'paybill' && data.business_number) {
-                    receipt += `M-Pesa Paybill:\n`;
-                    receipt += `Business No: ${data.business_number}\n`;
-                    if (data.account_number) {
-                        receipt += `Account: ${data.account_number}\n`;
+        // M-Pesa payment information (only if Show Till setting is enabled)
+        if (getTillSetting()) {
+            try {
+                const response = await fetch('/api/pos/hotel-settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Add M-Pesa payment method if configured
+                    if (data.payment_method === 'buy_goods' && data.till_number) {
+                        receipt += `M-Pesa Buy Goods:\n`;
+                        receipt += `Till Number: ${data.till_number}\n`;
+                        receipt += '\n';
+                    } else if (data.payment_method === 'paybill' && data.business_number) {
+                        receipt += `M-Pesa Paybill:\n`;
+                        receipt += `Business No: ${data.business_number}\n`;
+                        if (data.account_number) {
+                            receipt += `Account: ${data.account_number}\n`;
+                        }
+                        receipt += '\n';
                     }
-                    receipt += '\n';
                 }
+            } catch (error) {
+                console.error('Error fetching payment methods for receipt:', error);
             }
-        } catch (error) {
-            console.error('Error fetching payment methods for receipt:', error);
         }
         
         // Always add cash payment
         receipt += 'Cash Payment: Available\n';
         receipt += '\n';
+        
         
         // Footer
         receipt += '\x1B\x61\x01'; // Center alignment
@@ -3193,16 +3456,9 @@
                             </div>
                             <div>
                                 <h4 class="font-semibold text-gray-800">Receipt #${receipt.receipt_number}</h4>
-                                <p class="text-sm text-gray-600">${receipt.employee_name}</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                            <div>
-                                <span class="font-medium">Date:</span> ${new Date(receipt.sale_date).toLocaleDateString()}
-                            </div>
-                            <div>
-                                <span class="font-medium">Time:</span> ${new Date(receipt.sale_date).toLocaleTimeString()}
-                            </div>
                             <div>
                                 <span class="font-medium">Items:</span> ${receipt.item_count || 0}
                             </div>
@@ -3253,15 +3509,6 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <span class="font-medium text-gray-600">Receipt #:</span> ${selectedReceipt.receipt_number}
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-600">Employee:</span> ${selectedReceipt.employee_name}
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-600">Date:</span> ${saleDate.toLocaleDateString()}
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-600">Time:</span> ${saleDate.toLocaleTimeString()}
                     </div>
                     <div>
                         <span class="font-medium text-gray-600">Items:</span> ${selectedReceipt.item_count || 0}

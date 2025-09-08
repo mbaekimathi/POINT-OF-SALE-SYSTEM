@@ -145,15 +145,18 @@
             <!-- Quantity Sold -->
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
+                            </div>
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800">Quantity Sold</h3>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Quantity Sold</h3>
+                        <span id="quantitySoldCount" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0 items</span>
                     </div>
                 </div>
                 <div class="p-4 sm:p-6">
-                    <div id="quantitySoldContent">
+                    <div id="quantitySoldContent" class="max-h-96 overflow-y-auto">
                         <!-- Content will be loaded here -->
                     </div>
                 </div>
@@ -562,12 +565,21 @@
     // Update quantity sold content
     function updateQuantitySoldContent(data) {
         const container = document.getElementById('quantitySoldContent');
+        const countElement = document.getElementById('quantitySoldCount');
+        
         if (!data || data.length === 0) {
             container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
+            if (countElement) countElement.textContent = '0 items';
             return;
         }
         
-        container.innerHTML = data.slice(0, 5).map(item => `
+        // Update count indicator
+        if (countElement) {
+            countElement.textContent = `${data.length} item${data.length !== 1 ? 's' : ''}`;
+        }
+        
+        // Show all items instead of limiting to 5
+        container.innerHTML = data.map(item => `
             <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
                 <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">

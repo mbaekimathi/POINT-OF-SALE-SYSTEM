@@ -2226,7 +2226,7 @@ def api_analytics_items():
             {where_clause}
             GROUP BY si.item_name
             ORDER BY total_quantity DESC
-            LIMIT 10
+            LIMIT 50
         """
         
         cursor.execute(quantity_query, params)
@@ -2310,10 +2310,10 @@ def api_analytics_items():
         
         # Prepare chart data
         if filter_type == 'single':
-            # Bar chart for single day
+            # Bar chart for single day - show more items
             chart_data = {
-                'labels': [item['name'] for item in quantity_sold[:8]],
-                'data': [item['quantity'] for item in quantity_sold[:8]]
+                'labels': [item['name'] for item in quantity_sold[:15]],
+                'data': [item['quantity'] for item in quantity_sold[:15]]
             }
         else:
             # Line chart for multiple days - get daily totals
