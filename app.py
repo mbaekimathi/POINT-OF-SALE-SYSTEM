@@ -812,6 +812,677 @@ def admin_off_days_management():
                          employee_name=session.get('employee_name', 'Guest'),
                          employee_role=session.get('employee_role', 'guest'))
 
+@app.route('/api/get-network-info', methods=['GET'])
+def get_network_info():
+    """Get local network information"""
+    try:
+        import socket
+        import subprocess
+        import platform
+        
+        # Get local IP address
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # Connect to a remote address (doesn't actually connect)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+        except:
+            local_ip = "127.0.0.1"
+        finally:
+            s.close()
+        
+        # Extract network range from local IP
+        if local_ip.startswith('192.168.'):
+            network_range = '.'.join(local_ip.split('.')[:3])
+        elif local_ip.startswith('10.'):
+            network_range = '.'.join(local_ip.split('.')[:2])
+        elif local_ip.startswith('172.'):
+            network_range = '.'.join(local_ip.split('.')[:2])
+        else:
+            # If we can't determine the network, return error
+            return jsonify({
+                'success': False,
+                'error': 'Unable to determine network range from IP: ' + local_ip
+            }), 400
+        
+        return jsonify({
+            'success': True,
+            'local_ip': local_ip,
+            'network_range': network_range
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/scan-wifi-printers', methods=['POST'])
+def scan_wifi_printers():
+    """Advanced WiFi printer discovery using multiple protocols"""
+    try:
+        import socket
+        import subprocess
+        import time
+        import re
+        import json
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        print("Starting advanced WiFi printer discovery...")
+        
+        discovered_printers = []
+        scan_methods_used = []
+        
+        # Method 1: mDNS/Bonjour Discovery
+        def discover_mdns_printers():
+            """Discover printers using mDNS/Bonjour"""
+            printers = []
+            try:
+                print("Attempting mDNS discovery...")
+                # Try using avahi-browse (Linux) or dns-sd (macOS/Windows)
+                commands = [
+                    ['avahi-browse', '-t', '-r', '_printer._tcp'],
+                    ['avahi-browse', '-t', '-r', '_ipp._tcp'],
+                    ['dns-sd', '-B', '_printer._tcp'],
+                    ['dns-sd', '-B', '_ipp._tcp']
+                ]
+                
+                for cmd in commands:
+                    try:
+                        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+                        if result.returncode == 0 and result.stdout:
+                            # Parse mDNS results
+                            lines = result.stdout.split('\n')
+                            for line in lines:
+                                if 'printer' in line.lower() or 'ipp' in line.lower():
+                                    # Extract printer information
+                                    parts = line.split()
+                                    if len(parts) >= 3:
+                                        name = parts[2] if len(parts) > 2 else 'Unknown Printer'
+                                        printers.append({
+                                            'name': name,
+                                            'discovery_method': 'mDNS',
+                                            'type': 'network_printer'
+                                        })
+                            break
+                    except (subprocess.TimeoutExpired, FileNotFoundError):
+                        continue
+                        
+                scan_methods_used.append('mDNS')
+                print(f"mDNS discovery found {len(printers)} printers")
+                
+            except Exception as e:
+                print(f"mDNS discovery failed: {e}")
+            
+            return printers
+        
+        # Method 2: ARP Table Analysis
+        def discover_arp_devices():
+            """Discover devices from ARP table and identify potential printers"""
+            printers = []
+            try:
+                print("Scanning ARP table for network devices...")
+                
+                # Get ARP table
+                if os.name == 'nt':  # Windows
+                    result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=10)
+                else:  # Linux/macOS
+                    result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=10)
+                
+                if result.returncode == 0:
+                    lines = result.stdout.split('\n')
+                    ips = []
+                    
+                    for line in lines:
+                        # Extract IP addresses from ARP table
+                        ip_match = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
+                        if ip_match:
+                            ip = ip_match.group(1)
+                            if not ip.startswith('224.') and not ip.endswith('.255'):  # Skip multicast and broadcast
+                                ips.append(ip)
+                    
+                    print(f"Found {len(ips)} devices in ARP table")
+                    
+                    # Test each IP for printer services
+                    def test_printer_services(ip):
+                        printer_ports = [9100, 9101, 9102, 515, 631, 80, 443]
+                        for port in printer_ports:
+                            try:
+                                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                sock.settimeout(2)
+                                result = sock.connect_ex((ip, port))
+                                sock.close()
+                                
+                                if result == 0:
+                                    # Try to get printer info via HTTP
+                                    printer_info = get_printer_info_http(ip, port)
+                                    if printer_info:
+                                        return {
+                                            'ip': ip,
+                                            'port': port,
+                                            'name': printer_info.get('name', f'Network Printer at {ip}'),
+                                            'model': printer_info.get('model', 'Unknown'),
+                                            'discovery_method': 'ARP+Port',
+                                            'status': 'available'
+                                        }
+                            except:
+                                continue
+                        return None
+                    
+                    # Use threading for faster scanning with timeout
+                    with ThreadPoolExecutor(max_workers=8) as executor:
+                        futures = [executor.submit(test_printer_services, ip) for ip in ips[:15]]  # Limit to first 15 IPs
+                        for future in as_completed(futures, timeout=8):  # 8 second timeout
+                            try:
+                                result = future.result()
+                                if result:
+                                    printers.append(result)
+                            except Exception:
+                                continue
+                
+                scan_methods_used.append('ARP')
+                print(f"ARP discovery found {len(printers)} printers")
+                
+            except Exception as e:
+                print(f"ARP discovery failed: {e}")
+            
+            return printers
+        
+        # Method 3: SNMP Discovery
+        def discover_snmp_printers():
+            """Discover printers using SNMP"""
+            printers = []
+            try:
+                print("Attempting SNMP discovery...")
+                
+                # Get network range from system
+                network_info = get_network_info_internal()
+                if network_info and 'network_range' in network_info:
+                    base_ip = network_info['network_range']
+                    
+                    # Common SNMP OIDs for printer identification
+                    printer_oids = [
+                        '1.3.6.1.2.1.25.3.2.1.3.1',  # hrDeviceDescr
+                        '1.3.6.1.2.1.1.1.0',         # sysDescr
+                    ]
+                    
+                    def snmp_check(ip):
+                        try:
+                            # Simple SNMP check (would need pysnmp for full implementation)
+                            # For now, we'll use a basic UDP probe
+                            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                            sock.settimeout(2)
+                            
+                            # SNMP GET request for sysDescr
+                            snmp_request = bytes([
+                                0x30, 0x29,  # SEQUENCE
+                                0x02, 0x01, 0x00,  # version (SNMPv1)
+                                0x04, 0x06, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63,  # community "public"
+                                0xa0, 0x1c,  # GET request
+                                0x02, 0x04, 0x00, 0x00, 0x00, 0x01,  # request ID
+                                0x02, 0x01, 0x00,  # error status
+                                0x02, 0x01, 0x00,  # error index
+                                0x30, 0x0e,  # varbind list
+                                0x30, 0x0c,  # varbind
+                                0x06, 0x08, 0x2b, 0x06, 0x01, 0x02, 0x01, 0x01, 0x01, 0x00,  # OID 1.3.6.1.2.1.1.1.0
+                                0x05, 0x00   # NULL
+                            ])
+                            
+                            sock.sendto(snmp_request, (ip, 161))
+                            data, addr = sock.recvfrom(1024)
+                            sock.close()
+                            
+                            if data and len(data) > 20:
+                                # Basic check if response contains printer-related keywords
+                                response_str = str(data).lower()
+                                if any(keyword in response_str for keyword in ['printer', 'hp', 'canon', 'epson', 'brother', 'lexmark']):
+                                    return {
+                                        'ip': ip,
+                                        'port': 161,
+                                        'name': f'SNMP Printer at {ip}',
+                                        'discovery_method': 'SNMP',
+                                        'status': 'available'
+                                    }
+                        except:
+                            pass
+                        return None
+                    
+                    # Test a smaller range for SNMP
+                    test_ips = [f"{base_ip}.{i}" for i in range(1, 51)]  # Test first 50 IPs
+                    
+                    with ThreadPoolExecutor(max_workers=10) as executor:
+                        futures = [executor.submit(snmp_check, ip) for ip in test_ips]
+                        for future in as_completed(futures):
+                            result = future.result()
+                            if result:
+                                printers.append(result)
+                
+                scan_methods_used.append('SNMP')
+                print(f"SNMP discovery found {len(printers)} printers")
+                
+            except Exception as e:
+                print(f"SNMP discovery failed: {e}")
+            
+            return printers
+        
+        # Method 4: UPnP Discovery
+        def discover_upnp_devices():
+            """Discover devices using UPnP/SSDP"""
+            printers = []
+            try:
+                print("Attempting UPnP discovery...")
+                
+                # UPnP SSDP multicast discovery
+                ssdp_request = (
+                    'M-SEARCH * HTTP/1.1\r\n'
+                    'HOST: 239.255.255.250:1900\r\n'
+                    'MAN: "ssdp:discover"\r\n'
+                    'ST: upnp:rootdevice\r\n'
+                    'MX: 3\r\n\r\n'
+                ).encode()
+                
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.settimeout(5)
+                sock.sendto(ssdp_request, ('239.255.255.250', 1900))
+                
+                responses = []
+                start_time = time.time()
+                while time.time() - start_time < 5:
+                    try:
+                        data, addr = sock.recvfrom(1024)
+                        response = data.decode('utf-8', errors='ignore')
+                        if 'printer' in response.lower() or any(brand in response.lower() for brand in ['hp', 'canon', 'epson', 'brother']):
+                            responses.append((response, addr[0]))
+                    except socket.timeout:
+                        break
+                    except:
+                        continue
+                
+                sock.close()
+                
+                for response, ip in responses:
+                    printers.append({
+                        'ip': ip,
+                        'port': 80,
+                        'name': f'UPnP Printer at {ip}',
+                        'discovery_method': 'UPnP',
+                        'status': 'available'
+                    })
+                
+                scan_methods_used.append('UPnP')
+                print(f"UPnP discovery found {len(printers)} printers")
+                
+            except Exception as e:
+                print(f"UPnP discovery failed: {e}")
+            
+            return printers
+        
+        # Simple and fast network scanning
+        print("Running simple WiFi printer discovery...")
+        discovered_printers = []
+        scan_methods_used = []
+        
+        # Method 1: Dynamic network range scanning for thermal printers
+        print("Scanning network range for thermal printers...")
+        
+        try:
+            # Get local network info dynamically
+            hostname = socket.gethostname()
+            local_ip = socket.gethostbyname(hostname)
+            network_base = '.'.join(local_ip.split('.')[:-1])
+            print(f"Scanning {network_base}.x network for thermal printers on port 9100...")
+            
+            # Scan common thermal printer IP ranges
+            thermal_ranges = []
+            thermal_ranges.extend(range(1, 51))      # .1 to .50
+            thermal_ranges.extend(range(100, 201))   # .100 to .200
+            
+            def test_thermal_printer(host_num):
+                ip = f"{network_base}.{host_num}"
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.settimeout(0.3)  # Very fast timeout
+                    result = sock.connect_ex((ip, 9100))  # Test thermal printer port
+                    sock.close()
+                    
+                    if result == 0:
+                        printer_info = get_printer_info(ip, 9100)
+                        print(f"🖨️ Found thermal printer at {ip}:9100")
+                        return {
+                            'ip': ip,
+                            'port': 9100,
+                            'name': printer_info.get('name', f'Thermal Printer at {ip}'),
+                            'model': printer_info.get('model', 'ESC/POS Thermal Printer'),
+                            'discovery_method': 'Network Scan',
+                            'status': 'available'
+                        }
+                except:
+                    pass
+                return None
+            
+            # Use threading for fast scanning
+            with ThreadPoolExecutor(max_workers=50) as executor:
+                futures = [executor.submit(test_thermal_printer, host_num) for host_num in thermal_ranges]
+                
+                for future in as_completed(futures, timeout=8):  # 8 second timeout
+                    try:
+                        result = future.result()
+                        if result:
+                            discovered_printers.append(result)
+                    except:
+                        continue
+            
+            scan_methods_used.append('Network Scan')
+        except Exception as e:
+            print(f"Network scan failed: {e}")
+        
+        # Method 2: Dynamic ARP scan for all types of printers
+        try:
+            print("Scanning ARP table for network printers...")
+            result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=3)
+            if result.returncode == 0:
+                # Extract all unique IPs from ARP table
+                arp_ips = list(set(re.findall(r'(\d+\.\d+\.\d+\.\d+)', result.stdout)))
+                print(f"Found {len(arp_ips)} devices in ARP table, testing for printer services...")
+                
+                def test_device_ports(ip):
+                    # Skip if already found in thermal scan
+                    if any(p['ip'] == ip for p in discovered_printers):
+                        return None
+                    
+                    # Test all common printer ports
+                    printer_ports = [9100, 9101, 9102, 80, 443, 515, 631]
+                    for port in printer_ports:
+                        try:
+                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            sock.settimeout(0.3)
+                            if sock.connect_ex((ip, port)) == 0:
+                                sock.close()
+                                printer_info = get_printer_info(ip, port)
+                                print(f"✓ Found network device at {ip}:{port}")
+                                return {
+                                    'ip': ip,
+                                    'port': port,
+                                    'name': printer_info.get('name', f'Network Device at {ip}'),
+                                    'model': printer_info.get('model', 'Network Device'),
+                                    'discovery_method': 'ARP Discovery',
+                                    'status': 'available'
+                                }
+                            sock.close()
+                        except:
+                            continue
+                    return None
+                
+                # Test ARP devices with threading
+                with ThreadPoolExecutor(max_workers=20) as executor:
+                    futures = [executor.submit(test_device_ports, ip) for ip in arp_ips[:20]]  # Limit to 20 for speed
+                    
+                    for future in as_completed(futures, timeout=5):
+                        try:
+                            result = future.result()
+                            if result:
+                                discovered_printers.append(result)
+                        except:
+                            continue
+                            
+            scan_methods_used.append('ARP Discovery')
+        except Exception as e:
+            print(f"ARP scan failed: {e}")
+        
+        if not scan_methods_used:
+            scan_methods_used = ['Network Scan']
+        
+        # Remove duplicates based on IP address
+        unique_printers = {}
+        for printer in discovered_printers:
+            ip = printer.get('ip')
+            if ip and ip not in unique_printers:
+                unique_printers[ip] = printer
+            elif ip and ip in unique_printers:
+                # Merge information from multiple discovery methods
+                existing = unique_printers[ip]
+                existing['discovery_method'] += f", {printer['discovery_method']}"
+                if 'model' in printer and printer['model'] != 'Unknown':
+                    existing['model'] = printer['model']
+        
+        final_printers = list(unique_printers.values())
+        
+        print(f"Discovery completed. Found {len(discovered_printers)} printers using methods: {', '.join(scan_methods_used)}")
+        
+        return jsonify({
+            'success': True,
+            'printers': discovered_printers,
+            'scan_methods': scan_methods_used,
+            'total_found': len(discovered_printers)
+        })
+        
+    except Exception as e:
+        print(f"Advanced WiFi scanning error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'fallback_message': 'Advanced discovery failed. Please use manual setup.'
+        }), 500
+
+@app.route('/api/test-wifi-printer', methods=['POST'])
+def test_wifi_printer():
+    """Test connection to a WiFi printer"""
+    try:
+        data = request.get_json()
+        ip = data.get('ip')
+        port = data.get('port', 9100)
+        
+        if not ip:
+            return jsonify({'success': False, 'error': 'IP address required'}), 400
+        
+        # Test connection to printer
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
+        
+        try:
+            result = sock.connect_ex((ip, port))
+            sock.close()
+            
+            if result == 0:
+                return jsonify({'success': True, 'message': 'Printer is reachable'})
+            else:
+                return jsonify({'success': False, 'error': 'Printer not reachable'})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/print-wifi', methods=['POST'])
+def print_wifi():
+    """Print to a WiFi printer"""
+    try:
+        data = request.get_json()
+        ip = data.get('ip')
+        port = data.get('port', 9100)
+        content = data.get('content', '')
+        printer_name = data.get('printerName', f'Printer at {ip}')
+        
+        print(f"=== WiFi Print Request ===")
+        print(f"Printer: {printer_name} ({ip}:{port})")
+        print(f"Content length: {len(content)} characters")
+        print(f"Content preview: {content[:200]}..." if len(content) > 200 else f"Content: {content}")
+        
+        if not ip or not content:
+            print("Error: Missing IP or content")
+            return jsonify({'success': False, 'error': 'IP address and content required'}), 400
+        
+        # Check if this looks like a thermal printer port
+        thermal_ports = [9100, 9101, 9102, 515, 631]
+        if port not in thermal_ports:
+            print(f"Warning: Port {port} is not a typical thermal printer port")
+        
+        # Send print job to printer
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(10)
+        
+        try:
+            print(f"Connecting to {ip}:{port}...")
+            sock.connect((ip, port))
+            print("Connected successfully")
+            
+            # Convert content to bytes if it's a string
+            if isinstance(content, str):
+                content = content.encode('utf-8')
+            
+            print(f"Sending {len(content)} bytes to printer...")
+            
+            # Send data in chunks
+            chunk_size = 1024
+            bytes_sent = 0
+            for i in range(0, len(content), chunk_size):
+                chunk = content[i:i + chunk_size]
+                sock.send(chunk)
+                bytes_sent += len(chunk)
+            
+            print(f"Successfully sent {bytes_sent} bytes to printer")
+            sock.close()
+            
+            return jsonify({
+                'success': True, 
+                'message': f'Print job sent successfully to {printer_name}',
+                'bytes_sent': bytes_sent,
+                'printer_info': f'{ip}:{port}'
+            })
+            
+        except socket.timeout:
+            error_msg = f'Connection timeout to {ip}:{port}. Printer may be offline or unreachable.'
+            print(f"Error: {error_msg}")
+            return jsonify({'success': False, 'error': error_msg})
+        except ConnectionRefusedError:
+            error_msg = f'Connection refused by {ip}:{port}. Device may not be a printer or service is not running.'
+            print(f"Error: {error_msg}")
+            return jsonify({'success': False, 'error': error_msg})
+        except Exception as e:
+            error_msg = f'Failed to print to {ip}:{port}: {str(e)}'
+            print(f"Error: {error_msg}")
+            return jsonify({'success': False, 'error': error_msg})
+            
+    except Exception as e:
+        print(f"WiFi Print API Error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+def get_printer_info(ip, port):
+    """Get printer information from IP and port"""
+    try:
+        # Try to connect and get printer info
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        sock.connect((ip, port))
+        
+        # Send a simple query to get printer info
+        if port in [9100, 9101, 9102]:  # ESC/POS ports
+            # Send ESC/POS query
+            query = b'\x1B\x40'  # Initialize printer
+            sock.send(query)
+            
+        sock.close()
+        
+        # Return actual printer information based on port
+        port_models = {
+            9100: 'ESC/POS Thermal Printer',
+            9101: 'ESC/POS Thermal Printer (Alt)',
+            9102: 'ESC/POS Thermal Printer (Alt2)',
+            515: 'LPR/LPD Network Printer',
+            631: 'IPP Network Printer'
+        }
+        
+        return {
+            'name': f'WiFi Printer at {ip}:{port}',
+            'model': port_models.get(port, 'Network Printer')
+        }
+    except Exception as e:
+        return {
+            'name': f'WiFi Printer at {ip}:{port}',
+            'model': 'Network Printer'
+        }
+
+def get_printer_info_http(ip, port):
+    """Get printer information via HTTP"""
+    try:
+        import urllib.request
+        import json
+        
+        # Try common HTTP endpoints for printer information
+        endpoints = [
+            f'http://{ip}:{port}/api/printer/status',
+            f'http://{ip}:{port}/printer_info',
+            f'http://{ip}:{port}/status',
+            f'http://{ip}:{port}/',
+        ]
+        
+        for endpoint in endpoints:
+            try:
+                with urllib.request.urlopen(endpoint, timeout=3) as response:
+                    content = response.read().decode('utf-8')
+                    
+                    # Check if content contains printer-related information
+                    if any(keyword in content.lower() for keyword in ['printer', 'hp', 'canon', 'epson', 'brother', 'lexmark']):
+                        # Try to parse as JSON first
+                        try:
+                            data = json.loads(content)
+                            return {
+                                'name': data.get('name', f'HTTP Printer at {ip}'),
+                                'model': data.get('model', 'Network Printer')
+                            }
+                        except:
+                            # Parse HTML/text content for printer info
+                            return {
+                                'name': f'HTTP Printer at {ip}',
+                                'model': 'Network Printer'
+                            }
+            except:
+                continue
+                
+        return None
+        
+    except Exception as e:
+        return None
+
+def get_network_info_internal():
+    """Internal function to get network information"""
+    try:
+        import socket
+        
+        # Get local IP address
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+        except:
+            local_ip = "127.0.0.1"
+        finally:
+            s.close()
+        
+        # Extract network range from local IP
+        if local_ip.startswith('192.168.'):
+            network_range = '.'.join(local_ip.split('.')[:3])
+        elif local_ip.startswith('10.'):
+            network_range = '.'.join(local_ip.split('.')[:2])
+        elif local_ip.startswith('172.'):
+            network_range = '.'.join(local_ip.split('.')[:2])
+        else:
+            return None
+        
+        return {
+            'local_ip': local_ip,
+            'network_range': network_range
+        }
+        
+    except Exception as e:
+        return None
+
 @app.route('/employee/off-days')
 def employee_off_days():
     """Employee off days viewing page"""

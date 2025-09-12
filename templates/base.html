@@ -1302,8 +1302,45 @@
         checkPrinterStatus();
     </script>
     
-    <!-- Global Bluetooth Printer Manager -->
-    <script src="/static/js/bluetooth-printer-manager.js"></script>
+    <!-- Enhanced Bluetooth Printer Manager -->
+    <script src="/static/js/bluetooth-printer-manager-improved.js"></script>
+    <!-- WiFi Printer Manager -->
+    <script src="/static/js/wifi-printer-manager.js"></script>
+    <!-- Unified Printer Manager -->
+    <script src="/static/js/unified-printer-manager.js"></script>
+    
+    <!-- Fallback to original manager if enhanced version fails -->
+    <script>
+        if (typeof window.enhancedBluetoothPrinterManager === 'undefined') {
+            console.warn('Enhanced Bluetooth manager failed to load, falling back to original');
+            const script = document.createElement('script');
+            script.src = '/static/js/bluetooth-printer-manager.js';
+            script.onload = function() {
+                // Create compatibility wrapper
+                window.bluetoothPrinterManager = window.bluetoothPrinterManager || new BluetoothPrinterManager();
+            };
+            document.head.appendChild(script);
+        } else {
+            // Use enhanced manager as primary
+            window.bluetoothPrinterManager = window.enhancedBluetoothPrinterManager;
+        }
+
+        // Initialize WiFi printer manager
+        if (typeof window.WiFiPrinterManager !== 'undefined') {
+            window.wifiPrinterManager = new window.WiFiPrinterManager();
+            console.log('WiFi printer manager initialized');
+        } else {
+            console.warn('WiFi printer manager not available');
+        }
+
+        // Initialize unified printer manager
+        if (typeof window.UnifiedPrinterManager !== 'undefined' && window.bluetoothPrinterManager && window.wifiPrinterManager) {
+            window.unifiedPrinterManager = new window.UnifiedPrinterManager(window.bluetoothPrinterManager, window.wifiPrinterManager);
+            console.log('Unified printer manager initialized');
+        } else {
+            console.warn('Unified printer manager not available');
+        }
+    </script>
     
     {% block extra_scripts %}{% endblock %}
 </body>

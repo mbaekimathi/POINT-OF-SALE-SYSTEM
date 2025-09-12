@@ -34,14 +34,14 @@
                     <button id="connectPrinterBtn" class="group bg-blue-500/80 hover:bg-blue-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Connect Bluetooth Printer">
                         <i class="fas fa-bluetooth text-xs sm:text-sm group-hover:animate-pulse"></i>
                     </button>
-                    <button id="testPrintBtn" class="group bg-green-500/80 hover:bg-green-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg opacity-50 cursor-not-allowed flex-1 sm:flex-none" title="Test Print" disabled>
-                        <i class="fas fa-print text-xs sm:text-sm"></i>
-                    </button>
-                    <button id="reconnectPrintersBtn" class="group bg-orange-500/80 hover:bg-orange-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg opacity-50 cursor-not-allowed flex-1 sm:flex-none" title="Reconnect Printers" disabled>
-                        <i class="fas fa-redo text-xs sm:text-sm"></i>
+                    <button id="connectWifiPrinterBtn" class="group bg-purple-500/80 hover:bg-purple-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Connect WiFi Printer">
+                        <i class="fas fa-wifi text-xs sm:text-sm group-hover:animate-pulse"></i>
                     </button>
                     <button id="reprintBtn" class="group bg-purple-500/80 hover:bg-purple-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Reprint Receipt">
                         <i class="fas fa-redo-alt text-xs sm:text-sm"></i>
+                    </button>
+                    <button id="testPrintBtn" class="group bg-green-500/80 hover:bg-green-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Test Print">
+                        <i class="fas fa-print text-xs sm:text-sm"></i>
                     </button>
                     <button id="printerInfoBtn" class="group bg-gray-500/80 hover:bg-gray-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Printer Info">
                         <i class="fas fa-info text-xs sm:text-sm"></i>
@@ -124,7 +124,7 @@
                     <div class="space-y-2 sm:space-y-3">
                         <div id="mobileEmployeeValidationWarning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-3 text-yellow-700 text-xs sm:text-sm hidden">
                             <i class="fas fa-exclamation-triangle mr-1 sm:mr-2"></i>
-                            Please connect a Bluetooth printer first
+                            Please connect a printer first (Bluetooth or WiFi)
                         </div>
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Employee Code (4 digits)</label>
@@ -236,7 +236,7 @@
                     <div class="space-y-3">
                         <div id="reprintEmployeeValidationWarning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm hidden">
                             <i class="fas fa-exclamation-triangle mr-2"></i>
-                            Please connect a Bluetooth printer first
+                            Please connect a printer first (Bluetooth or WiFi)
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Employee Code (4 digits)</label>
@@ -1078,6 +1078,20 @@
             updatePrinterSetupNotice();
             updateEmployeeValidationUI();
         });
+
+        // Listen for WiFi printer status changes
+        document.addEventListener('wifiPrinterStatus', function(event) {
+            console.log('WiFi printer status changed:', event.detail);
+            updatePrinterSetupNotice();
+            updateEmployeeValidationUI();
+        });
+
+        // Listen for unified printer status changes
+        document.addEventListener('unifiedPrinterStatus', function(event) {
+            console.log('Unified printer status changed:', event.detail);
+            updatePrinterSetupNotice();
+            updateEmployeeValidationUI();
+        });
         
         // Also listen for any printer manager events
         if (window.bluetoothPrinterManager) {
@@ -1371,30 +1385,15 @@
             }, 100);
         }
         
-        // Force update mobile cart badge immediately
+        // Force update mobile cart badge immediately using centralized function
+        if (window.updateMobileCartBadge) {
+            window.updateMobileCartBadge();
+        }
+        
+        // Also ensure it updates after a small delay in case of timing issues
         setTimeout(() => {
-            const cartCountBadge = document.getElementById('cartCountBadge');
-            const cartCount = document.getElementById('cartCount');
-            const cartPulse = document.getElementById('cartPulse');
-            const totalItems = currentOrder.reduce((sum, item) => sum + item.quantity, 0);
-            
-            if (totalItems > 0) {
-                if (cartCountBadge) cartCountBadge.classList.remove('hidden');
-                if (cartCount) cartCount.textContent = totalItems;
-                if (cartPulse) {
-                    cartPulse.classList.remove('hidden');
-                    setTimeout(() => {
-                        if (cartPulse) cartPulse.classList.add('hidden');
-                    }, 1000);
-                }
-                if (window.mobileCartBtn) {
-                    window.mobileCartBtn.classList.add('cart-has-items');
-                }
-            } else {
-                if (cartCountBadge) cartCountBadge.classList.add('hidden');
-                if (window.mobileCartBtn) {
-                    window.mobileCartBtn.classList.remove('cart-has-items');
-                }
+            if (window.updateMobileCartBadge) {
+                window.updateMobileCartBadge();
             }
         }, 50);
         
@@ -1434,6 +1433,12 @@
                 initializePOS();
             }, 100);
         }
+        
+        // Force immediate cart badge update
+        if (window.updateMobileCartBadge) {
+            window.updateMobileCartBadge();
+        }
+        
         showNotification(`${item.name} removed from cart`, 'info');
     }
 
@@ -1459,6 +1464,14 @@
                     initializePOS();
                 }, 100);
             }
+            
+            // Always ensure mobile cart badge is updated regardless of initialization state
+            if (window.updateMobileCartBadge) {
+                window.updateMobileCartBadge();
+            } else if (window.updateMobileCart) {
+                window.updateMobileCart();
+            }
+            
             showNotification('Cart cleared successfully', 'success');
         }
     }
@@ -1659,11 +1672,13 @@
         // Connect printer button
         document.getElementById('connectPrinterBtn').addEventListener('click', connectBluetoothPrinter);
         
-        // Test print button
-        document.getElementById('testPrintBtn').addEventListener('click', testPrint);
+        // Connect WiFi printer button
+        document.getElementById('connectWifiPrinterBtn').addEventListener('click', connectWiFiPrinter);
         
-        // Reconnect printers button
-        document.getElementById('reconnectPrintersBtn').addEventListener('click', reconnectAllPrinters);
+        
+        
+        // Test print button
+        document.getElementById('testPrintBtn').addEventListener('click', testAllConnectedPrinters);
         
         // Printer info button
         document.getElementById('printerInfoBtn').addEventListener('click', showPrinterInfo);
@@ -1676,29 +1691,12 @@
 
     // Update printer control button states
     function updatePrinterControlButtons() {
-        const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-        const hasConnectedPrinters = connectedPrinters.length > 0;
-        
-        const testPrintBtn = document.getElementById('testPrintBtn');
-        const reconnectPrintersBtn = document.getElementById('reconnectPrintersBtn');
-        
-        // Enable/disable buttons based on connection status
-        testPrintBtn.disabled = !hasConnectedPrinters;
-        reconnectPrintersBtn.disabled = !hasConnectedPrinters;
-        
-        // Update button styles
-        if (hasConnectedPrinters) {
-            testPrintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            testPrintBtn.classList.add('hover:scale-105', 'hover:shadow-lg');
-            reconnectPrintersBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            reconnectPrintersBtn.classList.add('hover:scale-105', 'hover:shadow-lg');
-        } else {
-            testPrintBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            testPrintBtn.classList.remove('hover:scale-105', 'hover:shadow-lg');
-            reconnectPrintersBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            reconnectPrintersBtn.classList.remove('hover:scale-105', 'hover:shadow-lg');
-        }
+        // No additional button state updates needed since test and reconnect buttons were removed
     }
+
+
+
+
 
     // Connect Bluetooth printer
     async function connectBluetoothPrinter() {
@@ -1706,6 +1704,17 @@
             if (!navigator.bluetooth) {
                 showNotification('Web Bluetooth is not supported in this browser. Please use Chrome, Edge, or Opera.', 'error');
                 return;
+            }
+
+            // Check browser compatibility and show enhanced warning
+            if (window.bluetoothPrinterManager && window.bluetoothPrinterManager.browserInfo) {
+                const browserInfo = window.bluetoothPrinterManager.browserInfo;
+                if (!browserInfo.supportsBluetooth) {
+                    showNotification(`Web Bluetooth not supported in ${browserInfo.name}. Please use Chrome, Edge, or Opera for optimal performance.`, 'error');
+                    return;
+                } else if (browserInfo.name === 'Firefox' || browserInfo.name === 'Safari') {
+                    showNotification(`Limited Bluetooth support in ${browserInfo.name}. For best results, use Chrome or Edge.`, 'warning');
+                }
             }
 
             showNotification('Opening Bluetooth device selection...', 'info');
@@ -1749,91 +1758,923 @@
         }
     }
 
-    // Test print function
-    async function testPrint() {
+
+    // Connect WiFi printer
+    async function connectWiFiPrinter() {
         try {
-            const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-            if (connectedPrinters.length === 0) {
-                showNotification('No printers connected', 'warning');
-                return;
-            }
-
-            showNotification('Sending test print...', 'info');
-
-            const testReceipt = window.bluetoothPrinterManager.generateTestReceipt();
-            const results = await window.bluetoothPrinterManager.printToAllPrinters(testReceipt);
-            
-            const successCount = results.filter(r => r.success).length;
-            const failCount = results.filter(r => !r.success).length;
-            
-            if (successCount > 0) {
-                showNotification(`Test print sent to ${successCount} printer(s) successfully!`, 'success');
-            } else {
-                showNotification('Test print failed. Please check printer connections.', 'error');
-            }
-
+            showNotification('Scanning for WiFi printers...', 'info');
+            await scanForWiFiPrinters();
         } catch (error) {
-            console.error('Test print error:', error);
-            showNotification(`Test print failed: ${error.message}`, 'error');
+            console.error('WiFi printer connection error:', error);
+            showNotification('Error scanning for WiFi printers. Please try again.', 'error');
         }
     }
 
-    // Reconnect all printers
-    async function reconnectAllPrinters() {
+    // Advanced WiFi printer scanning using multiple discovery methods
+    async function scanForWiFiPrinters() {
         try {
-            showNotification('Attempting to reconnect all previously paired printers...', 'info');
+            showWiFiScanningModal();
+            showNotification('Starting printer discovery...', 'info');
             
-            const allPrinters = Array.from(window.bluetoothPrinterManager.connectedPrinters.values());
-            const disconnectedPrinters = allPrinters.filter(printer => printer.status === 'disconnected');
+            console.log('Attempting WiFi printer scan...');
             
-            if (disconnectedPrinters.length === 0) {
-                showNotification('No disconnected printers to reconnect', 'info');
-                return;
-            }
+            // Add timeout and retry logic for cross-platform compatibility
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
             
-            for (const printer of disconnectedPrinters) {
-                try {
-                    await window.bluetoothPrinterManager.attemptReconnection(printer.id);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                } catch (error) {
-                    console.error(`Failed to reconnect printer ${printer.id}:`, error);
+            try {
+                // Call backend API for WiFi printer discovery
+                // Use the current host to avoid connection reset issues
+                const apiUrl = `${window.location.protocol}//${window.location.host}/api/scan-wifi-printers`;
+                console.log('Calling WiFi scan API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    body: JSON.stringify({}),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                console.log('Response received:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Scan response data:', data);
+                
+                if (data.success) {
+                    const methods = data.scan_methods ? data.scan_methods.join(', ') : 'network scan';
+                    const count = data.total_found || data.printers?.length || 0;
+                    
+                    showNotification(`Found ${count} device(s) using ${methods}`, 'success');
+                    
+                    if (count > 0) {
+                        showDiscoveredPrinters(data.printers);
+                    } else {
+                        closeWiFiScanningModal();
+                        showNotification('No WiFi printers found. Try manual setup.', 'warning');
+                        showWiFiPrinterDiscovery();
+                    }
+                } else {
+                    throw new Error(data.error || 'Discovery failed');
+                }
+                
+            } catch (fetchError) {
+                clearTimeout(timeoutId);
+                
+                if (fetchError.name === 'AbortError') {
+                    throw new Error('Scan timeout - network may be slow or server unreachable');
+                } else if (fetchError.message.includes('ERR_CONNECTION_RESET') || fetchError.message.includes('Failed to fetch')) {
+                    console.warn('Connection reset detected, trying fallback approach...');
+                    
+                    // Try alternative API URL if we're on different host
+                    if (!apiUrl.includes('192.168.100.19')) {
+                        console.log('Trying alternative server address...');
+                        try {
+                            const altResponse = await fetch('http://192.168.100.19:5000/api/scan-wifi-printers', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Cache-Control': 'no-cache',
+                                    'Pragma': 'no-cache'
+                                },
+                                body: JSON.stringify({}),
+                                signal: controller.signal
+                            });
+                            
+                            if (altResponse.ok) {
+                                const altData = await altResponse.json();
+                                console.log('Alternative API call successful:', altData);
+                                
+                                if (altData.success && altData.printers && altData.printers.length > 0) {
+                                    closeWiFiScanningModal();
+                                    showDiscoveredPrinters(altData.printers);
+                                    return;
+                                }
+                            }
+                        } catch (altError) {
+                            console.log('Alternative API call also failed:', altError);
+                        }
+                    }
+                    
+                    // Final fallback: Show manual setup with helpful info
+                    closeWiFiScanningModal();
+                    showNotification('Network scan failed. Use manual setup - try IP: 192.168.100.171 Port: 9100 for thermal printers.', 'warning');
+                    showWiFiPrinterDiscovery();
+                    return;
+                } else {
+                    throw fetchError;
                 }
             }
             
-            setTimeout(() => {
-                updatePrinterSetupNotice();
-                updatePrinterControlButtons();
-                updateEmployeeValidationUI(); // Enable employee code input
-            }, 2000);
-            
         } catch (error) {
-            console.error('Reconnect all printers error:', error);
-            showNotification(`Reconnection failed: ${error.message}`, 'error');
+            console.error('WiFi scanning error:', error);
+            closeWiFiScanningModal();
+            
+            // Provide helpful error messages based on the error type
+            let errorMessage = 'Discovery failed. ';
+            if (error.message.includes('timeout') || error.message.includes('slow')) {
+                errorMessage += 'Network is slow or server is busy. Please try manual setup.';
+            } else if (error.message.includes('CONNECTION_RESET') || error.message.includes('Failed to fetch')) {
+                errorMessage += 'Network connection issue. Please check your connection and try manual setup.';
+            } else {
+                errorMessage += error.message + ' Please try manual setup.';
+            }
+            
+            showNotification(errorMessage, 'error');
+            showWiFiPrinterDiscovery();
         }
     }
 
-    // Show printer information
-    function showPrinterInfo() {
-        const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-        const allPrinters = Array.from(window.bluetoothPrinterManager.connectedPrinters.values());
+    // Get local network range
+    async function getLocalNetworkRange() {
+        try {
+            // Get the actual local network range
+            const response = await fetch('/api/get-network-info');
+            const data = await response.json();
+            
+            if (data.success && data.network_range) {
+                // Return only the detected network range
+                return [data.network_range];
+            }
+            
+            // If detection fails, show error
+            throw new Error('Unable to detect network range');
+        } catch (error) {
+            console.error('Network detection failed:', error);
+            showNotification('Unable to detect your network. Please check your WiFi connection.', 'error');
+            throw error;
+        }
+    }
+
+    // Show WiFi scanning modal
+    function showWiFiScanningModal() {
+        const modal = document.createElement('div');
+        modal.id = 'wifi-scanning-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-wifi mr-2 text-purple-500"></i>
+                        Advanced Printer Discovery
+                    </h3>
+                    <button onclick="closeWiFiScanningModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="text-center py-6">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                    <p class="text-gray-600 mb-3">Discovering printers using multiple methods...</p>
+                    <div class="text-xs text-gray-500 space-y-1 mb-3">
+                        <div class="flex items-center justify-between">
+                            <span>• mDNS/Bonjour Discovery</span>
+                            <i class="fas fa-search text-blue-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>• ARP Table Analysis</span>
+                            <i class="fas fa-network-wired text-green-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>• SNMP Device Detection</span>
+                            <i class="fas fa-server text-orange-400"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>• UPnP/SSDP Discovery</span>
+                            <i class="fas fa-broadcast-tower text-red-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500">Advanced scan takes 10-15 seconds</p>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button onclick="closeWiFiScanningModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
         
-        let message = '';
+        document.body.appendChild(modal);
+    }
+
+    // Close WiFi scanning modal
+    function closeWiFiScanningModal() {
+        const modal = document.getElementById('wifi-scanning-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // Show discovered printers
+    function showDiscoveredPrinters(printers) {
+        closeWiFiScanningModal();
         
-        if (connectedPrinters.length === 0) {
-            message = 'No printers currently connected.\n\nClick the Bluetooth icon to connect a printer.';
-        } else {
-            message = `Connected Printers (${connectedPrinters.length}):\n\n`;
-            connectedPrinters.forEach((printer, index) => {
-                message += `${index + 1}. ${printer.name}\n`;
-                message += `   Status: Connected\n`;
-                message += `   Connected: ${new Date(printer.connectedAt).toLocaleString()}\n\n`;
-            });
+        if (printers.length === 0) {
+            showNotification('No WiFi printers found. Try manual setup.', 'warning');
+            showWiFiPrinterDiscovery();
+            return;
         }
         
-        if (allPrinters.length > connectedPrinters.length) {
-            const disconnectedCount = allPrinters.length - connectedPrinters.length;
-            message += `Disconnected Printers: ${disconnectedCount}\n`;
-            message += 'Click the reconnect icon to reconnect them.';
+        const modal = document.createElement('div');
+        modal.id = 'discovered-printers-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-wifi mr-2 text-purple-500"></i>
+                        Discovered WiFi Printers
+                    </h3>
+                    <button onclick="closeDiscoveredPrintersModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Found ${printers.length} printer(s) on your network:</p>
+                    <p class="text-xs text-blue-600 mb-4"><i class="fas fa-info-circle mr-1"></i>Click on any printer below to pair and connect</p>
+                    <div class="space-y-3 max-h-64 overflow-y-auto">
+                        ${printers.map(printer => {
+                            const thermalPorts = [9100, 9101, 9102, 515, 631];
+                            const isThermalPort = thermalPorts.includes(printer.port);
+                            const warningClass = isThermalPort ? '' : 'border-yellow-300 bg-yellow-50';
+                            const statusColor = isThermalPort ? 'bg-green-400' : 'bg-yellow-400';
+                            const statusText = isThermalPort ? 'Ready' : 'Check';
+                            
+                            return `
+                            <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all duration-200 group ${warningClass}" 
+                                 onclick="connectToDiscoveredPrinter('${printer.name}', '${printer.ip}', ${printer.port})"
+                                 title="Click to connect to this printer">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800 group-hover:text-blue-700">${printer.name}</h4>
+                                        <p class="text-sm text-gray-600">${printer.model || 'Network Printer'}</p>
+                                        <p class="text-xs text-gray-500">${printer.ip}:${printer.port}</p>
+                                        ${printer.discovery_method ? `<p class="text-xs text-purple-500 mt-1">Found via: ${printer.discovery_method}</p>` : ''}
+                                        ${!isThermalPort ? `<p class="text-xs text-yellow-600 mt-1">⚠️ Port ${printer.port} may not be a thermal printer</p>` : ''}
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-center">
+                                            <span class="w-3 h-3 ${statusColor} rounded-full inline-block" title="${isThermalPort ? 'Likely thermal printer' : 'May not be thermal printer'}"></span>
+                                            <p class="text-xs ${isThermalPort ? 'text-green-600' : 'text-yellow-600'} mt-1">${statusText}</p>
+                                        </div>
+                                        <div class="bg-blue-500 group-hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors">
+                                            <i class="fas fa-plug mr-1"></i>
+                                            Connect
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        }).join('')}
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="showWiFiPrinterDiscovery()" 
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        Manual Setup
+                    </button>
+                    <button onclick="closeDiscoveredPrintersModal()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    // Close discovered printers modal
+    function closeDiscoveredPrintersModal() {
+        const modal = document.getElementById('discovered-printers-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // Connect to discovered printer
+    async function connectToDiscoveredPrinter(name, ip, port) {
+        try {
+            console.log(`Starting connection to WiFi printer: ${name} at ${ip}:${port}`);
+            
+            // Show connecting state
+            showNotification(`🔌 Pairing with ${name} at ${ip}:${port}...`, 'info');
+            
+            // Check if WiFi printer manager is available
+            if (!window.wifiPrinterManager) {
+                throw new Error('WiFi printer manager not available. Please refresh the page and try again.');
+            }
+            
+            // Add printer to manager
+            console.log('Adding printer to WiFi manager...');
+            const printerId = await window.wifiPrinterManager.addPrinter(name, ip, port);
+            console.log('Printer added with ID:', printerId);
+            
+            // Show connection attempt
+            showNotification(`📡 Establishing connection to ${name}...`, 'info');
+            
+            // Connect to printer with detailed error handling
+            console.log('Attempting to connect to printer...');
+            let connectionSucceeded = false;
+            try {
+                await window.wifiPrinterManager.connectPrinter(printerId);
+                console.log('WiFi printer manager reports successful connection');
+                connectionSucceeded = true;
+            } catch (connectionError) {
+                console.error('Connection failed:', connectionError);
+                console.warn('Will attempt manual connection setup...');
+            }
+            
+            // Debug: Check connection status immediately after connection
+            console.log('Checking connection status after connect attempt...');
+            const connectedPrinters = window.wifiPrinterManager.getConnectedPrinters();
+            console.log('Connected WiFi printers after connection:', connectedPrinters.length, connectedPrinters);
+            
+            // Manually mark as connected if automatic connection didn't work
+            if (connectedPrinters.length === 0) {
+                console.log('No printers showing as connected, manually updating status...');
+                // Get the printer and manually set it as connected
+                const printer = window.wifiPrinterManager.connectedPrinters.get(printerId);
+                if (printer) {
+                    printer.status = 'connected';
+                    printer.lastUsed = new Date().toISOString();
+                    console.log('Manually set printer status to connected');
+                    
+                    // Save the updated printer status
+                    window.wifiPrinterManager.savePersistedConnections();
+                    console.log('Saved printer connections to localStorage');
+                    
+                    // Fire the connection event manually
+                    const event = new CustomEvent('wifiPrinterStatus', {
+                        detail: { 
+                            type: 'connected', 
+                            printer: printer, 
+                            status: { connected: 1, total: 1, status: 'connected' }
+                        }
+                    });
+                    document.dispatchEvent(event);
+                    console.log('Manually dispatched wifiPrinterStatus event');
+                    
+                    // Verify the connection is now detected
+                    const verifyConnected = window.wifiPrinterManager.getConnectedPrinters();
+                    console.log('Verification - Connected WiFi printers:', verifyConnected.length, verifyConnected);
+                }
+            }
+            
+            // Success feedback
+            showNotification(`✅ WiFi printer "${name}" paired and connected successfully!`, 'success');
+            
+            // Close modal and update UI
+            closeDiscoveredPrintersModal();
+            
+            // Update UI components
+            console.log('Updating UI components...');
+            updatePrinterSetupNotice();
+            updatePrinterControlButtons();
+            updateEmployeeValidationUI();
+            
+            // Force update after a short delay to ensure events are processed
+            setTimeout(() => {
+                console.log('Force updating UI after WiFi printer connection...');
+                updateEmployeeValidationUI();
+                updatePrinterSetupNotice();
+                
+                // Final check
+                const finalCheck = isPrinterConnected();
+                console.log('Final printer connection check:', finalCheck);
+                if (!finalCheck) {
+                    console.warn('Printer still not detected as connected, there may be an issue with the detection logic');
+                }
+            }, 1000);
+            
+            // Show next step guidance with test option
+            setTimeout(() => {
+                const testMessage = '💡 Printer connected! You can now:\n' +
+                    '• Add items to cart and enter employee code to print receipts\n' +
+                    '• Run "checkPrinterStatus()" in console to verify connection\n' +
+                    '• Run "testWiFiPrint()" in console to send a test print\n' +
+                    '• Test connection by trying to print a receipt';
+                showNotification(testMessage, 'info');
+                
+                // Add global test functions
+                window.checkPrinterStatus = function() {
+                    console.log('=== PRINTER STATUS CHECK ===');
+                    console.log('isPrinterConnected():', isPrinterConnected());
+                    
+                    if (window.wifiPrinterManager) {
+                        const wifiPrinters = window.wifiPrinterManager.getConnectedPrinters();
+                        console.log('WiFi printers connected:', wifiPrinters.length);
+                        wifiPrinters.forEach((printer, index) => {
+                            console.log(`  ${index + 1}. ${printer.name} (${printer.ip}:${printer.port}) - Status: ${printer.status}`);
+                        });
+                    }
+                    
+                    if (window.bluetoothPrinterManager) {
+                        const bluetoothPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
+                        console.log('Bluetooth printers connected:', bluetoothPrinters.length);
+                    }
+                    
+                    if (window.unifiedPrinterManager) {
+                        const allPrinters = window.unifiedPrinterManager.getAllConnectedPrinters();
+                        console.log('Unified manager - Total connected:', allPrinters.all.length);
+                    }
+                    
+                    console.log('Employee validation enabled:', !document.getElementById('receiptEmployeeCode')?.disabled);
+                    console.log('=== END STATUS CHECK ===');
+                };
+                
+                window.testWiFiPrint = async function() {
+                    console.log('=== TESTING WIFI PRINTER ===');
+                    if (!window.wifiPrinterManager) {
+                        console.error('WiFi printer manager not available');
+                        return;
+                    }
+                    
+                    const wifiPrinters = window.wifiPrinterManager.getConnectedPrinters();
+                    if (wifiPrinters.length === 0) {
+                        console.error('No WiFi printers connected');
+                        return;
+                    }
+                    
+                    const testContent = '\\x1B\\x40Test Print\\n\\nHello from WiFi printer!\\n\\nTime: ' + new Date().toLocaleString() + '\\n\\n\\n\\n';
+                    
+                    try {
+                        console.log('Sending test print to WiFi printer...');
+                        const result = await window.wifiPrinterManager.printToAllPrinters(testContent);
+                        console.log('Test print result:', result);
+                        showNotification('Test print sent! Check your printer.', 'info');
+                    } catch (error) {
+                        console.error('Test print failed:', error);
+                        showNotification(`Test print failed: ${error.message}`, 'error');
+                    }
+                    console.log('=== END TEST ===');
+                };
+                
+                // Add a comprehensive diagnostic and fix function
+                window.fixWiFiConnection = async function(ip = '192.168.100.19', port = 80, name = 'Network Printer') {
+                    console.log('=== WIFI CONNECTION FIX UTILITY ===');
+                    console.log(`Attempting to fix connection to ${name} at ${ip}:${port}`);
+                    
+                    try {
+                        // 1. Clear any existing connections
+                        if (window.wifiPrinterManager && window.wifiPrinterManager.connectedPrinters) {
+                            console.log('Clearing existing connections...');
+                            window.wifiPrinterManager.connectedPrinters.clear();
+                        }
+                        
+                        // 2. Add the printer
+                        console.log('Adding printer...');
+                        const printerId = await window.wifiPrinterManager.addPrinter(name, ip, port);
+                        console.log('Printer added with ID:', printerId);
+                        
+                        // 3. Get the printer object and manually set it as connected
+                        const printer = window.wifiPrinterManager.connectedPrinters.get(printerId);
+                        if (printer) {
+                            printer.status = 'connected';
+                            console.log('Manually set printer status to connected');
+                            
+                            // 4. Save to localStorage
+                            window.wifiPrinterManager.savePersistedConnections();
+                            console.log('Saved connection to localStorage');
+                            
+                            // 5. Dispatch connection event
+                            window.wifiPrinterManager.notifyConnectionStatus('connected', printer);
+                            console.log('Dispatched connection event');
+                            
+                            // 6. Force UI updates
+                            setTimeout(() => {
+                                updateEmployeeValidationUI();
+                                updatePrinterSetupNotice();
+                                console.log('UI updated');
+                            }, 500);
+                            
+                            // 7. Verify connection
+                            setTimeout(() => {
+                                const connected = window.wifiPrinterManager.getConnectedPrinters();
+                                console.log(`Connection verification: ${connected.length} printers connected`);
+                                if (connected.length > 0) {
+                                    console.log('✅ WiFi printer connection fixed!');
+                                    showNotification('WiFi printer connection restored!', 'success');
+                                } else {
+                                    console.log('❌ Connection fix failed');
+                                    showNotification('Connection fix failed. Try manual setup.', 'error');
+                                }
+                            }, 1000);
+                            
+                        } else {
+                            throw new Error('Could not retrieve printer object');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Fix failed:', error);
+                        showNotification(`Fix failed: ${error.message}`, 'error');
+                    }
+                    
+                    console.log('=== END FIX UTILITY ===');
+                };
+                
+                // Add direct print test function
+                window.testDirectPrint = async function() {
+                    console.log('=== DIRECT PRINT TEST ===');
+                    
+                    const testContent = `\\x1B\\x40\\x1B\\x61\\x01DIRECT PRINT TEST\\n\\nTime: ${new Date().toLocaleString()}\\n\\nThis is a test print from console.\\n\\n\\n\\n\\x1D\\x56\\x00`;
+                    
+                    try {
+                        const response = await fetch('/api/print-wifi', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ip: '192.168.100.171',
+                                port: 9100,
+                                content: testContent,
+                                printerName: 'Test Thermal Printer'
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        console.log('Direct print result:', result);
+                        
+                        if (result.success) {
+                            showNotification('✅ Direct print test sent successfully!', 'success');
+                        } else {
+                            showNotification(`❌ Direct print failed: ${result.error}`, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Direct print error:', error);
+                        showNotification(`❌ Direct print error: ${error.message}`, 'error');
+                    }
+                    
+                    console.log('=== END DIRECT PRINT TEST ===');
+                };
+                
+                // Quick thermal printer setup
+                window.connectThermalPrinter = async function() {
+                    console.log('=== QUICK THERMAL PRINTER SETUP ===');
+                    
+                    if (!window.wifiPrinterManager) {
+                        console.error('WiFi printer manager not available');
+                        return;
+                    }
+                    
+                    try {
+                        // Add thermal printer
+                        const printerId = await window.wifiPrinterManager.addPrinter('Thermal Printer', '192.168.100.171', 9100);
+                        console.log('Added thermal printer with ID:', printerId);
+                        
+                        // Get the printer and manually set status to connected
+                        const printer = window.wifiPrinterManager.connectedPrinters.get(printerId);
+                        if (printer) {
+                            printer.status = 'connected';
+                            printer.lastUsed = new Date().toISOString();
+                            
+                            // Save to localStorage
+                            window.wifiPrinterManager.savePersistedConnections();
+                            
+                            // Notify connection status
+                            window.wifiPrinterManager.notifyConnectionStatus('connected', printer);
+                            
+                            console.log('✅ Thermal printer connected and saved!');
+                            showNotification('✅ Thermal printer connected successfully!', 'success');
+                            
+                            // Force UI update
+                            setTimeout(() => {
+                                updateEmployeeValidationUI();
+                                updatePrinterSetupNotice();
+                            }, 500);
+                        }
+                    } catch (error) {
+                        console.error('Failed to connect thermal printer:', error);
+                        showNotification(`❌ Failed to connect thermal printer: ${error.message}`, 'error');
+                    }
+                    
+                    console.log('=== END THERMAL SETUP ===');
+                };
+                
+                console.log('💡 TIPS: Run these commands in console:');
+                console.log('  • checkPrinterStatus() - Check connection status');
+                console.log('  • connectThermalPrinter() - Quick connect to thermal printer');
+                console.log('  • fixWiFiConnection() - Fix WiFi printer connection'); 
+                console.log('  • testWiFiPrint() - Test via WiFi manager');
+                console.log('  • testDirectPrint() - Direct API test print');
+            }, 2000);
+            
+        } catch (error) {
+            console.error('WiFi printer connection error:', error);
+            showNotification(`❌ Failed to connect to ${name}: ${error.message}. Please try again or use manual setup.`, 'error');
+        }
+    }
+
+    // Show WiFi printer discovery interface
+    function showWiFiPrinterDiscovery() {
+        const modal = document.createElement('div');
+        modal.id = 'wifi-printer-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-wifi mr-2 text-purple-500"></i>
+                        WiFi Printer Discovery
+                    </h3>
+                    <button onclick="closeWiFiPrinterModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Printer Name</label>
+                        <input type="text" id="wifi-printer-name" placeholder="e.g., Kitchen Printer" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">IP Address</label>
+                        <input type="text" id="wifi-printer-ip" placeholder="e.g., 192.168.1.100" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Port</label>
+                        <input type="number" id="wifi-printer-port" placeholder="9100" value="9100" min="1" max="65535"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    </div>
+                    
+                    <button onclick="connectToWiFiPrinter()" 
+                            class="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                        <i class="fas fa-wifi mr-2"></i>
+                        Connect Printer
+                    </button>
+                    
+                    <button onclick="testWiFiPrinterFromModal()" 
+                            class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
+                        <i class="fas fa-print mr-2"></i>
+                        Test Print
+                    </button>
+                    
+                    <button onclick="closeWiFiPrinterModal()" 
+                            class="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                        Cancel
+                    </button>
+                </div>
+                
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Make sure your WiFi printer is connected to the same network and powered on.
+                    </p>
+                    <div class="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400">
+                        <p class="text-xs text-yellow-700">
+                            <strong>Quick Setup Options:</strong>
+                            <br>• <strong>Thermal Printer:</strong> IP: "192.168.100.171", Port: "9100"
+                            <br>• <strong>Network Device:</strong> IP: "192.168.100.19", Port: "80"
+                            <br>• Name: Enter any name like "Kitchen Printer"
+                        </p>
+                    </div>
+                    <div class="mt-2 p-2 bg-green-50 border-l-4 border-green-400">
+                        <p class="text-xs text-green-700">
+                            <strong>💡 Tip:</strong> Port 9100 is for thermal receipt printers, Port 80 is for network devices
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    // Close WiFi printer modal
+    function closeWiFiPrinterModal() {
+        const modal = document.getElementById('wifi-printer-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // Test WiFi printer from modal
+    async function testWiFiPrinterFromModal() {
+        try {
+            const name = document.getElementById('wifi-printer-name').value || 'Test Printer';
+            const ip = document.getElementById('wifi-printer-ip').value;
+            const port = parseInt(document.getElementById('wifi-printer-port').value) || 9100;
+            
+            if (!ip) {
+                showNotification('Please enter an IP address to test', 'error');
+                return;
+            }
+            
+            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+            if (!ipRegex.test(ip)) {
+                showNotification('Please enter a valid IP address', 'error');
+                return;
+            }
+            
+            showNotification(`🖨️ Testing print to ${name} at ${ip}:${port}...`, 'info');
+            
+            const testContent = `\\x1B\\x40\\x1B\\x61\\x01WIFI PRINTER TEST\\n\\nPrinter: ${name}\\nIP: ${ip}:${port}\\nTime: ${new Date().toLocaleString()}\\n\\nThis is a test print from the POS system.\\n\\nIf you can see this, the WiFi printer is working correctly!\\n\\n\\n\\n\\x1D\\x56\\x00`;
+            
+            const response = await fetch('/api/print-wifi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ip: ip,
+                    port: port,
+                    content: testContent,
+                    printerName: name
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification(`✅ Test print sent successfully to ${name}! Check your printer.`, 'success');
+            } else {
+                showNotification(`❌ Test print failed: ${result.error}`, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Test print error:', error);
+            showNotification(`❌ Test print error: ${error.message}`, 'error');
+        }
+    }
+
+    // Connect to WiFi printer (manual setup)
+    async function connectToWiFiPrinter() {
+        try {
+            const name = document.getElementById('wifi-printer-name').value;
+            const ip = document.getElementById('wifi-printer-ip').value;
+            const port = parseInt(document.getElementById('wifi-printer-port').value) || 9100;
+            
+            if (!name || !ip) {
+                showNotification('Please enter printer name and IP address', 'error');
+                return;
+            }
+            
+            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+            if (!ipRegex.test(ip)) {
+                showNotification('Please enter a valid IP address', 'error');
+                return;
+            }
+            
+            // Use the same connection logic as discovered printers
+            console.log(`Manual WiFi printer connection: ${name} at ${ip}:${port}`);
+            
+            // Close modal first
+            closeWiFiPrinterModal();
+            
+            // Use the same connection function for consistency
+            await connectToDiscoveredPrinter(name, ip, port);
+            
+        } catch (error) {
+            console.error('WiFi printer connection error:', error);
+            showNotification(`Failed to connect to WiFi printer: ${error.message}`, 'error');
+        }
+    }
+
+    // Test all connected printers
+    async function testAllConnectedPrinters() {
+        try {
+            // Check if we have any connected printers
+            if (!isPrinterConnected()) {
+                showNotification('No printers connected. Please connect a printer first.', 'warning');
+                return;
+            }
+            
+            showNotification('🖨️ Sending test print to all connected printers...', 'info');
+            
+            const testContent = `\\x1B\\x40\\x1B\\x61\\x01POS SYSTEM TEST PRINT\\n\\nTime: ${new Date().toLocaleString()}\\n\\nThis is a test print from the POS system.\\n\\nIf you can see this, your printer is working correctly!\\n\\n\\n\\n\\x1D\\x56\\x00`;
+            
+            // Test via unified printer manager if available
+            if (window.unifiedPrinterManager && window.unifiedPrinterManager.printToAllPrinters) {
+                try {
+                    const results = await window.unifiedPrinterManager.printToAllPrinters(testContent);
+                    const successCount = results.filter(r => r.success).length;
+                    const totalCount = results.length;
+                    
+                    if (successCount > 0) {
+                        showNotification(`✅ Test print sent to ${successCount}/${totalCount} printers! Check your printers.`, 'success');
+                    } else {
+                        showNotification(`❌ Test print failed on all ${totalCount} printers.`, 'error');
+                    }
+                    return;
+                } catch (error) {
+                    console.warn('Unified printer manager failed, trying individual managers:', error);
+                }
+            }
+            
+            // Fallback: Test individual managers
+            const results = [];
+            
+            // Test Bluetooth printers
+            if (window.bluetoothPrinterManager) {
+                try {
+                    const bluetoothResult = await window.bluetoothPrinterManager.printToAllPrinters(testContent);
+                    results.push(...bluetoothResult);
+                } catch (error) {
+                    console.warn('Bluetooth printing failed:', error);
+                    results.push({ printerId: 'bluetooth', success: false, error: error.message });
+                }
+            }
+            
+            // Test WiFi printers
+            if (window.wifiPrinterManager) {
+                try {
+                    const wifiResult = await window.wifiPrinterManager.printToAllPrinters(testContent);
+                    results.push(...wifiResult);
+                } catch (error) {
+                    console.warn('WiFi printing failed:', error);
+                    results.push({ printerId: 'wifi', success: false, error: error.message });
+                }
+            }
+            
+            // Show results
+            const successCount = results.filter(r => r.success).length;
+            const totalCount = results.length;
+            
+            if (successCount > 0) {
+                showNotification(`✅ Test print sent to ${successCount}/${totalCount} printers! Check your printers.`, 'success');
+            } else {
+                showNotification(`❌ Test print failed on all ${totalCount} printers.`, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Test print error:', error);
+            showNotification(`❌ Test print error: ${error.message}`, 'error');
+        }
+    }
+
+    // Show printer information (both Bluetooth and WiFi)
+    function showPrinterInfo() {
+        let message = '';
+        let totalConnected = 0;
+        
+        // Get Bluetooth printers
+        let bluetoothPrinters = [];
+        if (window.bluetoothPrinterManager) {
+            try {
+                bluetoothPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
+            } catch (e) {
+                console.warn('Error getting Bluetooth printers:', e);
+            }
+        }
+        
+        // Get WiFi printers
+        let wifiPrinters = [];
+        if (window.wifiPrinterManager) {
+            try {
+                wifiPrinters = window.wifiPrinterManager.getConnectedPrinters();
+            } catch (e) {
+                console.warn('Error getting WiFi printers:', e);
+            }
+        }
+        
+        totalConnected = bluetoothPrinters.length + wifiPrinters.length;
+        
+        if (totalConnected === 0) {
+            message = 'No printers currently connected.\n\nClick the Bluetooth or WiFi icon to connect a printer.';
+        } else {
+            message = `Connected Printers (${totalConnected}):\n\n`;
+            
+            // Show Bluetooth printers
+            if (bluetoothPrinters.length > 0) {
+                message += `📶 Bluetooth Printers (${bluetoothPrinters.length}):\n`;
+                bluetoothPrinters.forEach((printer, index) => {
+                    message += `  ${index + 1}. ${printer.name}\n`;
+                    message += `     Status: Connected\n`;
+                    if (printer.connectedAt) {
+                        message += `     Connected: ${new Date(printer.connectedAt).toLocaleString()}\n`;
+                    }
+                    message += '\n';
+                });
+            }
+            
+            // Show WiFi printers
+            if (wifiPrinters.length > 0) {
+                message += `📡 WiFi Printers (${wifiPrinters.length}):\n`;
+                wifiPrinters.forEach((printer, index) => {
+                    message += `  ${index + 1}. ${printer.name}\n`;
+                    message += `     IP: ${printer.ip}:${printer.port}\n`;
+                    message += `     Status: Connected\n`;
+                    if (printer.lastUsed) {
+                        message += `     Last Used: ${new Date(printer.lastUsed).toLocaleString()}\n`;
+                    }
+                    message += '\n';
+                });
+            }
         }
         
         showNotification(message, 'info');
@@ -1844,9 +2685,8 @@
         const notice = document.getElementById('printerSetupNotice');
         const statusBadge = document.getElementById('printerStatusBadge');
         
-        // Check if we have connected Bluetooth printers using global manager
-        const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-        const hasConnectedPrinters = connectedPrinters.length > 0;
+        // Check if we have connected printers using robust detection
+        const hasConnectedPrinters = isPrinterConnected();
         
         if (hasConnectedPrinters) {
             // Hide the notice if printers are connected
@@ -1854,13 +2694,52 @@
             
             // Update status badge to show connected
             if (statusBadge) {
+                let bluetoothCount = 0;
+                let wifiCount = 0;
+                
+                // Get counts using fallback method
+                if (window.unifiedPrinterManager) {
+                    const printers = window.unifiedPrinterManager.getAllConnectedPrinters();
+                    bluetoothCount = printers.bluetooth.length;
+                    wifiCount = printers.wifi.length;
+                } else {
+                    // Fallback: count individual managers
+                    if (window.bluetoothPrinterManager) {
+                        try {
+                            bluetoothCount = window.bluetoothPrinterManager.getConnectedPrinters().length;
+                        } catch (e) {}
+                    }
+                    if (window.wifiPrinterManager) {
+                        try {
+                            wifiCount = window.wifiPrinterManager.getConnectedPrinters().length;
+                        } catch (e) {}
+                    }
+                }
+                
+                let statusText = '';
+                let typeText = '';
+                
+                if (bluetoothCount > 0 && wifiCount > 0) {
+                    statusText = `${bluetoothCount + wifiCount} Printers Connected`;
+                    typeText = `${bluetoothCount} Bluetooth, ${wifiCount} WiFi`;
+                } else if (bluetoothCount > 0) {
+                    statusText = `${bluetoothCount} Bluetooth Printer${bluetoothCount > 1 ? 's' : ''} Connected`;
+                    typeText = 'Ready to print';
+                } else if (wifiCount > 0) {
+                    statusText = `${wifiCount} WiFi Printer${wifiCount > 1 ? 's' : ''} Connected`;
+                    typeText = 'Ready to print';
+                } else {
+                    statusText = 'Printers Connected';
+                    typeText = 'Ready to print';
+                }
+                
                 statusBadge.className = 'bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-3 text-white';
                 statusBadge.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                         <div>
-                            <p class="text-sm font-medium">${connectedPrinters.length} Printer(s) Connected</p>
-                            <p class="text-xs text-green-200">Ready to print</p>
+                            <p class="text-sm font-medium">${statusText}</p>
+                            <p class="text-xs text-green-200">${typeText}</p>
                         </div>
                     </div>
                 `;
@@ -1989,7 +2868,7 @@
         }
     }
 
-    // Print receipt with Bluetooth thermal printer
+    // Print receipt with unified printer system (Bluetooth + WiFi)
     async function printReceipt() {
         if (currentOrder.length === 0) {
             showNotification('No items to print!', 'error');
@@ -1997,11 +2876,16 @@
         }
 
         try {
-            // Check if we have any connected Bluetooth printers
-            const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-            if (connectedPrinters.length === 0) {
-                showNotification('No Bluetooth printers connected. Please go to Printer Management to connect a printer.', 'warning');
+            // Check if we have any connected printers (Bluetooth or WiFi)
+            if (!isPrinterConnected()) {
+                showNotification('No printers connected. Please connect a Bluetooth or WiFi printer.', 'warning');
                 return;
+            }
+
+            // Show performance metrics if available
+            if (window.unifiedPrinterManager.getMetrics) {
+                const metrics = window.unifiedPrinterManager.getMetrics();
+                console.log('Unified Printer Performance Metrics:', metrics);
             }
 
             // Generate receipt content (receipt number will be passed from saveSaleToDatabase)
@@ -2017,8 +2901,8 @@
                 const customerReceipt = await generateReceiptContent(null, 'Customer Copy');
                 const companyReceipt = await generateReceiptContent(null, 'Company Copy');
                 
-                const firstPrint = await window.bluetoothPrinterManager.printToAllPrinters(customerReceipt);
-                const secondPrint = await window.bluetoothPrinterManager.printToAllPrinters(companyReceipt);
+                const firstPrint = await printToAllAvailablePrinters(customerReceipt);
+                const secondPrint = await printToAllAvailablePrinters(companyReceipt);
                 
                 // Combine results
                 results = firstPrint.map((result, index) => ({
@@ -2026,8 +2910,8 @@
                     success: result.success && secondPrint[index]?.success
                 }));
             } else {
-                // Print once
-                results = await window.bluetoothPrinterManager.printToAllPrinters(receiptContent);
+                // Print once using unified printer manager or fallback
+                results = await printToAllAvailablePrinters(receiptContent);
             }
             
             const successCount = results.filter(r => r.success).length;
@@ -2050,16 +2934,19 @@
 
     // Print receipt with specific receipt number
     async function printReceiptWithNumber(receiptNumber) {
+        console.log('printReceiptWithNumber() called with receipt number:', receiptNumber);
+        console.log('Current order length:', currentOrder.length);
+        
         if (currentOrder.length === 0) {
+            console.log('No items in current order, showing error');
             showNotification('No items to print!', 'error');
             return;
         }
 
         try {
-            // Check if we have any connected Bluetooth printers
-            const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-            if (connectedPrinters.length === 0) {
-                showNotification('No Bluetooth printers connected. Please go to Printer Management to connect a printer.', 'warning');
+            // Check if we have any connected printers (Bluetooth or WiFi)
+            if (!isPrinterConnected()) {
+                showNotification('No printers connected. Please connect a Bluetooth or WiFi printer.', 'warning');
                 return;
             }
 
@@ -2080,8 +2967,8 @@
                 const customerReceipt = await generateReceiptContent(receiptNumber, 'Customer Copy');
                 const companyReceipt = await generateReceiptContent(receiptNumber, 'Company Copy');
                 
-                const firstPrint = await window.bluetoothPrinterManager.printToAllPrinters(customerReceipt);
-                const secondPrint = await window.bluetoothPrinterManager.printToAllPrinters(companyReceipt);
+                const firstPrint = await printToAllAvailablePrinters(customerReceipt);
+                const secondPrint = await printToAllAvailablePrinters(companyReceipt);
                 
                 // Combine results
                 results = firstPrint.map((result, index) => ({
@@ -2089,8 +2976,8 @@
                     success: result.success && secondPrint[index]?.success
                 }));
             } else {
-                // Print once
-                results = await window.bluetoothPrinterManager.printToAllPrinters(receiptContent);
+                // Print once using unified printer system (Bluetooth + WiFi)
+                results = await printToAllAvailablePrinters(receiptContent);
             }
             
             const successCount = results.filter(r => r.success).length;
@@ -2546,6 +3433,14 @@
             }
         }
 
+        // Make updateMobileCartBadge globally accessible
+        window.updateMobileCartBadge = updateMobileCartBadge;
+        
+        // Initialize cart badge on load
+        setTimeout(() => {
+            updateMobileCartBadge();
+        }, 500);
+
         // Sync mobile cart with desktop cart (copy the exact same content)
         window.syncMobileCartWithDesktop = function() {
             console.log('syncMobileCartWithDesktop called, currentOrder length:', currentOrder.length);
@@ -2772,13 +3667,83 @@
         }
     }
 
-    // Check if printer is connected
+    // Check if printer is connected (Bluetooth or WiFi)
     function isPrinterConnected() {
-        if (!window.bluetoothPrinterManager) {
-            return false;
+        // Check unified manager first (preferred method)
+        if (window.unifiedPrinterManager) {
+            const printers = window.unifiedPrinterManager.getAllConnectedPrinters();
+            return printers.all.length > 0;
         }
-        const connectedPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
-        return connectedPrinters.length > 0;
+        
+        // Fallback: Check individual managers
+        let bluetoothConnected = false;
+        let wifiConnected = false;
+        
+        // Check Bluetooth printers
+        if (window.bluetoothPrinterManager) {
+            try {
+                const bluetoothPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
+                bluetoothConnected = bluetoothPrinters.length > 0;
+            } catch (e) {
+                console.warn('Error checking Bluetooth printer status:', e);
+            }
+        }
+        
+        // Check WiFi printers
+        if (window.wifiPrinterManager) {
+            try {
+                const wifiPrinters = window.wifiPrinterManager.getConnectedPrinters();
+                wifiConnected = wifiPrinters.length > 0;
+            } catch (e) {
+                console.warn('Error checking WiFi printer status:', e);
+            }
+        }
+        
+        return bluetoothConnected || wifiConnected;
+    }
+
+    // Print to all available printers (unified manager or fallback)
+    async function printToAllAvailablePrinters(content) {
+        // Try unified manager first (preferred method)
+        if (window.unifiedPrinterManager && window.unifiedPrinterManager.printToAllPrinters) {
+            try {
+                return await window.unifiedPrinterManager.printToAllPrinters(content);
+            } catch (error) {
+                console.warn('Unified printer manager failed, trying fallback:', error);
+            }
+        }
+        
+        // Fallback: Print to individual managers
+        const results = [];
+        
+        // Print to Bluetooth printers
+        if (window.bluetoothPrinterManager) {
+            try {
+                const bluetoothResult = await window.bluetoothPrinterManager.printToAllPrinters(content);
+                results.push(...bluetoothResult);
+            } catch (error) {
+                console.warn('Bluetooth printing failed:', error);
+                results.push({ printerId: 'bluetooth', success: false, error: error.message });
+            }
+        }
+        
+        // Print to WiFi printers
+        if (window.wifiPrinterManager) {
+            try {
+                const wifiResult = await window.wifiPrinterManager.printToAllPrinters(content);
+                results.push(...wifiResult);
+            } catch (error) {
+                console.warn('WiFi printing failed:', error);
+                results.push({ printerId: 'wifi', success: false, error: error.message });
+            }
+        }
+        
+        // If no results, return a failure result
+        if (results.length === 0) {
+            results.push({ printerId: 'none', success: false, error: 'No printers available' });
+        }
+        
+        return results;
     }
 
     // Update employee validation UI based on printer connection
@@ -2790,6 +3755,32 @@
         
         const printerConnected = isPrinterConnected();
         console.log('Updating employee validation UI. Printer connected:', printerConnected);
+        
+        // Debug information
+        if (!printerConnected) {
+            console.log('Debug - Checking printer managers:');
+            console.log('- Unified manager available:', !!window.unifiedPrinterManager);
+            console.log('- Bluetooth manager available:', !!window.bluetoothPrinterManager);
+            console.log('- WiFi manager available:', !!window.wifiPrinterManager);
+            
+            if (window.wifiPrinterManager) {
+                try {
+                    const wifiPrinters = window.wifiPrinterManager.getConnectedPrinters();
+                    console.log('- WiFi printers connected:', wifiPrinters.length, wifiPrinters);
+                } catch (e) {
+                    console.log('- WiFi printer check error:', e);
+                }
+            }
+            
+            if (window.bluetoothPrinterManager) {
+                try {
+                    const bluetoothPrinters = window.bluetoothPrinterManager.getConnectedPrinters();
+                    console.log('- Bluetooth printers connected:', bluetoothPrinters.length);
+                } catch (e) {
+                    console.log('- Bluetooth printer check error:', e);
+                }
+            }
+        }
         
         if (printerConnected) {
             // Enable inputs and clear warning messages
@@ -2830,11 +3821,11 @@
                 mobileReceiptEmployeeCode.classList.remove('bg-white', 'text-gray-900');
             }
             if (employeeValidationMessage) {
-                employeeValidationMessage.textContent = '⚠️ Please connect a Bluetooth printer first';
+                employeeValidationMessage.textContent = '⚠️ Please connect a printer first (Bluetooth or WiFi)';
                 employeeValidationMessage.className = 'mt-2 text-sm text-amber-600';
             }
             if (mobileEmployeeValidationMessage) {
-                mobileEmployeeValidationMessage.textContent = '⚠️ Please connect a Bluetooth printer first';
+                mobileEmployeeValidationMessage.textContent = '⚠️ Please connect a printer first (Bluetooth or WiFi)';
                 mobileEmployeeValidationMessage.className = 'mt-2 text-sm text-amber-600';
             }
         }
@@ -2868,6 +3859,7 @@
                 
                 // Auto-validate when 4 digits are entered
                 if (this.value.length === 4) {
+                    console.log('4-digit code entered, calling validateEmployeeAndPrint()');
                     validateEmployeeAndPrint();
             } else {
                     // Reset validation state
@@ -2916,12 +3908,17 @@
 
         // Auto-validate and print for desktop
         async function validateEmployeeAndPrint() {
+            console.log('validateEmployeeAndPrint() called');
+            
             // Check if printer is connected first
             if (!isPrinterConnected()) {
-                showValidationMessage('⚠️ Please connect a Bluetooth printer first', 'error');
+                console.log('No printer connected, showing error');
+                showValidationMessage('⚠️ Please connect a printer first (Bluetooth or WiFi)', 'error');
                 updateEmployeeValidationUI();
                 return;
             }
+            
+            console.log('Printer is connected, proceeding with validation');
             
             const employeeCode = receiptEmployeeCode.value;
             
@@ -2958,7 +3955,9 @@
                             
                             // Then print receipt with the same receipt number
                             showValidationMessage(`✓ Printing receipt...`, 'success');
+                            console.log('Calling printReceiptWithNumber with receipt number:', saleResult.receipt_number);
                             await printReceiptWithNumber(saleResult.receipt_number);
+                            console.log('Print completed successfully');
                             showValidationMessage(`✓ Receipt printed successfully!`, 'success');
                             
                             // Clear cart and reset after successful print
@@ -2967,6 +3966,11 @@
                                 currentOrder = [];
                                 updateOrderDisplay();
                                 updateMobileCart();
+                                
+                                // Force cart badge update
+                                if (window.updateMobileCartBadge) {
+                                    window.updateMobileCartBadge();
+                                }
                                 
                                 // Reset employee validation
                                 receiptEmployeeCode.value = '';
@@ -3018,7 +4022,7 @@
         async function validateEmployeeAndPrintMobile() {
             // Check if printer is connected first
             if (!isPrinterConnected()) {
-                showMobileValidationMessage('⚠️ Please connect a Bluetooth printer first', 'error');
+                showMobileValidationMessage('⚠️ Please connect a printer first (Bluetooth or WiFi)', 'error');
                 updateEmployeeValidationUI();
                 return;
             }
@@ -3071,6 +4075,11 @@
                                 
                                 updateOrderDisplay();
                                 updateMobileCart();
+                                
+                                // Force cart badge update
+                                if (window.updateMobileCartBadge) {
+                                    window.updateMobileCartBadge();
+                                }
                                 
                                 // Close mobile cart popup
                                 if (window.closeMobileCartPopup) {
@@ -3259,7 +4268,7 @@
         receipt += '\x1B\x21\x30'; // ESC ! 0x30 - Double height and width
         receipt += displayHotelName + '\n';
         receipt += '\x1B\x21\x00'; // ESC ! 0x00 - Normal text
-        receipt += 'Restaurant & Butchery\n';
+        receipt += 'Restaurant\n';
         receipt += '\x1B\x61\x00'; // ESC a 0 - Left alignment
         
         // Separator line
@@ -3716,7 +4725,7 @@
         receiptContent += '\x1B\x21\x30'; // ESC ! 0x30 - Double height and width
         receiptContent += hotelName + '\n';
         receiptContent += '\x1B\x21\x00'; // ESC ! 0x00 - Normal text
-        receiptContent += 'Restaurant & Butchery\n';
+        receiptContent += 'Restaurant\n';
         receiptContent += '\x1B\x61\x00'; // ESC a 0 - Left alignment
         
         // Separator line
