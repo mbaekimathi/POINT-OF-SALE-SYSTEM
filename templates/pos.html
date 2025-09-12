@@ -3972,6 +3972,9 @@
                                     window.updateMobileCartBadge();
                                 }
                                 
+                                // Reload menu items to reflect updated stock
+                                loadMenuItems();
+                                
                                 // Reset employee validation
                                 receiptEmployeeCode.value = '';
                                 receiptEmployeeCode.disabled = false;
@@ -4080,6 +4083,9 @@
                                 if (window.updateMobileCartBadge) {
                                     window.updateMobileCartBadge();
                                 }
+                                
+                                // Reload menu items to reflect updated stock
+                                loadMenuItems();
                                 
                                 // Close mobile cart popup
                                 if (window.closeMobileCartPopup) {
