@@ -1788,6 +1788,19 @@
                 const apiUrl = `${window.location.protocol}//${window.location.host}/api/scan-wifi-printers`;
                 console.log('Calling WiFi scan API:', apiUrl);
                 
+                // Check if we're on a hosted domain and need to use a different approach
+                const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
+                                window.location.hostname.includes('github.io') || 
+                                window.location.hostname.includes('netlify.app') ||
+                                window.location.hostname.includes('vercel.app');
+                
+                if (isHosted) {
+                    console.log('Hosted environment detected, using simplified printer setup');
+                    // For hosted environments, show manual setup instead of scanning
+                    showWiFiPrinterDiscovery();
+                    return;
+                }
+                
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
@@ -2450,11 +2463,29 @@
                             <strong>💡 Tip:</strong> Port 9100 is for thermal receipt printers, Port 80 is for network devices
                         </p>
                     </div>
+                    <div id="hostedEnvironmentNotice" class="mt-2 p-2 bg-blue-50 border-l-4 border-blue-400 hidden">
+                        <p class="text-xs text-blue-700">
+                            <strong>🌐 Hosted Environment:</strong> You're using the system in a hosted environment. WiFi printing functionality is limited. For full printer functionality, please use the system locally.
+                        </p>
+                    </div>
                 </div>
             </div>
         `;
         
         document.body.appendChild(modal);
+        
+        // Check if we're in a hosted environment and show notice
+        const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
+                        window.location.hostname.includes('github.io') || 
+                        window.location.hostname.includes('netlify.app') ||
+                        window.location.hostname.includes('vercel.app');
+        
+        if (isHosted) {
+            const hostedNotice = modal.querySelector('#hostedEnvironmentNotice');
+            if (hostedNotice) {
+                hostedNotice.classList.remove('hidden');
+            }
+        }
     }
 
     // Close WiFi printer modal
@@ -2486,6 +2517,18 @@
             showNotification(`🖨️ Testing print to ${name} at ${ip}:${port}...`, 'info');
             
             const testContent = `\\x1B\\x40\\x1B\\x61\\x01WIFI PRINTER TEST\\n\\nPrinter: ${name}\\nIP: ${ip}:${port}\\nTime: ${new Date().toLocaleString()}\\n\\nThis is a test print from the POS system.\\n\\nIf you can see this, the WiFi printer is working correctly!\\n\\n\\n\\n\\x1D\\x56\\x00`;
+            
+            // Check if we're in a hosted environment
+            const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
+                            window.location.hostname.includes('github.io') || 
+                            window.location.hostname.includes('netlify.app') ||
+                            window.location.hostname.includes('vercel.app');
+            
+            if (isHosted) {
+                console.log('Hosted environment detected - WiFi printing not available');
+                showNotification('WiFi printing is not available in hosted environments. Please use the system locally for full printer functionality.', 'warning');
+                return;
+            }
             
             const response = await fetch('/api/print-wifi', {
                 method: 'POST',
@@ -3704,6 +3747,18 @@
 
     // Print to all available printers (unified manager or fallback)
     async function printToAllAvailablePrinters(content) {
+        // Check if we're in a hosted environment
+        const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
+                        window.location.hostname.includes('github.io') || 
+                        window.location.hostname.includes('netlify.app') ||
+                        window.location.hostname.includes('vercel.app');
+        
+        if (isHosted) {
+            console.log('Hosted environment detected - printing not available');
+            showNotification('Printing is not available in hosted environments. Please use the system locally for full printer functionality.', 'warning');
+            return [{ printerId: 'hosted', success: false, error: 'Printing not available in hosted environment' }];
+        }
+        
         // Try unified manager first (preferred method)
         if (window.unifiedPrinterManager && window.unifiedPrinterManager.printToAllPrinters) {
             try {
