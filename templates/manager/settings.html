@@ -67,188 +67,657 @@
 <div class="mb-8">
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Settings</h1>
-            <p class="text-gray-600 text-lg">Configure system settings and preferences for your operations.</p>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">System Settings</h1>
+            <p class="text-gray-600 text-lg">Configure your hotel POS system, manage preferences, and customize operations.</p>
         </div>
         <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
             <i class="fas fa-user-tie text-xl"></i>
-            <span class="font-bold text-lg">Manager</span>
+            <span class="font-bold text-lg">Manager Configuration</span>
         </div>
     </div>
 </div>
 
-<!-- Manager Settings Content -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Settings Categories -->
-    <div class="lg:col-span-2">
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">System Settings</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-6">
-                    <!-- General Settings -->
-                    <div class="border-b border-gray-200 pb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">General Settings</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Business Name</p>
-                                    <p class="text-sm text-gray-600">Hotel POS System</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Currency</p>
-                                    <p class="text-sm text-gray-600">Kenyan Shilling (KSh)</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Time Zone</p>
-                                    <p class="text-sm text-gray-600">East Africa Time (GMT+3)</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- POS Settings -->
-                    <div class="border-b border-gray-200 pb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">POS Settings</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Receipt Printer</p>
-                                    <p class="text-sm text-gray-600">Bluetooth Thermal Printer</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Configure
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Tax Rate</p>
-                                    <p class="text-sm text-gray-600">16% VAT</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Receipt Numbering</p>
-                                    <p class="text-sm text-gray-600">Auto-increment (1001, 1002...)</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Settings -->
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Security Settings</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Session Timeout</p>
-                                    <p class="text-sm text-gray-600">30 minutes</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-medium text-gray-800">Password Policy</p>
-                                    <p class="text-sm text-gray-600">Strong passwords required</p>
-                                </div>
-                                <button class="bg-primary-blue text-white px-4 py-2 rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                                    Edit
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Manager Settings Actions -->
-    <div class="space-y-8">
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">Settings Actions</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-3">
-                    <a href="#" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                        <i class="fas fa-save mr-3"></i>
-                        Save All Changes
-                    </a>
-                    <a href="#" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
-                        <i class="fas fa-undo mr-3"></i>
-                        Reset to Default
-                    </a>
-                    <a href="#" class="flex items-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
-                        <i class="fas fa-download mr-3"></i>
-                        Export Settings
-                    </a>
-                    <a href="#" class="flex items-center p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
-                        <i class="fas fa-upload mr-3"></i>
-                        Import Settings
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Status -->
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">System Status</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Database</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Online
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Printer</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Connected
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Backup</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Up to Date
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Security</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Secure
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Settings Navigation Tabs -->
+<div class="mb-8">
+    <div class="flex space-x-2 bg-gray-100 p-2 rounded-2xl">
+        <button class="settings-tab active bg-white text-primary-orange px-6 py-3 rounded-xl font-semibold shadow-lg" data-tab="hotel">
+            <i class="fas fa-hotel mr-2"></i>
+            Hotel Information
+        </button>
+        <button class="settings-tab bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-white transition-all duration-200" data-tab="printing">
+            <i class="fas fa-print mr-2"></i>
+            Printing Settings
+        </button>
+        <button class="settings-tab bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-white transition-all duration-200" data-tab="display">
+            <i class="fas fa-desktop mr-2"></i>
+            Display Settings
+        </button>
     </div>
 </div>
+
+<!-- Hotel Information Settings -->
+<div id="hotel-settings" class="settings-content">
+    <div class="max-w-4xl mx-auto">
+        <form id="hotelSettingsForm" class="space-y-8">
+            <!-- Basic Information -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Basic Information</h2>
+                    <p class="text-gray-600 mt-2">Configure your hotel's basic details</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Hotel Name *</label>
+                            <input type="text" id="hotelName" name="hotel_name" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter hotel name">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Company Email *</label>
+                            <input type="email" id="companyEmail" name="company_email" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter company email">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Company Phone Number *</label>
+                            <input type="tel" id="companyPhone" name="company_phone" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="Enter phone number">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Address</label>
+                            <textarea id="hotelAddress" name="hotel_address" rows="3"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                      placeholder="Enter hotel address"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Business Type</label>
+                            <input type="text" id="businessType" name="business_type"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="e.g., Restaurant, Hotel, Cafe, Bar, etc.">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Payment Information</h2>
+                    <p class="text-gray-600 mt-2">Configure payment method for receipts and transactions</p>
+                </div>
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-4">Payment Method *</label>
+                            <div class="space-y-4">
+                                <label class="flex items-center p-4 border border-gray-300 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="payment_method" value="buy_goods" class="mr-4 text-primary-orange focus:ring-primary-orange" checked>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-shopping-cart text-2xl text-primary-orange mr-4"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Buy Goods Till</div>
+                                            <div class="text-sm text-gray-600">Use M-Pesa Buy Goods till number for payments</div>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="flex items-center p-4 border border-gray-300 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="payment_method" value="paybill" class="mr-4 text-primary-orange focus:ring-primary-orange">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-credit-card text-2xl text-primary-orange mr-4"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Paybill</div>
+                                            <div class="text-sm text-gray-600">Use M-Pesa Paybill with business and account numbers</div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Buy Goods Till Fields -->
+                        <div id="buyGoodsFields" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Till Number *</label>
+                                <input type="text" id="tillNumber" name="till_number"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Enter till number">
+                            </div>
+                        </div>
+
+                        <!-- Paybill Fields -->
+                        <div id="paybillFields" class="grid grid-cols-1 lg:grid-cols-2 gap-6 hidden">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Business Number *</label>
+                                <input type="text" id="businessNumber" name="business_number"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Enter business number">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Account Number *</label>
+                                <input type="text" id="accountNumber" name="account_number"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Enter account number">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
+                    <i class="fas fa-save mr-3"></i>
+                    Save Hotel Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Printing Settings -->
+<div id="printing-settings" class="settings-content hidden">
+    <div class="max-w-4xl mx-auto">
+        <form id="printingSettingsForm" class="space-y-8">
+            <!-- Display Settings -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Display Settings</h2>
+                    <p class="text-gray-600 mt-2">Configure how information is displayed in the system</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Till</h3>
+                                    <p class="text-sm text-gray-600">Display M-Pesa till/paybill info on receipts</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_till" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Include Tax</h3>
+                                    <p class="text-sm text-gray-600">Include tax in price calculations</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="include_tax" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Images</h3>
+                                    <p class="text-sm text-gray-600">Display item images in menu</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_images" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Printer Settings -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Printer Settings</h2>
+                    <p class="text-gray-600 mt-2">Configure receipt printing behavior</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Double Printing</h3>
+                                    <p class="text-sm text-gray-600">Print receipts twice for backup</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="double_print" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
+                    <i class="fas fa-save mr-3"></i>
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Display Settings -->
+<div id="display-settings" class="settings-content hidden">
+    <div class="max-w-4xl mx-auto">
+        <form id="displaySettingsForm" class="space-y-8">
+            <!-- Display Preferences -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Display Preferences</h2>
+                    <p class="text-gray-600 mt-2">Configure how information is displayed in the system</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Images</h3>
+                                    <p class="text-sm text-gray-600">Display item images in menu</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_images_display" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
+                    <i class="fas fa-save mr-3"></i>
+                    Save Display Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load existing settings
+        loadHotelSettings();
+        loadPrintingSettings();
+        loadDisplaySettings();
+
+        // Tab switching functionality
+        const settingsTabs = document.querySelectorAll('.settings-tab');
+        const settingsContents = document.querySelectorAll('.settings-content');
+
+        settingsTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Update tab appearance
+                settingsTabs.forEach(t => {
+                    t.classList.remove('active', 'bg-white', 'text-primary-orange', 'shadow-lg');
+                    t.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                this.classList.add('active', 'bg-white', 'text-primary-orange', 'shadow-lg');
+                this.classList.remove('bg-gray-200', 'text-gray-700');
+
+                // Show/hide content
+                settingsContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(targetTab + '-settings').classList.remove('hidden');
+            });
+        });
+
+        // Payment method toggle functionality
+        const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+        const buyGoodsFields = document.getElementById('buyGoodsFields');
+        const paybillFields = document.getElementById('paybillFields');
+
+        paymentMethodRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'buy_goods') {
+                    buyGoodsFields.classList.remove('hidden');
+                    paybillFields.classList.add('hidden');
+                    // Clear paybill fields
+                    document.getElementById('businessNumber').value = '';
+                    document.getElementById('accountNumber').value = '';
+                } else if (this.value === 'paybill') {
+                    buyGoodsFields.classList.add('hidden');
+                    paybillFields.classList.remove('hidden');
+                    // Clear till number field
+                    document.getElementById('tillNumber').value = '';
+                }
+            });
+        });
+
+        // Form submissions
+        const hotelSettingsForm = document.getElementById('hotelSettingsForm');
+        hotelSettingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveHotelSettings();
+        });
+
+        const printingSettingsForm = document.getElementById('printingSettingsForm');
+        printingSettingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            savePrintingSettings();
+        });
+
+        const displaySettingsForm = document.getElementById('displaySettingsForm');
+        displaySettingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveDisplaySettings();
+        });
+    });
+
+    async function loadHotelSettings() {
+        try {
+            const response = await fetch('/api/hotel-settings');
+            if (response.ok) {
+                const settings = await response.json();
+                populateForm(settings);
+            }
+        } catch (error) {
+            console.error('Error loading hotel settings:', error);
+        }
+    }
+
+    function populateForm(settings) {
+        if (settings.hotel_name) {
+            document.getElementById('hotelName').value = settings.hotel_name;
+        }
+        if (settings.company_email) {
+            document.getElementById('companyEmail').value = settings.company_email;
+        }
+        if (settings.company_phone) {
+            document.getElementById('companyPhone').value = settings.company_phone;
+        }
+        if (settings.hotel_address) {
+            document.getElementById('hotelAddress').value = settings.hotel_address;
+        }
+        if (settings.business_type) {
+            document.getElementById('businessType').value = settings.business_type;
+        }
+        if (settings.payment_method) {
+            const paymentMethodRadio = document.querySelector(`input[name="payment_method"][value="${settings.payment_method}"]`);
+            if (paymentMethodRadio) {
+                paymentMethodRadio.checked = true;
+                paymentMethodRadio.dispatchEvent(new Event('change'));
+            }
+        }
+        if (settings.till_number) {
+            document.getElementById('tillNumber').value = settings.till_number;
+        }
+        if (settings.business_number) {
+            document.getElementById('businessNumber').value = settings.business_number;
+        }
+        if (settings.account_number) {
+            document.getElementById('accountNumber').value = settings.account_number;
+        }
+    }
+
+    async function saveHotelSettings() {
+        const form = document.getElementById('hotelSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Validate required fields
+        if (!settings.hotel_name || !settings.company_email || !settings.company_phone) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Validate payment method specific fields
+        if (settings.payment_method === 'buy_goods' && !settings.till_number) {
+            showNotification('Please enter the till number', 'error');
+            return;
+        }
+        if (settings.payment_method === 'paybill' && (!settings.business_number || !settings.account_number)) {
+            showNotification('Please enter both business number and account number', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/hotel-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Hotel settings saved successfully!', 'success');
+            } else {
+                showNotification(result.message || 'Failed to save settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving hotel settings:', error);
+            showNotification('Error saving settings. Please try again.', 'error');
+        }
+    }
+
+    async function loadPrintingSettings() {
+        try {
+            // Load from localStorage first (POS-style)
+            const savedSettings = localStorage.getItem('pos-settings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                console.log('Loaded settings from localStorage:', settings);
+                
+                // Convert POS settings format to form format
+                const formSettings = {
+                    double_print: settings.printer?.doublePrint || false,
+                    show_till: settings.till?.show || false,
+                    include_tax: settings.tax?.include !== false,
+                    show_images: settings.images?.show !== false
+                };
+                
+                populatePrintingForm(formSettings);
+                return;
+            }
+            
+            // Fallback to database
+            const response = await fetch('/api/printing-settings');
+            if (response.ok) {
+                const settings = await response.json();
+                populatePrintingForm(settings);
+            }
+        } catch (error) {
+            console.error('Error loading printing settings:', error);
+        }
+    }
+
+    function populatePrintingForm(settings) {
+        // No printer configuration fields in simplified version
+
+        // Checkboxes
+        const checkboxes = [
+            'double_print', 'show_till', 'include_tax', 'show_images'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            const checkbox = document.querySelector(`input[name="${checkboxName}"]`);
+            if (checkbox && settings[checkboxName] !== undefined) {
+                checkbox.checked = settings[checkboxName];
+            }
+        });
+    }
+
+    async function savePrintingSettings() {
+        const form = document.getElementById('printingSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Convert checkbox values to boolean
+        const checkboxes = [
+            'double_print', 'show_till', 'include_tax', 'show_images'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            settings[checkboxName] = formData.has(checkboxName);
+        });
+
+        try {
+            // Save to localStorage (POS-style)
+            const posSettings = {
+                printer: {
+                    enabled: true,
+                    doublePrint: settings.double_print || false
+                },
+                till: {
+                    show: settings.show_till || false
+                },
+                tax: {
+                    include: settings.include_tax !== false
+                },
+                images: {
+                    show: settings.show_images !== false
+                }
+            };
+            
+            localStorage.setItem('pos-settings', JSON.stringify(posSettings));
+            console.log('Settings saved to localStorage:', posSettings);
+
+            // Also save to database
+            const response = await fetch('/api/printing-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Settings saved successfully!', 'success');
+                // Apply settings immediately (POS-style)
+                applySettings(posSettings);
+            } else {
+                showNotification(result.message || 'Failed to save settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            showNotification('Error saving settings. Please try again.', 'error');
+        }
+    }
+
+    async function loadDisplaySettings() {
+        try {
+            const response = await fetch('/api/display-settings');
+            if (response.ok) {
+                const settings = await response.json();
+                populateDisplayForm(settings);
+            }
+        } catch (error) {
+            console.error('Error loading display settings:', error);
+        }
+    }
+
+    function populateDisplayForm(settings) {
+        const checkboxes = [
+            'show_images_display'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            const checkbox = document.querySelector(`input[name="${checkboxName}"]`);
+            if (checkbox && settings[checkboxName.replace('_display', '')] !== undefined) {
+                checkbox.checked = settings[checkboxName.replace('_display', '')];
+            }
+        });
+    }
+
+    async function saveDisplaySettings() {
+        const form = document.getElementById('displaySettingsForm');
+        const formData = new FormData(form);
+        const settings = {};
+
+        // Convert checkbox values to boolean
+        const checkboxes = [
+            'show_images_display'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            const settingName = checkboxName.replace('_display', '');
+            settings[settingName] = formData.has(checkboxName);
+        });
+
+        try {
+            const response = await fetch('/api/display-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Display settings saved successfully!', 'success');
+            } else {
+                showNotification(result.message || 'Failed to save display settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving display settings:', error);
+            showNotification('Error saving display settings. Please try again.', 'error');
+        }
+    }
+
+    // Apply settings to the POS system (POS-style)
+    function applySettings(settings) {
+        console.log('Applying settings:', settings);
+        
+        try {
+            // Dispatch settings updated event (POS-style)
+            const event = new CustomEvent('settingsUpdated', {
+                detail: settings
+            });
+            window.dispatchEvent(event);
+            
+            // Update tax calculation
+            if (window.updateTaxSetting) {
+                window.updateTaxSetting(settings.tax.include);
+                console.log('Tax setting updated:', settings.tax.include);
+            }
+            
+            // Update image display
+            if (window.updateImageDisplay) {
+                window.updateImageDisplay(settings.images.show);
+                console.log('Image display updated:', settings.images.show);
+            }
+            
+            // Update till display
+            if (window.updateTillDisplay) {
+                window.updateTillDisplay(settings.till.show);
+                console.log('Till display updated:', settings.till.show);
+            }
+            
+            console.log('Settings applied successfully');
+        } catch (error) {
+            console.error('Error applying settings:', error);
+        }
+    }
+
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-semibold ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
 {% endblock %}
 
 

@@ -63,306 +63,234 @@
 {% endblock %}
 
 {% block content %}
-<!-- Human Resources Header -->
-<div class="mb-6 lg:mb-8">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-        <div>
-            <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">Human Resources</h1>
-            <p class="text-gray-600 text-sm lg:text-lg">Manage your team, handle employee records, and oversee workforce operations.</p>
-        </div>
-        <div class="flex items-center space-x-3 role-badge text-white px-4 lg:px-6 py-2 lg:py-3 rounded-2xl">
-            <i class="fas fa-users text-lg lg:text-xl"></i>
-            <span class="font-bold text-sm lg:text-lg">HR Management</span>
-        </div>
-    </div>
-</div>
-
-<!-- HR Stats Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 mb-8 lg:mb-12">
-    <!-- Total Employees -->
-    <div class="bg-white rounded-2xl lg:rounded-3xl p-4 lg:p-8 shadow-2xl card-hover border border-gray-100">
-        <div class="flex items-center justify-between mb-3 lg:mb-4">
-            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-primary-blue to-secondary-blue rounded-2xl flex items-center justify-center shadow-lg">
-                <i class="fas fa-users text-white text-lg lg:text-2xl"></i>
-            </div>
-            <div class="text-right">
-                <span class="inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    <i class="fas fa-arrow-up mr-1"></i>
-                    <span id="total-change">+0</span>
-                </span>
-            </div>
-        </div>
-        <div>
-            <p class="text-gray-500 text-xs lg:text-sm font-medium mb-1">Total Employees</p>
-            <p class="text-2xl lg:text-3xl font-bold text-gray-800 mb-2" id="total-employees">0</p>
-            <p class="text-primary-blue text-xs lg:text-sm font-medium" id="active-pending">Loading...</p>
-        </div>
-    </div>
-
-    <!-- Pending Approvals -->
-    <div class="bg-white rounded-2xl lg:rounded-3xl p-4 lg:p-8 shadow-2xl card-hover border border-gray-100">
-        <div class="flex items-center justify-between mb-3 lg:mb-4">
-            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-warning to-yellow-400 rounded-2xl flex items-center justify-center shadow-lg">
-                <i class="fas fa-clock text-white text-lg lg:text-2xl"></i>
-            </div>
-            <div class="text-right">
-                <span class="inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800" id="pending-badge">
-                    <i class="fas fa-exclamation mr-1"></i>
-                    <span id="pending-status">Loading</span>
-                </span>
-            </div>
-        </div>
-        <div>
-            <p class="text-gray-500 text-xs lg:text-sm font-medium mb-1">Pending Approvals</p>
-            <p class="text-2xl lg:text-3xl font-bold text-gray-800 mb-2" id="pending-count">0</p>
-            <p class="text-warning text-xs lg:text-sm font-medium">Awaiting review</p>
-        </div>
-    </div>
-
-    <!-- Active Employees -->
-    <div class="bg-white rounded-2xl lg:rounded-3xl p-4 lg:p-8 shadow-2xl card-hover border border-gray-100">
-        <div class="flex items-center justify-between mb-3 lg:mb-4">
-            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-success to-green-400 rounded-2xl flex items-center justify-center shadow-lg">
-                <i class="fas fa-user-check text-white text-lg lg:text-2xl"></i>
-            </div>
-            <div class="text-right">
-                <span class="inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    <i class="fas fa-check mr-1"></i>
-                    Active
-                </span>
-            </div>
-        </div>
-        <div>
-            <p class="text-gray-500 text-xs lg:text-sm font-medium mb-1">Active Employees</p>
-            <p class="text-2xl lg:text-3xl font-bold text-gray-800 mb-2" id="active-count">0</p>
-            <p class="text-success text-xs lg:text-sm font-medium" id="active-percentage">0% of total</p>
-        </div>
-    </div>
-
-    <!-- Departments -->
-    <div class="bg-white rounded-2xl lg:rounded-3xl p-4 lg:p-8 shadow-2xl card-hover border border-gray-100">
-        <div class="flex items-center justify-between mb-3 lg:mb-4">
-            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <i class="fas fa-building text-white text-lg lg:text-2xl"></i>
-            </div>
-            <div class="text-right">
-                <span class="inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    <i class="fas fa-info mr-1"></i>
-                    Roles
-                </span>
-            </div>
-        </div>
-        <div>
-            <p class="text-gray-500 text-xs lg:text-sm font-medium mb-1">Total Roles</p>
-            <p class="text-2xl lg:text-3xl font-bold text-gray-800 mb-2" id="role-count">0</p>
-            <p class="text-purple-600 text-xs lg:text-sm font-medium">All operational</p>
-        </div>
-    </div>
-</div>
-
-<!-- Main Content Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
-    <!-- Employee List -->
-    <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100">
-            <div class="p-4 lg:p-8 border-b border-gray-200">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-                    <h2 class="text-xl lg:text-2xl font-bold text-gray-800">Employee Directory</h2>
-                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                        <button class="bg-primary-orange text-white px-4 lg:px-6 py-2 lg:py-3 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-semibold text-sm lg:text-base">
-                            <i class="fas fa-plus mr-2"></i>
-                            Add Employee
-                        </button>
-                        <button class="bg-gray-100 text-gray-700 px-4 lg:px-6 py-2 lg:py-3 rounded-2xl hover:bg-gray-200 transition-colors duration-200 font-semibold text-sm lg:text-base">
-                            <i class="fas fa-download mr-2"></i>
-                            Export
-                        </button>
+<!-- Modern Header Section -->
+<div class="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-3xl mb-8">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+    <div class="relative px-6 py-8 lg:px-8 lg:py-12">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+            <div class="flex-1">
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent">
+                            Human Resources
+                        </h1>
+                        <p class="text-gray-600 text-base lg:text-lg font-medium mt-1">
+                            Manage your team, handle employee records, and oversee workforce operations
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="p-4 lg:p-8">
-                <!-- Loading State -->
-                <div id="employees-loading" class="text-center py-6 lg:py-8">
-                    <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-gray-500 bg-white transition ease-in-out duration-150 cursor-not-allowed">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Loading employees...
+            <div class="flex items-center space-x-4">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-2xl shadow-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-shield-alt text-lg"></i>
+                        <span class="font-bold text-lg">HR Management</span>
                     </div>
-                </div>
-
-                <!-- Error State -->
-                <div id="employees-error" class="text-center py-8 hidden">
-                    <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
-                        <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-4"></i>
-                        <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Employees</h3>
-                        <p class="text-red-600 mb-4">Failed to load employee data. Please try again.</p>
-                        <button onclick="loadEmployees()" class="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-200">
-                            <i class="fas fa-refresh mr-2"></i>
-                            Retry
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Empty State -->
-                <div id="employees-empty" class="text-center py-8 hidden">
-                    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                        <i class="fas fa-users text-gray-400 text-3xl mb-4"></i>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Employees Found</h3>
-                        <p class="text-gray-600 mb-4">There are no employees in the system yet.</p>
-                        <button onclick="showAddEmployeeModal()" class="bg-primary-orange text-white px-6 py-2 rounded-xl hover:bg-secondary-orange transition-colors duration-200">
-                            <i class="fas fa-plus mr-2"></i>
-                            Add First Employee
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Employees List -->
-                <div id="employees-list" class="space-y-4 hidden">
-                    <!-- Dynamic employee items will be inserted here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- HR Quick Actions -->
-    <div class="space-y-4 lg:space-y-8">
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100">
-            <div class="p-4 lg:p-8 border-b border-gray-200">
-                <h2 class="text-lg lg:text-xl font-semibold text-gray-800">Quick Actions</h2>
-            </div>
-            <div class="p-4 lg:p-8">
-                <div class="space-y-3 lg:space-y-4">
-                    <a href="#" class="flex items-center p-3 lg:p-4 bg-primary-orange text-white rounded-2xl hover:bg-secondary-orange transition-colors duration-200">
-                        <i class="fas fa-user-plus mr-3 lg:mr-4 text-lg lg:text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-sm lg:text-base">Add New Employee</p>
-                            <p class="text-xs lg:text-sm text-orange-100">Create employee account</p>
-                        </div>
-                    </a>
-                    <a href="/admin/off-days-management" class="flex items-center p-3 lg:p-4 bg-primary-blue text-white rounded-2xl hover:bg-secondary-blue transition-colors duration-200">
-                        <i class="fas fa-calendar-times mr-3 lg:mr-4 text-lg lg:text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-sm lg:text-base">Manage Off Days</p>
-                            <p class="text-xs lg:text-sm text-blue-100">Track vacations and leave</p>
-                        </div>
-                    </a>
-                    <a href="#" class="flex items-center p-3 lg:p-4 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-colors duration-200">
-                        <i class="fas fa-chart-bar mr-3 lg:mr-4 text-lg lg:text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-sm lg:text-base">Performance Review</p>
-                            <p class="text-xs lg:text-sm text-green-100">Employee evaluations</p>
-                        </div>
-                    </a>
-                    <a href="#" class="flex items-center p-3 lg:p-4 bg-purple-500 text-white rounded-2xl hover:bg-purple-600 transition-colors duration-200">
-                        <i class="fas fa-file-alt mr-3 lg:mr-4 text-lg lg:text-xl"></i>
-                        <div>
-                            <p class="font-semibold text-sm lg:text-base">Generate Reports</p>
-                            <p class="text-xs lg:text-sm text-purple-100">HR analytics</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Role Overview -->
-        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100">
-            <div class="p-4 lg:p-8 border-b border-gray-200">
-                <h2 class="text-lg lg:text-xl font-semibold text-gray-800">Role Overview</h2>
-            </div>
-            <div class="p-4 lg:p-8">
-                <div id="role-overview" class="space-y-3 lg:space-y-4">
-                    <!-- Dynamic role counts will be inserted here -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Employee Modal -->
-<div id="editEmployeeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-10 lg:top-20 mx-auto p-4 lg:p-5 border w-11/12 sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5 shadow-lg rounded-2xl bg-white">
+<!-- Modern Employee Directory -->
+<div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-6 py-6 lg:px-8 lg:py-8 border-b border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div>
+                <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Employee Directory</h2>
+                <p class="text-gray-600 text-sm lg:text-base">Manage and oversee your workforce</p>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <button class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-sm lg:text-base shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                    <i class="fas fa-plus text-lg"></i>
+                    <span>Add Employee</span>
+                </button>
+                <button class="bg-white text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold text-sm lg:text-base border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md flex items-center justify-center space-x-2">
+                    <i class="fas fa-download text-lg"></i>
+                    <span>Export</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="p-6 lg:p-8">
+        <!-- Loading State -->
+        <div id="employees-loading" class="text-center py-12">
+            <div class="inline-flex flex-col items-center space-y-4">
+                <div class="relative">
+                    <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Loading Employees</h3>
+                    <p class="text-gray-600">Please wait while we fetch the employee data...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="employees-error" class="text-center py-12 hidden">
+            <div class="max-w-md mx-auto">
+                <div class="bg-red-50 border border-red-200 rounded-2xl p-8">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-red-900 mb-3">Error Loading Employees</h3>
+                    <p class="text-red-700 mb-6">We encountered an issue while loading employee data. Please try again.</p>
+                    <button onclick="loadEmployees()" class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-colors duration-200 font-semibold flex items-center space-x-2 mx-auto">
+                        <i class="fas fa-refresh"></i>
+                        <span>Retry</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="employees-empty" class="text-center py-12 hidden">
+            <div class="max-w-md mx-auto">
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">No Employees Found</h3>
+                    <p class="text-gray-600 mb-6">There are no employees in the system yet. Add your first employee to get started.</p>
+                    <button onclick="showAddEmployeeModal()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold flex items-center space-x-2 mx-auto">
+                        <i class="fas fa-plus"></i>
+                        <span>Add First Employee</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees List -->
+        <div id="employees-list" class="space-y-4 hidden">
+            <!-- Dynamic employee items will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<!-- Modern Edit Employee Modal -->
+<div id="editEmployeeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-4 lg:top-8 mx-auto p-4 lg:p-6 border w-11/12 sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-2/5 shadow-2xl rounded-3xl bg-white">
         <div class="mt-3">
-            <div class="flex items-center justify-between mb-4 lg:mb-6">
-                <h3 class="text-xl lg:text-2xl font-bold text-gray-800">Edit Employee</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-lg lg:text-xl"></i>
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-6 lg:mb-8 pb-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-edit text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl lg:text-2xl font-bold text-gray-900">Edit Employee</h3>
+                        <p class="text-gray-600 text-sm">Update employee information</p>
+                    </div>
+                </div>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 hover:bg-gray-100 rounded-xl">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <form id="editEmployeeForm" class="space-y-4 lg:space-y-6">
+            <!-- Modal Form -->
+            <form id="editEmployeeForm" class="space-y-6 lg:space-y-8">
                 <input type="hidden" id="edit-employee-id" name="id">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input type="text" id="edit-full-name" name="full_name" required
-                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent text-sm lg:text-base">
+                <!-- Personal Information -->
+                <div class="bg-gray-50 rounded-2xl p-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                        <i class="fas fa-user text-blue-600"></i>
+                        <span>Personal Information</span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                            <input type="text" id="edit-full-name" name="full_name" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base transition-all duration-200 bg-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                            <input type="email" id="edit-email" name="email" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base transition-all duration-200 bg-white">
+                        </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" id="edit-email" name="email" required
-                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent text-sm lg:text-base">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" id="edit-phone" name="phone_number" required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base transition-all duration-200 bg-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Employee Code</label>
+                            <input type="text" id="edit-employee-code" name="employee_code" readonly
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 text-sm lg:text-base cursor-not-allowed">
+                        </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                        <input type="tel" id="edit-phone" name="phone_number" required
-                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent text-sm lg:text-base">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Employee Code</label>
-                        <input type="text" id="edit-employee-code" name="employee_code" readonly
-                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 text-sm lg:text-base">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                        <select id="edit-role" name="role" required
-                                class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent text-sm lg:text-base">
-                            <option value="employee">Employee</option>
-                            <option value="cashier">Cashier</option>
-                            <option value="butchery">Butchery</option>
-                            <option value="manager">Manager</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select id="edit-status" name="status" required
-                                class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent text-sm lg:text-base">
-                            <option value="waiting_approval">Waiting Approval</option>
-                            <option value="active">Active</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
+                <!-- Role & Status -->
+                <div class="bg-gray-50 rounded-2xl p-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                        <i class="fas fa-user-tag text-blue-600"></i>
+                        <span>Role & Status</span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                            <select id="edit-role" name="role" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base transition-all duration-200 bg-white">
+                                <option value="employee">Employee</option>
+                                <option value="cashier">Cashier</option>
+                                <option value="butchery">Butchery</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                            <select id="edit-status" name="status" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base transition-all duration-200 bg-white">
+                                <option value="waiting_approval">Waiting Approval</option>
+                                <option value="active">Active</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">New Password (leave blank to keep current)</label>
-                    <input type="password" id="edit-password" name="password"
-                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent text-sm lg:text-base"
-                           placeholder="Enter new password">
+                <!-- Security -->
+                <div class="bg-gray-50 rounded-2xl p-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                        <i class="fas fa-lock text-blue-600"></i>
+                        <span>Security</span>
+                    </h4>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                        <input type="password" id="edit-password" name="password"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:text-base transition-all duration-200 bg-white"
+                               placeholder="Enter new password (leave blank to keep current)">
+                        <p class="text-xs text-gray-500 mt-2">Leave blank to keep the current password</p>
+                    </div>
                 </div>
                 
-                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4 lg:pt-6">
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
                     <button type="button" onclick="closeEditModal()"
-                            class="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-colors duration-200 text-sm lg:text-base">
+                            class="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold text-sm lg:text-base">
                         Cancel
                     </button>
                     <button type="submit"
-                            class="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 bg-primary-blue text-white rounded-xl hover:bg-secondary-blue transition-colors duration-200 text-sm lg:text-base">
-                        <i class="fas fa-save mr-2"></i>
-                        Save Changes
+                            class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-sm lg:text-base shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                        <i class="fas fa-save"></i>
+                        <span>Save Changes</span>
                     </button>
                 </div>
             </form>
@@ -370,36 +298,36 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteEmployeeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-10 lg:top-20 mx-auto p-4 lg:p-5 border w-11/12 sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-1/3 shadow-lg rounded-2xl bg-white">
+<!-- Modern Delete Confirmation Modal -->
+<div id="deleteEmployeeModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-4 lg:top-20 mx-auto p-4 lg:p-6 border w-11/12 sm:w-5/6 md:w-2/3 lg:w-1/2 xl:w-1/3 shadow-2xl rounded-3xl bg-white">
         <div class="mt-3">
-            <div class="flex items-center justify-center mb-4 lg:mb-6">
-                <div class="w-12 h-12 lg:w-16 lg:h-16 bg-red-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-lg lg:text-2xl"></i>
+            <!-- Modal Header -->
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
                 </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Delete Employee</h3>
+                <p class="text-gray-600 text-base leading-relaxed">
+                    Are you sure you want to delete this employee? This action cannot be undone and will permanently remove all employee data.
+                </p>
             </div>
             
-            <div class="text-center">
-                <h3 class="text-lg lg:text-xl font-bold text-gray-800 mb-2">Delete Employee</h3>
-                <p class="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">Are you sure you want to delete this employee? This action cannot be undone.</p>
-                
-                <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-                    <button onclick="closeDeleteModal()"
-                            class="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-colors duration-200 text-sm lg:text-base">
-                        Cancel
-                    </button>
-                    <button onclick="confirmDeleteEmployee()"
-                            class="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors duration-200 text-sm lg:text-base">
-                        <i class="fas fa-trash mr-2"></i>
-                        Delete Employee
-                    </button>
-                </div>
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <button onclick="closeDeleteModal()"
+                        class="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold text-sm lg:text-base">
+                    Cancel
+                </button>
+                <button onclick="confirmDeleteEmployee()"
+                        class="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold text-sm lg:text-base shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                    <i class="fas fa-trash"></i>
+                    <span>Delete Employee</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
-
 
 {% endblock %}
 
@@ -409,78 +337,8 @@
     let currentEmployeeId = null;
 
     document.addEventListener('DOMContentLoaded', function() {
-        loadHRStats();
         loadEmployees();
     });
-
-    // Load HR Statistics
-    async function loadHRStats() {
-        try {
-            const response = await fetch('/api/hr/stats');
-            const data = await response.json();
-            
-            if (data.success) {
-                const stats = data.stats;
-                
-                // Update total employees
-                document.getElementById('total-employees').textContent = stats.total_employees;
-                document.getElementById('active-pending').textContent = 
-                    `${stats.status_counts.active || 0} active, ${stats.status_counts.waiting_approval || 0} pending`;
-                
-                // Update pending count
-                document.getElementById('pending-count').textContent = stats.status_counts.waiting_approval || 0;
-                const pendingBadge = document.getElementById('pending-badge');
-                if (stats.status_counts.waiting_approval > 0) {
-                    pendingBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800';
-                    document.getElementById('pending-status').textContent = 'Urgent';
-                } else {
-                    pendingBadge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
-                    document.getElementById('pending-status').textContent = 'None';
-                }
-                
-                // Update active count
-                document.getElementById('active-count').textContent = stats.status_counts.active || 0;
-                const activePercentage = stats.total_employees > 0 ? 
-                    Math.round((stats.status_counts.active || 0) / stats.total_employees * 100) : 0;
-                document.getElementById('active-percentage').textContent = `${activePercentage}% of total`;
-                
-                // Update role count
-                document.getElementById('role-count').textContent = Object.keys(stats.role_counts).length;
-                
-                // Update role overview
-                updateRoleOverview(stats.role_counts);
-            }
-        } catch (error) {
-            console.error('Error loading HR stats:', error);
-        }
-    }
-
-    // Update Role Overview
-    function updateRoleOverview(roleCounts) {
-        const roleOverview = document.getElementById('role-overview');
-        const roleColors = {
-            'admin': 'bg-purple-500',
-            'manager': 'bg-primary-orange',
-            'cashier': 'bg-primary-blue',
-            'butchery': 'bg-red-500',
-            'employee': 'bg-green-500'
-        };
-        
-        roleOverview.innerHTML = '';
-        
-        Object.entries(roleCounts).forEach(([role, count]) => {
-            const roleDiv = document.createElement('div');
-            roleDiv.className = 'flex items-center justify-between';
-            roleDiv.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <div class="w-3 h-3 ${roleColors[role] || 'bg-gray-500'} rounded-full"></div>
-                    <span class="text-gray-700 capitalize">${role}s</span>
-                </div>
-                <span class="font-semibold text-gray-800">${count}</span>
-            `;
-            roleOverview.appendChild(roleDiv);
-        });
-    }
 
     // Load Employees
     async function loadEmployees() {
@@ -523,7 +381,7 @@
         hideLoadingState();
     }
 
-    // Create Employee Card
+    // Create Modern Employee Card
     function createEmployeeCard(employee) {
         const div = document.createElement('div');
         
@@ -531,56 +389,111 @@
         const initials = employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
         
         // Status styling
-        let statusClass, statusIcon, statusText, bgClass;
+        let statusClass, statusIcon, statusText, bgClass, statusColor;
         switch(employee.status) {
             case 'active':
-                statusClass = 'bg-green-100 text-green-800';
+                statusClass = 'bg-green-100 text-green-800 border-green-200';
                 statusIcon = 'fas fa-check-circle';
                 statusText = 'Active';
-                bgClass = 'bg-gray-50 hover:bg-gray-100';
+                bgClass = 'bg-white hover:bg-green-50/50 border border-gray-200 hover:border-green-200';
+                statusColor = 'text-green-600';
                 break;
             case 'waiting_approval':
-                statusClass = 'bg-warning text-white';
+                statusClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
                 statusIcon = 'fas fa-clock';
                 statusText = 'Pending Approval';
-                bgClass = 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200';
+                bgClass = 'bg-white hover:bg-yellow-50/50 border border-gray-200 hover:border-yellow-200';
+                statusColor = 'text-yellow-600';
                 break;
             case 'suspended':
-                statusClass = 'bg-red-100 text-red-800';
+                statusClass = 'bg-red-100 text-red-800 border-red-200';
                 statusIcon = 'fas fa-ban';
                 statusText = 'Suspended';
-                bgClass = 'bg-red-50 hover:bg-red-100 border border-red-200';
+                bgClass = 'bg-white hover:bg-red-50/50 border border-gray-200 hover:border-red-200';
+                statusColor = 'text-red-600';
                 break;
         }
         
-        // Role colors
-        const roleColors = {
-            'admin': 'from-purple-500 to-purple-600',
-            'manager': 'from-primary-orange to-secondary-orange',
-            'cashier': 'from-primary-blue to-secondary-blue',
-            'butchery': 'from-red-500 to-red-600',
-            'employee': 'from-green-500 to-green-600'
+        // Role colors and icons
+        const roleConfig = {
+            'admin': { 
+                gradient: 'from-purple-500 to-purple-600', 
+                icon: 'fas fa-crown',
+                label: 'Admin'
+            },
+            'manager': { 
+                gradient: 'from-orange-500 to-orange-600', 
+                icon: 'fas fa-user-tie',
+                label: 'Manager'
+            },
+            'cashier': { 
+                gradient: 'from-blue-500 to-blue-600', 
+                icon: 'fas fa-cash-register',
+                label: 'Cashier'
+            },
+            'butchery': { 
+                gradient: 'from-red-500 to-red-600', 
+                icon: 'fas fa-utensils',
+                label: 'Butchery'
+            },
+            'employee': { 
+                gradient: 'from-green-500 to-green-600', 
+                icon: 'fas fa-user',
+                label: 'Employee'
+            }
         };
         
-        div.className = `flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 lg:p-6 ${bgClass} rounded-2xl transition-colors duration-200 space-y-4 sm:space-y-0`;
+        const role = roleConfig[employee.role] || roleConfig['employee'];
+        
+        div.className = `group relative overflow-hidden ${bgClass} rounded-2xl transition-all duration-300 hover:shadow-lg`;
         div.innerHTML = `
-            <div class="flex items-center space-x-3 lg:space-x-4">
-                <div class="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r ${roleColors[employee.role] || 'from-gray-500 to-gray-600'} rounded-2xl flex items-center justify-center shadow-lg">
-                    <span class="text-white font-bold text-sm lg:text-lg">${initials}</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-gray-800 text-base lg:text-lg truncate">${employee.full_name}</p>
-                    <p class="text-gray-600 capitalize text-sm lg:text-base">${employee.role} • Employee ID: ${employee.employee_code}</p>
-                    <p class="text-xs lg:text-sm text-gray-500 truncate">${employee.email} • ${employee.phone_number}</p>
-                </div>
-            </div>
-            <div class="flex flex-col sm:items-end space-y-2">
-                <span class="inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-medium ${statusClass}">
-                    <i class="${statusIcon} mr-1"></i>
-                    ${statusText}
-                </span>
-                <div class="flex flex-wrap gap-2">
-                    ${getActionButtons(employee)}
+            <div class="p-6">
+                <div class="flex items-start space-x-4">
+                    <!-- Avatar -->
+                    <div class="relative">
+                        <div class="w-16 h-16 bg-gradient-to-br ${role.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <span class="text-white font-bold text-lg">${initials}</span>
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <i class="${role.icon} text-xs ${statusColor}"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Employee Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-lg font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">
+                                    ${employee.full_name}
+                                </h3>
+                                <p class="text-sm text-gray-600 mb-1">
+                                    <i class="${role.icon} mr-2"></i>
+                                    ${role.label} • ID: ${employee.employee_code}
+                                </p>
+                                <p class="text-sm text-gray-500 truncate">
+                                    <i class="fas fa-envelope mr-2"></i>
+                                    ${employee.email}
+                                </p>
+                                <p class="text-sm text-gray-500 truncate">
+                                    <i class="fas fa-phone mr-2"></i>
+                                    ${employee.phone_number}
+                                </p>
+                            </div>
+                            
+                            <!-- Status Badge -->
+                            <div class="ml-4 flex flex-col items-end space-y-3">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusClass} border">
+                                    <i class="${statusIcon} mr-1"></i>
+                                    ${statusText}
+                                </span>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    ${getActionButtons(employee)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -588,14 +501,14 @@
         return div;
     }
 
-    // Get Action Buttons
+    // Get Modern Action Buttons
     function getActionButtons(employee) {
         let buttons = '';
         
         if (employee.status === 'waiting_approval') {
             buttons += `
                 <button onclick="approveEmployee(${employee.id})" 
-                        class="bg-green-500 text-white px-3 lg:px-4 py-2 rounded-xl hover:bg-green-600 transition-colors duration-200 text-xs lg:text-sm"
+                        class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition-all duration-200 text-xs font-semibold shadow-md hover:shadow-lg"
                         title="Approve Employee">
                     <i class="fas fa-check"></i>
                 </button>
@@ -603,7 +516,7 @@
         } else if (employee.status === 'active') {
             buttons += `
                 <button onclick="suspendEmployee(${employee.id})" 
-                        class="bg-yellow-500 text-white px-3 lg:px-4 py-2 rounded-xl hover:bg-yellow-600 transition-colors duration-200 text-xs lg:text-sm"
+                        class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-200 text-xs font-semibold shadow-md hover:shadow-lg"
                         title="Suspend Employee">
                     <i class="fas fa-pause"></i>
                 </button>
@@ -611,7 +524,7 @@
         } else if (employee.status === 'suspended') {
             buttons += `
                 <button onclick="activateEmployee(${employee.id})" 
-                        class="bg-green-500 text-white px-3 lg:px-4 py-2 rounded-xl hover:bg-green-600 transition-colors duration-200 text-xs lg:text-sm"
+                        class="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition-all duration-200 text-xs font-semibold shadow-md hover:shadow-lg"
                         title="Activate Employee">
                     <i class="fas fa-play"></i>
                 </button>
@@ -620,12 +533,12 @@
         
         buttons += `
             <button onclick="editEmployee(${employee.id})" 
-                    class="bg-primary-blue text-white px-3 lg:px-4 py-2 rounded-xl hover:bg-secondary-blue transition-colors duration-200 text-xs lg:text-sm"
+                    class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 text-xs font-semibold shadow-md hover:shadow-lg"
                     title="Edit Employee">
                 <i class="fas fa-edit"></i>
             </button>
             <button onclick="deleteEmployee(${employee.id})" 
-                    class="bg-red-500 text-white px-3 lg:px-4 py-2 rounded-xl hover:bg-red-600 transition-colors duration-200 text-xs lg:text-sm"
+                    class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition-all duration-200 text-xs font-semibold shadow-md hover:shadow-lg"
                     title="Delete Employee">
                 <i class="fas fa-trash"></i>
             </button>
@@ -645,7 +558,6 @@
             if (data.success) {
                 showNotification('Employee approved successfully!', 'success');
                 loadEmployees();
-                loadHRStats();
             } else {
                 showNotification(data.message, 'error');
             }
@@ -665,7 +577,6 @@
             if (data.success) {
                 showNotification('Employee suspended successfully!', 'success');
                 loadEmployees();
-                loadHRStats();
             } else {
                 showNotification(data.message, 'error');
             }
@@ -685,7 +596,6 @@
             if (data.success) {
                 showNotification('Employee activated successfully!', 'success');
                 loadEmployees();
-                loadHRStats();
             } else {
                 showNotification(data.message, 'error');
             }
@@ -731,7 +641,6 @@
                 showNotification('Employee deleted successfully!', 'success');
                 closeDeleteModal();
                 loadEmployees();
-                loadHRStats();
             } else {
                 showNotification(data.message, 'error');
             }
@@ -787,7 +696,6 @@
                 showNotification('Employee updated successfully!', 'success');
                 closeEditModal();
                 loadEmployees();
-                loadHRStats();
             } else {
                 showNotification(data.message, 'error');
             }
@@ -823,27 +731,37 @@
         document.getElementById('employees-list').classList.add('hidden');
     }
 
-    // Notification System
+    // Modern Notification System
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg transition-all duration-300 ${
-            type === 'success' ? 'bg-green-500 text-white' :
-            type === 'error' ? 'bg-red-500 text-white' :
-            'bg-blue-500 text-white'
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl transition-all duration-300 transform translate-x-full ${
+            type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
+            type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' :
+            'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
         }`;
         notification.innerHTML = `
-            <div class="flex items-center">
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} mr-2"></i>
-                <span>${message}</span>
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'} text-sm"></i>
+                </div>
+                <span class="font-semibold">${message}</span>
             </div>
         `;
         
         document.body.appendChild(notification);
         
+        // Animate in
         setTimeout(() => {
-            notification.style.opacity = '0';
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Animate out
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
             setTimeout(() => {
-                document.body.removeChild(notification);
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
             }, 300);
         }, 3000);
     }
@@ -855,4 +773,3 @@
 
 </script>
 {% endblock %}
-

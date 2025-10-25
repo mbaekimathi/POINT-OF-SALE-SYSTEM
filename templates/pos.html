@@ -37,6 +37,9 @@
                     <button id="connectWifiPrinterBtn" class="group bg-purple-500/80 hover:bg-purple-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Connect WiFi Printer">
                         <i class="fas fa-wifi text-xs sm:text-sm group-hover:animate-pulse"></i>
                     </button>
+                    <div id="connected-printers-status" class="text-xs text-gray-600 hidden sm:block">
+                        <!-- Connected printers status will be shown here -->
+                    </div>
                     <button id="reprintBtn" class="group bg-purple-500/80 hover:bg-purple-500 text-white p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg flex-1 sm:flex-none" title="Reprint Receipt">
                         <i class="fas fa-redo-alt text-xs sm:text-sm"></i>
                     </button>
@@ -52,7 +55,102 @@
     </div>
 </div>
 
-<!-- Bluetooth Printer Setup Notice Removed -->
+<!-- Printer Setup Modal -->
+<div id="printerSetupModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold">Printer Setup</h2>
+                    <button id="closePrinterSetup" class="text-white/80 hover:text-white text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <!-- Printer Type Selection -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Select Printer Type</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-500 transition-colors">
+                            <input type="radio" name="printer-type" value="bluetooth" class="mr-3">
+                            <div>
+                                <div class="font-medium">Bluetooth Printer</div>
+                                <div class="text-sm text-gray-600">Connect via Bluetooth</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-500 transition-colors">
+                            <input type="radio" name="printer-type" value="wifi" class="mr-3">
+                            <div>
+                                <div class="font-medium">WiFi Printer</div>
+                                <div class="text-sm text-gray-600">Connect via Network</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Scan Section -->
+                <div id="scanSection" class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Scan for Printers</h3>
+                        <button id="scan-printers" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-search mr-2"></i>Scan for Printers
+                        </button>
+                    </div>
+                    <div id="printers-list" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- Scanned printers will appear here -->
+                    </div>
+                </div>
+
+                <!-- Manual Connection Section -->
+                <div id="manualSection" class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Manual Connection</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Printer Name</label>
+                            <input type="text" id="printer-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter printer name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Printer Address</label>
+                            <input type="text" id="printer-address" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter IP address or Bluetooth ID">
+                        </div>
+                        <button id="connect-manual-printer" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-colors">
+                            <i class="fas fa-link mr-2"></i>Connect
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bluetooth Scanning Interface -->
+                <div id="bluetoothScanInterface" class="hidden">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-blue-800">Bluetooth Scanning</h3>
+                            <button id="cancel-bluetooth-scan" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div id="bluetooth-devices-list" class="space-y-2">
+                            <!-- Bluetooth devices will appear here -->
+                        </div>
+                        <button id="pair-bluetooth-device" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg mt-4 transition-colors">
+                            <i class="fas fa-link mr-2"></i>Pair Device
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Disconnect Section -->
+                <div class="border-t pt-4">
+                    <button id="disconnect-printer" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg transition-colors">
+                        <i class="fas fa-unlink mr-2"></i>Disconnect Printer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Mobile Floating Cart Button -->
 <div id="mobileCartBtn" class="md:hidden">
@@ -738,6 +836,73 @@
             right: 0.75rem !important;
         }
     }
+    
+    /* Stock Display Styling */
+    .stock-low {
+        background-color: #fef2f2 !important;
+        border: 2px solid #fca5a5 !important;
+        animation: pulse-red 2s infinite;
+    }
+    
+    .stock-out {
+        background-color: #fef2f2 !important;
+        border: 2px solid #ef4444 !important;
+        opacity: 0.7;
+    }
+    
+    .stock-good {
+        background-color: #f0fdf4 !important;
+        border: 1px solid #bbf7d0 !important;
+    }
+    
+    .stock-no-tracking {
+        background-color: #eff6ff !important;
+        border: 1px solid #93c5fd !important;
+    }
+    
+    @keyframes pulse-red {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+    }
+    
+    /* Stock quantity badges */
+    .stock-badge {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    
+    .stock-badge.low-stock {
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+        box-shadow: 0 1px 3px rgba(239, 68, 68, 0.1);
+    }
+    
+    .stock-badge.out-of-stock {
+        background: linear-gradient(135deg, #fef2f2, #fecaca);
+        color: #dc2626;
+        border: 1px solid #ef4444;
+        box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
+    }
+    
+    .stock-badge.in-stock {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        color: #16a34a;
+        border: 1px solid #86efac;
+        box-shadow: 0 1px 3px rgba(34, 197, 94, 0.1);
+    }
+    
+    .stock-badge.no-tracking {
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        color: #2563eb;
+        border: 1px solid #93c5fd;
+        box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
+    }
 </style>
 <script>
     // Global variables
@@ -893,27 +1058,28 @@
     // Get stock badge class for styling
     function getStockBadgeClass(item) {
         if (!item.stock_update_enabled) {
-            return 'bg-blue-100 text-blue-700';
+            return ''; // No badge for items without stock tracking
         } else if (item.stock === 0) {
-            return 'bg-red-100 text-red-700';
+            return 'text-xs font-medium text-red-600'; // Red for out of stock
         } else if (item.stock < 10) {
-            return 'bg-yellow-100 text-yellow-700';
+            return 'text-xs font-medium text-red-500'; // Red for low stock
         } else {
-            return 'bg-green-100 text-green-700';
+            return 'text-xs font-medium text-gray-600'; // Gray for good stock
         }
     }
     
-    // Get stock text
+    // Get stock text with quantities
     function getStockText(item) {
         if (!item.stock_update_enabled) {
-            return 'No Tracking';
-        } else if (item.stock === 0) {
-            return 'Out of Stock';
-        } else if (item.stock < 10) {
-            return 'Low Stock';
+            return ''; // Don't show anything for items without stock tracking
         } else {
-            return 'In Stock';
+            return `${item.stock}`; // Just show the quantity number
         }
+    }
+    
+    // Get card class based on stock status
+    function getStockCardClass(item) {
+        return ''; // No special card styling
     }
 
     // Initialize POS system
@@ -1006,6 +1172,20 @@
     }
 
     // Initialize POS system with DOM element verification
+    // Global error handler for undefined errors
+    window.addEventListener('error', function(event) {
+        if (event.error && event.error.message && event.error.message.includes('Cannot read properties of undefined')) {
+            console.error('Caught undefined property access:', event.error);
+            console.error('Error details:', {
+                message: event.error.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno
+            });
+            // Don't prevent default to allow normal error handling
+        }
+    });
+
     function initializePOS() {
         // Prevent multiple initializations
         if (posInitialized) {
@@ -1198,7 +1378,7 @@
             if (showImages) {
                     // Small card with image
                 return `
-                        <div class="bg-white rounded-lg p-2 hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 hover:border-primary-orange group hover:scale-105 flex-shrink-0 w-32" onclick="addToOrder(${item.id})" data-item-id="${item.id}">
+                        <div class="bg-white rounded-lg p-2 hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 hover:border-primary-orange group hover:scale-105 flex-shrink-0 w-32 ${getStockCardClass(item)}" onclick="addToOrder(${item.id})" data-item-id="${item.id}">
                             <div class="w-full h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-md mb-2 flex items-center justify-center group-hover:from-primary-orange/10 group-hover:to-primary-blue/10 transition-all duration-200 overflow-hidden">
                             ${item.image_url ? 
                                 `<img src="${item.image_url}" alt="${item.name}" class="w-full h-full object-cover">` :
@@ -1210,20 +1390,16 @@
                                 <span class="text-sm font-bold text-primary-orange">KSh ${item.price.toFixed(2)}</span>
                                 <i class="fas fa-plus text-xs text-primary-orange opacity-0 group-hover:opacity-100 transition-opacity"></i>
                         </div>
-                        ${!item.stock_update_enabled ? 
-                                '<div class="mt-1 text-xs text-blue-600 font-medium">No Stock</div>' : 
-                            item.stock === 0 ? 
-                                    '<div class="mt-1 text-xs text-red-600 font-medium">Out of Stock</div>' : 
-                                item.stock < 10 ? 
-                                        '<div class="mt-1 text-xs text-yellow-600 font-medium">Low Stock</div>' : 
-                                    ''
+                        ${item.stock_update_enabled ? 
+                            '<div class="mt-1"><span class="' + getStockBadgeClass(item) + '">' + getStockText(item) + '</span></div>' : 
+                            ''
                         }
                     </div>
                 `;
             } else {
                     // Small card without image
                 return `
-                        <div class="bg-white rounded-lg p-2 hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 hover:border-primary-orange group hover:scale-105 flex-shrink-0 w-40" onclick="addToOrder(${item.id})" data-item-id="${item.id}">
+                        <div class="bg-white rounded-lg p-2 hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 hover:border-primary-orange group hover:scale-105 flex-shrink-0 w-40 ${getStockCardClass(item)}" onclick="addToOrder(${item.id})" data-item-id="${item.id}">
                             <div class="flex items-center space-x-2 mb-2">
                                 <div class="w-6 h-6 bg-primary-orange/10 rounded-md flex items-center justify-center flex-shrink-0">
                                     <i class="fas ${categoryIcon} text-primary-orange text-xs"></i>
@@ -1232,9 +1408,10 @@
                                 </div>
                             <div class="flex items-center justify-between">
                             <span class="text-sm font-bold text-primary-orange">KSh ${item.price.toFixed(2)}</span>
-                                <span class="px-1 py-0.5 rounded text-xs font-medium ${getStockBadgeClass(item)}">
-                                ${getStockText(item)}
-                            </span>
+                                ${item.stock_update_enabled ? 
+                                    '<span class="' + getStockBadgeClass(item) + '">' + getStockText(item) + '</span>' : 
+                                    ''
+                                }
                         </div>
                     </div>
                 `;
@@ -1669,13 +1846,15 @@
 
     // Initialize printer control buttons
     function initializePrinterControls() {
-        // Connect printer button
-        document.getElementById('connectPrinterBtn').addEventListener('click', connectBluetoothPrinter);
+        // Connect printer button - show setup modal
+        document.getElementById('connectPrinterBtn').addEventListener('click', () => {
+            showPrinterSetupModal();
+        });
         
         // Connect WiFi printer button
-        document.getElementById('connectWifiPrinterBtn').addEventListener('click', connectWiFiPrinter);
-        
-        
+        document.getElementById('connectWifiPrinterBtn').addEventListener('click', () => {
+            showPrinterSetupModal();
+        });
         
         // Test print button
         document.getElementById('testPrintBtn').addEventListener('click', testAllConnectedPrinters);
@@ -1683,10 +1862,36 @@
         // Printer info button
         document.getElementById('printerInfoBtn').addEventListener('click', showPrinterInfo);
         
-        // Setup printers button removed
+        // Setup modal controls
+        setupPrinterModalControls();
         
         // Update button states
         updatePrinterControlButtons();
+    }
+
+    // Setup printer modal controls
+    function setupPrinterModalControls() {
+        // Close modal button
+        document.getElementById('closePrinterSetup').addEventListener('click', () => {
+            hidePrinterSetupModal();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('printerSetupModal').addEventListener('click', (e) => {
+            if (e.target.id === 'printerSetupModal') {
+                hidePrinterSetupModal();
+            }
+        });
+    }
+
+    // Show printer setup modal
+    function showPrinterSetupModal() {
+        document.getElementById('printerSetupModal').classList.remove('hidden');
+    }
+
+    // Hide printer setup modal
+    function hidePrinterSetupModal() {
+        document.getElementById('printerSetupModal').classList.add('hidden');
     }
 
     // Update printer control button states
@@ -1698,62 +1903,209 @@
 
 
 
-    // Connect Bluetooth printer
+    // Universal Bluetooth printer connection - works on all compatible devices
     async function connectBluetoothPrinter() {
-        try {
-            if (!navigator.bluetooth) {
-                showNotification('Web Bluetooth is not supported in this browser. Please use Chrome, Edge, or Opera.', 'error');
-                return;
-            }
+        // Use the universal scanning function
+        await scanForBluetoothPrinters();
+    }
 
-            // Check browser compatibility and show enhanced warning
-            if (window.bluetoothPrinterManager && window.bluetoothPrinterManager.browserInfo) {
-                const browserInfo = window.bluetoothPrinterManager.browserInfo;
-                if (!browserInfo.supportsBluetooth) {
-                    showNotification(`Web Bluetooth not supported in ${browserInfo.name}. Please use Chrome, Edge, or Opera for optimal performance.`, 'error');
-                    return;
-                } else if (browserInfo.name === 'Firefox' || browserInfo.name === 'Safari') {
-                    showNotification(`Limited Bluetooth support in ${browserInfo.name}. For best results, use Chrome or Edge.`, 'warning');
+    // Show Bluetooth scanning interface in modal
+    function showBluetoothScanInterface() {
+        document.getElementById('bluetoothScanInterface').classList.remove('hidden');
+        document.getElementById('scanSection').classList.add('hidden');
+        document.getElementById('manualSection').classList.add('hidden');
+    }
+
+    // Hide Bluetooth scanning interface
+    function hideBluetoothScanInterface() {
+        document.getElementById('bluetoothScanInterface').classList.add('hidden');
+        document.getElementById('scanSection').classList.remove('hidden');
+        document.getElementById('manualSection').classList.remove('hidden');
+    }
+
+    // Update scanning status
+    function updateScanningStatus(status, isScanning) {
+        const statusElement = document.getElementById('bluetooth-devices-list');
+        if (statusElement) {
+            if (isScanning) {
+                statusElement.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i><div class="mt-2 text-sm text-blue-600">Scanning for Bluetooth devices...</div></div>';
+            } else {
+                statusElement.innerHTML = `<div class="text-center py-4 text-gray-600">${status}</div>`;
+            }
+        }
+    }
+
+    // Universal scanForPrinters function - called by base.html JavaScript
+    async function scanForPrinters(printerType) {
+        console.log('scanForPrinters called with type:', printerType);
+        
+        if (printerType === 'bluetooth') {
+            // Use our Bluetooth scanning function
+            const success = await scanForBluetoothPrinters();
+            return success ? [{ name: 'Bluetooth Printer', type: 'bluetooth' }] : [];
+        } else if (printerType === 'wifi') {
+            // Use WiFi scanning function
+            return await scanForWiFiPrinters();
+        } else {
+            throw new Error('Invalid printer type');
+        }
+    }
+
+    // WiFi printer scanning function - Real thermal printer discovery
+    async function scanForWiFiPrinters() {
+        try {
+            showNotification('Scanning for thermal printers on network...', 'info');
+            
+            // Check if we're in a hosted environment
+            const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
+                            window.location.hostname.includes('github.io') || 
+                            window.location.hostname.includes('netlify.app') ||
+                            window.location.hostname.includes('vercel.app') ||
+                            window.location.hostname.includes('herokuapp.com') ||
+                            window.location.hostname.includes('railway.app') ||
+                            window.location.hostname.includes('render.com') ||
+                            window.location.hostname.includes('fly.dev') ||
+                            window.location.hostname.includes('aws.amazon.com') ||
+                            window.location.hostname.includes('azure.com') ||
+                            window.location.hostname.includes('digitalocean.com') ||
+                            (window.location.hostname !== 'localhost' && 
+                             window.location.hostname !== '127.0.0.1' &&
+                             !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/));
+            
+            if (isHosted) {
+                console.log('Hosted environment detected, using client-side scanning approach');
+                // For hosted environments, use client-side scanning instead of API
+                await performClientSideWiFiScan();
+                return [];
+            } else {
+                // Use the real WiFi scanning function for local environments
+                await connectWiFiPrinter();
+                return [];
+            }
+        } catch (error) {
+            console.error('WiFi scanning error:', error);
+            showNotification('WiFi scanning failed: ' + error.message, 'error');
+            return [];
+        }
+    }
+
+    // Display available printers in the modal
+    function displayAvailablePrinters(printers) {
+        const printersList = document.getElementById('printers-list');
+        if (!printersList) return;
+
+        // Safety check for printers parameter
+        if (!printers || !Array.isArray(printers) || printers.length === 0) {
+            printersList.innerHTML = '<div class="text-center py-4 text-gray-600">No printers found</div>';
+            return;
+        }
+
+        const printerHTML = printers.map(printer => `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                <div>
+                    <div class="font-medium">${printer.name}</div>
+                    <div class="text-sm text-gray-600">${printer.type.toUpperCase()}</div>
+                </div>
+                <button onclick="connectToPrinter(${JSON.stringify(printer).replace(/"/g, '&quot;')})" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                    Connect
+                </button>
+            </div>
+        `).join('');
+
+        printersList.innerHTML = printerHTML;
+    }
+
+    // Connect to a specific printer
+    async function connectToPrinter(printer) {
+        try {
+            if (printer.type === 'bluetooth') {
+                // Use Bluetooth connection
+                const success = await scanForBluetoothPrinters();
+                return success;
+            } else if (printer.type === 'wifi') {
+                // Use WiFi connection
+                return await connectWiFiPrinter();
+            }
+            return false;
+        } catch (error) {
+            console.error('Error connecting to printer:', error);
+            showNotification('Failed to connect to printer', 'error');
+            return false;
+        }
+    }
+
+    // Disconnect printer function
+    async function disconnectPrinter() {
+        try {
+            // Use the enhanced manager if available
+            const manager = window.enhancedBluetoothPrinterManager || window.bluetoothPrinterManager;
+            if (manager) {
+                manager.disconnectAllPrinters();
+                showNotification('All printers disconnected', 'info');
+                
+                // Update UI
+                updatePrinterSetupNotice();
+                updatePrinterControlButtons();
+                updateEmployeeValidationUI();
+                
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error disconnecting printer:', error);
+            showNotification('Error disconnecting printer', 'error');
+            return false;
+        }
+    }
+
+    // Update printer status - called by base.html JavaScript
+    function updatePrinterStatus(status, type) {
+        console.log('updatePrinterStatus called:', status, type);
+        
+        // Update the printer status badge
+        const statusBadge = document.getElementById('printerStatusBadge');
+        if (statusBadge) {
+            const statusText = statusBadge.querySelector('p');
+            const statusIndicator = statusBadge.querySelector('.w-3');
+            
+            if (statusText) {
+                statusText.textContent = status;
+            }
+            
+            if (statusIndicator) {
+                if (type === 'success' || status === 'Connected') {
+                    statusIndicator.className = 'w-3 h-3 bg-green-400 rounded-full';
+                } else if (type === 'disconnected' || status === 'Not Connected') {
+                    statusIndicator.className = 'w-3 h-3 bg-red-400 rounded-full animate-pulse';
+                } else {
+                    statusIndicator.className = 'w-3 h-3 bg-yellow-400 rounded-full';
                 }
             }
+        }
+        
+        // Update button states
+        updatePrinterControlButtons();
+    }
 
-            showNotification('Opening Bluetooth device selection...', 'info');
+    // Global variables for Bluetooth scanning
+    let selectedBluetoothDevice = null;
 
-            const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: [
-                    '000018f0-0000-1000-8000-00805f9b34fb', // BLE thermal printer service
-                    '00001800-0000-1000-8000-00805f9b34fb', // Generic Access
-                    '00001801-0000-1000-8000-00805f9b34fb', // Generic Attribute
-                    '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile
-                    '0000ffe0-0000-1000-8000-00805f9b34fb', // Custom service
-                    '0000ffe1-0000-1000-8000-00805f9b34fb'  // Custom characteristic
-                ]
-            });
+    // Hide Bluetooth scanning interface
+    function hideBluetoothScanningInterface() {
+        hideBluetoothScanInterface();
+    }
 
-            showNotification(`Selected device: ${device.name || 'Unknown Device'}`, 'success');
-
-            showNotification('Connecting to device...', 'info');
-            const server = await device.gatt.connect();
-            showNotification('Connected to Bluetooth device successfully!', 'success');
-
-            const printerId = await window.bluetoothPrinterManager.addPrinter(device, server);
-            showNotification(`Printer "${device.name || 'Unknown Device'}" added and will stay connected!`, 'success');
-
-            updatePrinterSetupNotice();
-            updatePrinterControlButtons();
-            updateEmployeeValidationUI(); // Enable employee code input
-
-        } catch (error) {
-            console.error('Bluetooth connection error:', error);
-            if (error.name === 'NotFoundError') {
-                showNotification('No Bluetooth devices found or pairing was cancelled. Make sure your printer is in pairing mode.', 'warning');
-            } else if (error.name === 'SecurityError') {
-                showNotification('Bluetooth access denied. Please allow Bluetooth access in your browser settings.', 'error');
-            } else if (error.name === 'NetworkError') {
-                showNotification('Connection failed. Make sure your printer is nearby and in pairing mode.', 'error');
+    // Update printer setup notice
+    function updatePrinterSetupNotice() {
+        // Check if any printers are connected
+        const manager = window.enhancedBluetoothPrinterManager || window.bluetoothPrinterManager;
+        if (manager) {
+            const connectedPrinters = manager.getConnectedPrinters();
+            if (connectedPrinters.length > 0) {
+                updatePrinterStatus('Connected', 'success');
             } else {
-                showNotification(`Connection error: ${error.message}`, 'error');
+                updatePrinterStatus('Not Connected', 'disconnected');
             }
         }
     }
@@ -1783,23 +2135,37 @@
             const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
             
             try {
-                // Call backend API for WiFi printer discovery
+                // Call backend API for real thermal printer discovery
                 // Use the current host to avoid connection reset issues
-                const apiUrl = `${window.location.protocol}//${window.location.host}/api/scan-wifi-printers`;
-                console.log('Calling WiFi scan API:', apiUrl);
+                const apiUrl = `${window.location.protocol}//${window.location.host}/api/scan-thermal-printers`;
+                console.log('Calling thermal printer scan API:', apiUrl);
                 
                 // Check if we're on a hosted domain and need to use a different approach
                 const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
                                 window.location.hostname.includes('github.io') || 
                                 window.location.hostname.includes('netlify.app') ||
-                                window.location.hostname.includes('vercel.app');
+                                window.location.hostname.includes('vercel.app') ||
+                                window.location.hostname.includes('herokuapp.com') ||
+                                window.location.hostname.includes('railway.app') ||
+                                window.location.hostname.includes('render.com') ||
+                                window.location.hostname.includes('fly.dev') ||
+                                window.location.hostname.includes('aws.amazon.com') ||
+                                window.location.hostname.includes('azure.com') ||
+                                window.location.hostname.includes('digitalocean.com') ||
+                                window.location.hostname !== 'localhost' && 
+                                window.location.hostname !== '127.0.0.1' &&
+                                !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/);
                 
                 if (isHosted) {
-                    console.log('Hosted environment detected, using simplified printer setup');
-                    // For hosted environments, show manual setup instead of scanning
-                    showWiFiPrinterDiscovery();
+                    console.log('Hosted environment detected, using client-side scanning approach');
+                    // For hosted environments, use client-side scanning instead of API
+                    await performClientSideWiFiScan();
                     return;
                 }
+                
+                // Use advanced scanning for local environments
+                await performAdvancedWiFiScan();
+                return;
                 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -1848,39 +2214,9 @@
                 } else if (fetchError.message.includes('ERR_CONNECTION_RESET') || fetchError.message.includes('Failed to fetch')) {
                     console.warn('Connection reset detected, trying fallback approach...');
                     
-                    // Try alternative API URL if we're on different host
-                    if (!apiUrl.includes('192.168.100.19')) {
-                        console.log('Trying alternative server address...');
-                        try {
-                            const altResponse = await fetch('http://192.168.100.19:5000/api/scan-wifi-printers', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Cache-Control': 'no-cache',
-                                    'Pragma': 'no-cache'
-                                },
-                                body: JSON.stringify({}),
-                                signal: controller.signal
-                            });
-                            
-                            if (altResponse.ok) {
-                                const altData = await altResponse.json();
-                                console.log('Alternative API call successful:', altData);
-                                
-                                if (altData.success && altData.printers && altData.printers.length > 0) {
-                                    closeWiFiScanningModal();
-                                    showDiscoveredPrinters(altData.printers);
-                                    return;
-                                }
-                            }
-                        } catch (altError) {
-                            console.log('Alternative API call also failed:', altError);
-                        }
-                    }
-                    
-                    // Final fallback: Show manual setup with helpful info
+                    // Final fallback: Show manual setup
                     closeWiFiScanningModal();
-                    showNotification('Network scan failed. Use manual setup - try IP: 192.168.100.171 Port: 9100 for thermal printers.', 'warning');
+                    showNotification('Network scan failed. Please try the advanced scan again.', 'warning');
                     showWiFiPrinterDiscovery();
                     return;
                 } else {
@@ -1989,6 +2325,471 @@
         }
     }
 
+    // Show enhanced WiFi scanning modal with progress
+    function showEnhancedWiFiScanningModal() {
+        const modal = document.createElement('div');
+        modal.id = 'enhanced-wifi-scanning-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-search mr-2 text-blue-500"></i>
+                        Advanced WiFi Printer Discovery
+                    </h3>
+                    <button onclick="closeEnhancedWiFiScanningModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Scan Progress</span>
+                            <span id="scan-found" class="text-sm text-blue-600">Found: 0 printers</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="scan-progress" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-wifi text-green-500"></i>
+                            <span id="scan-status" class="text-sm text-gray-600">Starting discovery...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="animate-pulse text-blue-500">
+                            <i class="fas fa-search text-2xl"></i>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Using multiple discovery methods to find printers</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    // Close enhanced WiFi scanning modal
+    function closeEnhancedWiFiScanningModal() {
+        const modal = document.getElementById('enhanced-wifi-scanning-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // Client-side WiFi scanning for hosted environments
+    async function performClientSideWiFiScan() {
+        console.log('Starting client-side WiFi scan for hosted environment...');
+        
+        // Show scanning modal
+        showWiFiScanningModal();
+        
+        const discoveredPrinters = [];
+        
+        try {
+            // For hosted environments, we need to use client-side scanning
+            // This involves scanning common IP ranges from the user's browser
+            
+            console.log('Performing client-side network scan...');
+            
+            // Get the user's local IP range (this is a simplified approach)
+            const localIPRange = await getUserLocalIPRange();
+            console.log('Detected local IP range:', localIPRange);
+            
+            // Scan common thermal printer ports
+            const thermalPorts = [9100, 9101, 9102, 515, 631];
+            
+            // Show progress
+            console.log('Starting client-side network scan...');
+            
+            // Scan the detected IP range
+            for (let i = 1; i <= 254; i++) {
+                const ip = `${localIPRange}.${i}`;
+                
+                // Test each port for this IP
+                for (const port of thermalPorts) {
+                    try {
+                        const isReachable = await testPrinterConnectivity(ip, port);
+                        if (isReachable) {
+                            discoveredPrinters.push({
+                                name: `Thermal Printer at ${ip}:${port}`,
+                                ip: ip,
+                                port: port,
+                                discovery_method: 'Client-side Scan',
+                                model: 'Thermal Printer',
+                                type: 'thermal'
+                            });
+                            console.log(`✅ Found thermal printer: ${ip}:${port}`);
+                        }
+                    } catch (error) {
+                        // Continue scanning
+                    }
+                }
+                
+                // Update progress every 10 IPs
+                if (i % 10 === 0) {
+                    console.log(`Scanned ${i} IPs, found ${discoveredPrinters.length} printers`);
+                }
+            }
+            
+            console.log(`Client-side scan completed. Found ${discoveredPrinters.length} printers`);
+            
+        } catch (error) {
+            console.error('Client-side scanning failed:', error);
+            console.log('Client-side scan failed');
+        }
+        
+        // Close scanning modal
+        closeWiFiScanningModal();
+        
+        if (discoveredPrinters.length > 0) {
+            showDiscoveredPrinters(discoveredPrinters);
+        } else {
+            // Show manual setup if no printers found
+            showNotification('No printers found automatically. Please add printers manually.', 'info');
+            showWiFiPrinterDiscovery();
+        }
+    }
+    
+    // Get user's local IP range (simplified approach)
+    async function getUserLocalIPRange() {
+        try {
+            // Try to get local IP using WebRTC
+            const pc = new RTCPeerConnection({iceServers: []});
+            pc.createDataChannel('');
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            
+            return new Promise((resolve) => {
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        const candidate = event.candidate.candidate;
+                        const ipMatch = candidate.match(/(\d+\.\d+\.\d+)\.\d+/);
+                        if (ipMatch) {
+                            pc.close();
+                            resolve(ipMatch[1]);
+                        }
+                    }
+                };
+                
+                // Fallback to common ranges
+                setTimeout(() => {
+                    pc.close();
+                    resolve('192.168.1'); // Default fallback
+                }, 2000);
+            });
+        } catch (error) {
+            console.log('Could not detect local IP range, using fallback');
+            return '192.168.1'; // Default fallback
+        }
+    }
+    
+    // Test printer connectivity from client-side
+    async function testPrinterConnectivity(ip, port) {
+        return new Promise((resolve) => {
+            try {
+                const img = new Image();
+                const timeout = setTimeout(() => {
+                    resolve(false);
+                }, 1000);
+                
+                img.onload = () => {
+                    clearTimeout(timeout);
+                    resolve(true);
+                };
+                
+                img.onerror = () => {
+                    clearTimeout(timeout);
+                    resolve(false);
+                };
+                
+                // Try to connect to the printer port
+                img.src = `http://${ip}:${port}/favicon.ico?t=${Date.now()}`;
+            } catch (error) {
+                console.log(`Error testing ${ip}:${port}:`, error);
+                resolve(false);
+            }
+        });
+    }
+
+    // Enhanced WiFi printer scanning with real-time progress
+    async function performAdvancedWiFiScan() {
+        console.log('Starting advanced WiFi printer scan...');
+        
+        // Show enhanced scanning modal
+        showEnhancedWiFiScanningModal();
+        
+        const discoveredPrinters = [];
+        const scanSteps = [
+            { name: 'mDNS/Bonjour Discovery', method: 'mdns' },
+            { name: 'UPnP/SSDP Discovery', method: 'upnp' },
+            { name: 'SNMP Discovery', method: 'snmp' },
+            { name: 'Network Range Scan', method: 'network' },
+            { name: 'ARP Table Scan', method: 'arp' }
+        ];
+        
+        let currentStep = 0;
+        
+        // Update progress
+        function updateScanProgress(step, status, found = 0) {
+            const progressElement = document.getElementById('scan-progress');
+            const statusElement = document.getElementById('scan-status');
+            const foundElement = document.getElementById('scan-found');
+            
+            if (progressElement) {
+                progressElement.style.width = `${((step + 1) / scanSteps.length) * 100}%`;
+            }
+            
+            if (statusElement) {
+                statusElement.textContent = `${scanSteps[step].name}: ${status}`;
+            }
+            
+            if (foundElement) {
+                foundElement.textContent = `Found: ${found} printers`;
+            }
+        }
+        
+        try {
+            // Call backend scanning API
+            const response = await fetch('/api/scan-wifi-printers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                discoveredPrinters.push(...data.printers);
+                
+                // Simulate progress updates
+                for (let i = 0; i < scanSteps.length; i++) {
+                    updateScanProgress(i, 'Completed', discoveredPrinters.length);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                // Close scanning modal
+                closeEnhancedWiFiScanningModal();
+                
+                if (discoveredPrinters.length > 0) {
+                    showDiscoveredPrinters(discoveredPrinters);
+                } else {
+                    showNotification('No WiFi printers found. Try manual setup.', 'warning');
+                    showWiFiPrinterDiscovery();
+                }
+            } else {
+                throw new Error(data.error || 'Scanning failed');
+            }
+            
+        } catch (error) {
+            console.error('Advanced WiFi scan error:', error);
+            closeEnhancedWiFiScanningModal();
+            showNotification(`Scanning failed: ${error.message}`, 'error');
+            showWiFiPrinterDiscovery();
+        }
+    }
+
+    // Test printer connection
+    async function testPrinterConnection(ip, port) {
+        return new Promise((resolve) => {
+            // Use fetch with proper error handling for HTTPS environments
+            const testUrl = `http://${ip}:${port}/`;
+            
+            // Create a timeout
+            const timeout = setTimeout(() => {
+                resolve(false);
+            }, 2000); // 2 second timeout
+            
+            // Try to fetch from the printer
+            fetch(testUrl, {
+                method: 'GET',
+                mode: 'no-cors', // This allows cross-origin requests
+                cache: 'no-cache'
+            })
+            .then(() => {
+                clearTimeout(timeout);
+                resolve(true);
+            })
+            .catch(() => {
+                // If fetch fails, try with a different approach
+                const img = new Image();
+                img.onload = () => {
+                    clearTimeout(timeout);
+                    resolve(true);
+                };
+                img.onerror = () => {
+                    clearTimeout(timeout);
+                    resolve(false);
+                };
+                
+                // Try to load an image from the printer
+                img.src = `http://${ip}:${port}/favicon.ico?t=${Date.now()}`;
+            });
+        });
+    }
+
+    // Enhanced client-side printing for hosted environments with Bluetooth support
+    async function performEnhancedClientSidePrint(content) {
+        console.log('Enhanced client-side printing for hosted environment');
+        
+        const results = [];
+        
+        // Try Bluetooth printing first (if available)
+        if (window.bluetoothPrinterManager) {
+            try {
+                console.log('Attempting Bluetooth printing in hosted environment...');
+                const bluetoothResults = await window.bluetoothPrinterManager.printToAllPrinters(content);
+                results.push(...bluetoothResults);
+                
+                if (bluetoothResults.some(r => r.success)) {
+                    console.log('Bluetooth printing successful in hosted environment');
+                    return results;
+                }
+            } catch (error) {
+                console.warn('Bluetooth printing failed in hosted environment:', error);
+            }
+        }
+        
+        // Fallback to WiFi printing via API
+        try {
+            console.log('Attempting WiFi printing via API...');
+            const wifiResults = await performClientSidePrint(content);
+            results.push(...wifiResults);
+        } catch (error) {
+            console.warn('WiFi printing failed:', error);
+        }
+        
+        // If no printers worked, show helpful message
+        if (results.length === 0 || !results.some(r => r.success)) {
+            const errorMessage = 'Bluetooth printing failed in hosted environment. ' +
+                'SOLUTIONS: 1) Use WiFi thermal printer (recommended), ' +
+                '2) Enable Bluetooth permissions, 3) Use Chrome/Edge browser, ' +
+                '4) Ensure HTTPS connection';
+            showNotification(errorMessage, 'warning');
+            
+            // Log detailed troubleshooting info
+            console.log('=== BLUETOOTH TROUBLESHOOTING FOR HOSTED ENVIRONMENT ===');
+            console.log('1. Browser Support: Chrome/Edge required for Web Bluetooth');
+            console.log('2. HTTPS Required: Site must be served over HTTPS');
+            console.log('3. User Gesture: Must be triggered by user interaction');
+            console.log('4. Permissions: Allow Bluetooth when prompted');
+            console.log('5. Alternative: Use WiFi thermal printer for better reliability');
+        }
+        
+        return results;
+    }
+
+    // Client-side printing for hosted environments
+    async function performClientSidePrint(content) {
+        console.log('Performing client-side print...');
+        
+        const results = [];
+        
+        // Get connected WiFi printers
+        if (window.wifiPrinterManager) {
+            const connectedPrinters = window.wifiPrinterManager.getConnectedPrinters();
+            console.log('Connected WiFi printers:', connectedPrinters);
+            
+            for (const printer of connectedPrinters) {
+                try {
+                    console.log(`Attempting to print to ${printer.name} at ${printer.ip}:${printer.port}`);
+                    
+                    // Try to send print data directly to the printer
+                    const success = await sendPrintDataDirectly(printer.ip, printer.port, content);
+                    
+                    results.push({
+                        printerId: printer.id,
+                        printerName: printer.name,
+                        success: success,
+                        error: success ? null : 'Failed to send print data'
+                    });
+                    
+                    if (success) {
+                        showNotification(`Print sent to ${printer.name}`, 'success');
+                    } else {
+                        showNotification(`Failed to print to ${printer.name}`, 'error');
+                    }
+                } catch (error) {
+                    console.error(`Error printing to ${printer.name}:`, error);
+                    results.push({
+                        printerId: printer.id,
+                        printerName: printer.name,
+                        success: false,
+                        error: error.message
+                    });
+                }
+            }
+        }
+        
+        if (results.length === 0) {
+            showNotification('No printers connected. Please connect a printer first.', 'warning');
+            results.push({
+                printerId: 'none',
+                printerName: 'No Printers',
+                success: false,
+                error: 'No printers connected'
+            });
+        }
+        
+        return results;
+    }
+
+    // Send print data directly to printer
+    async function sendPrintDataDirectly(ip, port, content) {
+        return new Promise((resolve) => {
+            try {
+                // For hosted environments, we'll use a different approach
+                // Since Mixed Content blocks HTTP requests from HTTPS pages,
+                // we'll use a proxy approach or WebSocket connection
+                
+                console.log('Hosted environment detected - attempting client-side printing');
+                
+                // Try to use the backend as a proxy for printing
+                fetch('/api/print-wifi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ip: ip,
+                        port: port,
+                        content: content,
+                        printerName: `Printer at ${ip}:${port}`
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('✅ Print successful via proxy');
+                        showNotification('Print sent successfully!', 'success');
+                        resolve(true);
+                    } else {
+                        console.error('❌ Print failed:', data.error);
+                        showNotification(`Print failed: ${data.error}`, 'error');
+                        resolve(false);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Print request failed:', error);
+                    showNotification('Print request failed. Please check your printer connection.', 'error');
+                    resolve(false);
+                });
+                
+            } catch (error) {
+                console.error('Error sending print data:', error);
+                resolve(false);
+            }
+        });
+    }
+
     // Show discovered printers
     function showDiscoveredPrinters(printers) {
         closeWiFiScanningModal();
@@ -2092,9 +2893,9 @@
                 throw new Error('WiFi printer manager not available. Please refresh the page and try again.');
             }
             
-            // Add printer to manager
+            // Add printer to manager (with deduplication)
             console.log('Adding printer to WiFi manager...');
-            const printerId = await window.wifiPrinterManager.addPrinter(name, ip, port);
+            const printerId = window.wifiPrinterManager.addPrinter(name, ip, port);
             console.log('Printer added with ID:', printerId);
             
             // Show connection attempt
@@ -2159,6 +2960,7 @@
             updatePrinterSetupNotice();
             updatePrinterControlButtons();
             updateEmployeeValidationUI();
+            updateMainConnectedPrintersDisplay();
             
             // Force update after a short delay to ensure events are processed
             setTimeout(() => {
@@ -2238,9 +3040,14 @@
                 };
                 
                 // Add a comprehensive diagnostic and fix function
-                window.fixWiFiConnection = async function(ip = '192.168.100.19', port = 80, name = 'Network Printer') {
+                window.fixWiFiConnection = async function(ip, port = 9100, name = 'Network Printer') {
                     console.log('=== WIFI CONNECTION FIX UTILITY ===');
                     console.log(`Attempting to fix connection to ${name} at ${ip}:${port}`);
+                    
+                    if (!ip) {
+                        console.error('IP address is required');
+                        return;
+                    }
                     
                     try {
                         // 1. Clear any existing connections
@@ -2251,7 +3058,7 @@
                         
                         // 2. Add the printer
                         console.log('Adding printer...');
-                        const printerId = await window.wifiPrinterManager.addPrinter(name, ip, port);
+                        const printerId = window.wifiPrinterManager.addPrinter(name, ip, port);
                         console.log('Printer added with ID:', printerId);
                         
                         // 3. Get the printer object and manually set it as connected
@@ -2301,7 +3108,7 @@
                 };
                 
                 // Add direct print test function
-                window.testDirectPrint = async function() {
+                window.testDirectPrint = async function(ip, port = 9100) {
                     console.log('=== DIRECT PRINT TEST ===');
                     
                     const testContent = `\\x1B\\x40\\x1B\\x61\\x01DIRECT PRINT TEST\\n\\nTime: ${new Date().toLocaleString()}\\n\\nThis is a test print from console.\\n\\n\\n\\n\\x1D\\x56\\x00`;
@@ -2311,7 +3118,7 @@
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                ip: '192.168.100.171',
+                                ip: ip || '192.168.100.171',
                                 port: 9100,
                                 content: testContent,
                                 printerName: 'Test Thermal Printer'
@@ -2344,9 +3151,11 @@
                     }
                     
                     try {
-                        // Add thermal printer
-                        const printerId = await window.wifiPrinterManager.addPrinter('Thermal Printer', '192.168.100.171', 9100);
-                        console.log('Added thermal printer with ID:', printerId);
+                        // Add thermal printer (if IP provided)
+                        if (ip) {
+                            const printerId = window.wifiPrinterManager.addPrinter('Thermal Printer', ip, port);
+                            console.log('Added thermal printer with ID:', printerId);
+                        }
                         
                         // Get the printer and manually set status to connected
                         const printer = window.wifiPrinterManager.connectedPrinters.get(printerId);
@@ -2382,7 +3191,8 @@
                 console.log('  • connectThermalPrinter() - Quick connect to thermal printer');
                 console.log('  • fixWiFiConnection() - Fix WiFi printer connection'); 
                 console.log('  • testWiFiPrint() - Test via WiFi manager');
-                console.log('  • testDirectPrint() - Direct API test print');
+                console.log('  • testDirectPrint(ip, port) - Direct API test print');
+                console.log('  • fixWiFiConnection(ip, port, name) - Fix connection');
             }, 2000);
             
         } catch (error) {
@@ -2401,7 +3211,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-800">
                         <i class="fas fa-wifi mr-2 text-purple-500"></i>
-                        WiFi Printer Discovery
+                        WiFi Printer Setup
                     </h3>
                     <button onclick="closeWiFiPrinterModal()" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
@@ -2409,64 +3219,93 @@
                 </div>
                 
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Printer Name</label>
-                        <input type="text" id="wifi-printer-name" placeholder="e.g., Kitchen Printer" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <!-- Advanced Scanning Section -->
+                    <div class="bg-blue-50 rounded-lg p-6 text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-wifi text-4xl text-blue-500 mb-3"></i>
+                            <h4 class="text-xl font-semibold text-blue-800 mb-2">
+                                WiFi Printer Discovery
+                            </h4>
+                            <p class="text-blue-600 mb-4">Automatically discover and connect to WiFi printers on your network using advanced scanning methods.</p>
+                        </div>
+                        
+                        <button onclick="performAdvancedWiFiScan()" 
+                                class="w-full bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors duration-200 text-lg font-medium">
+                            <i class="fas fa-search mr-2"></i>
+                            Start Advanced Scan
+                        </button>
+                        
+                        <p class="text-xs text-blue-500 mt-3">
+                            Uses mDNS, UPnP, SNMP, Network Range, and ARP discovery methods
+                        </p>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">IP Address</label>
-                        <input type="text" id="wifi-printer-ip" placeholder="e.g., 192.168.1.100" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <div id="connected-printers-section" class="mt-4 p-3 bg-gray-50 rounded-lg hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium text-gray-700">Connected Printers:</h4>
+                            <button onclick="cleanupWiFiPrinters()" 
+                                    class="text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded border border-red-300 hover:bg-red-50">
+                                <i class="fas fa-trash mr-1"></i>
+                                Clean Up
+                            </button>
+                        </div>
+                        <div id="connected-printers-list" class="space-y-2">
+                            <!-- Connected printers will be listed here -->
+                        </div>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Port</label>
-                        <input type="number" id="wifi-printer-port" placeholder="9100" value="9100" min="1" max="65535"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    
-                    <button onclick="connectToWiFiPrinter()" 
-                            class="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors duration-200">
-                        <i class="fas fa-wifi mr-2"></i>
-                        Connect Printer
-                    </button>
-                    
-                    <button onclick="testWiFiPrinterFromModal()" 
-                            class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">
-                        <i class="fas fa-print mr-2"></i>
-                        Test Print
-                    </button>
                     
                     <button onclick="closeWiFiPrinterModal()" 
                             class="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        Cancel
+                        Close
                     </button>
                 </div>
                 
                 <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-700">
+                    <p class="text-sm text-blue-700 mb-3">
                         <i class="fas fa-info-circle mr-1"></i>
-                        Make sure your WiFi printer is connected to the same network and powered on.
+                        <strong>Advanced Discovery Methods:</strong>
                     </p>
-                    <div class="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400">
-                        <p class="text-xs text-yellow-700">
-                            <strong>Quick Setup Options:</strong>
-                            <br>• <strong>Thermal Printer:</strong> IP: "192.168.100.171", Port: "9100"
-                            <br>• <strong>Network Device:</strong> IP: "192.168.100.19", Port: "80"
-                            <br>• Name: Enter any name like "Kitchen Printer"
-                        </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blue-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-wifi mr-2"></i>
+                            <span>mDNS/Bonjour</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-search mr-2"></i>
+                            <span>UPnP/SSDP</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-network-wired mr-2"></i>
+                            <span>SNMP Discovery</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-globe mr-2"></i>
+                            <span>Network Range</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-list mr-2"></i>
+                            <span>ARP Table</span>
+                        </div>
                     </div>
-                    <div class="mt-2 p-2 bg-green-50 border-l-4 border-green-400">
+                    <div class="mt-3 p-2 bg-green-50 border-l-4 border-green-400">
                         <p class="text-xs text-green-700">
-                            <strong>💡 Tip:</strong> Port 9100 is for thermal receipt printers, Port 80 is for network devices
+                            <strong>💡 Tip:</strong> Make sure your WiFi printer is connected to the same network and powered on for best results.
                         </p>
                     </div>
-                    <div id="hostedEnvironmentNotice" class="mt-2 p-2 bg-blue-50 border-l-4 border-blue-400 hidden">
-                        <p class="text-xs text-blue-700">
-                            <strong>🌐 Hosted Environment:</strong> You're using the system in a hosted environment. WiFi printing functionality is limited. For full printer functionality, please use the system locally.
-                        </p>
+                    <div id="hostedEnvironmentNotice" class="mt-2 p-3 bg-blue-50 border-l-4 border-blue-400 hidden">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-800">Hosted Environment Detected</h3>
+                                <div class="mt-1 text-xs text-blue-700">
+                                    <p>• Automatic printer discovery is limited in hosted environments</p>
+                                    <p>• Use manual setup below to add your printer's IP address</p>
+                                    <p>• Make sure your printer is on the same network as your device</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2474,11 +3313,24 @@
         
         document.body.appendChild(modal);
         
+        // Update connected printers display when modal opens
+        updateConnectedPrintersDisplay();
+        
         // Check if we're in a hosted environment and show notice
         const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
                         window.location.hostname.includes('github.io') || 
                         window.location.hostname.includes('netlify.app') ||
-                        window.location.hostname.includes('vercel.app');
+                        window.location.hostname.includes('vercel.app') ||
+                        window.location.hostname.includes('herokuapp.com') ||
+                        window.location.hostname.includes('railway.app') ||
+                        window.location.hostname.includes('render.com') ||
+                        window.location.hostname.includes('fly.dev') ||
+                        window.location.hostname.includes('aws.amazon.com') ||
+                        window.location.hostname.includes('azure.com') ||
+                        window.location.hostname.includes('digitalocean.com') ||
+                        (window.location.hostname !== 'localhost' && 
+                         window.location.hostname !== '127.0.0.1' &&
+                         !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/));
         
         if (isHosted) {
             const hostedNotice = modal.querySelector('#hostedEnvironmentNotice');
@@ -2498,95 +3350,119 @@
 
     // Test WiFi printer from modal
     async function testWiFiPrinterFromModal() {
-        try {
-            const name = document.getElementById('wifi-printer-name').value || 'Test Printer';
-            const ip = document.getElementById('wifi-printer-ip').value;
-            const port = parseInt(document.getElementById('wifi-printer-port').value) || 9100;
-            
-            if (!ip) {
-                showNotification('Please enter an IP address to test', 'error');
-                return;
-            }
-            
-            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-            if (!ipRegex.test(ip)) {
-                showNotification('Please enter a valid IP address', 'error');
-                return;
-            }
-            
-            showNotification(`🖨️ Testing print to ${name} at ${ip}:${port}...`, 'info');
-            
-            const testContent = `\\x1B\\x40\\x1B\\x61\\x01WIFI PRINTER TEST\\n\\nPrinter: ${name}\\nIP: ${ip}:${port}\\nTime: ${new Date().toLocaleString()}\\n\\nThis is a test print from the POS system.\\n\\nIf you can see this, the WiFi printer is working correctly!\\n\\n\\n\\n\\x1D\\x56\\x00`;
-            
-            // Check if we're in a hosted environment
-            const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
-                            window.location.hostname.includes('github.io') || 
-                            window.location.hostname.includes('netlify.app') ||
-                            window.location.hostname.includes('vercel.app');
-            
-            if (isHosted) {
-                console.log('Hosted environment detected - WiFi printing not available');
-                showNotification('WiFi printing is not available in hosted environments. Please use the system locally for full printer functionality.', 'warning');
-                return;
-            }
-            
-            const response = await fetch('/api/print-wifi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ip: ip,
-                    port: port,
-                    content: testContent,
-                    printerName: name
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showNotification(`✅ Test print sent successfully to ${name}! Check your printer.`, 'success');
-            } else {
-                showNotification(`❌ Test print failed: ${result.error}`, 'error');
-            }
-            
-        } catch (error) {
-            console.error('Test print error:', error);
-            showNotification(`❌ Test print error: ${error.message}`, 'error');
-        }
+        // This function is now deprecated - use advanced scanning instead
+        showNotification('Please use the "Start Advanced Scan" button to discover and connect to printers', 'info');
+        performAdvancedWiFiScan();
     }
 
     // Connect to WiFi printer (manual setup)
     async function connectToWiFiPrinter() {
+        // This function is now deprecated - use advanced scanning instead
+        showNotification('Please use the "Start Advanced Scan" button to discover and connect to printers', 'info');
+        performAdvancedWiFiScan();
+    }
+
+    // Disconnect WiFi printer
+    function disconnectWiFiPrinter(printerId) {
         try {
-            const name = document.getElementById('wifi-printer-name').value;
-            const ip = document.getElementById('wifi-printer-ip').value;
-            const port = parseInt(document.getElementById('wifi-printer-port').value) || 9100;
+            wifiPrinterManager.disconnectPrinter(printerId);
+            showNotification('✅ Printer disconnected', 'success');
             
-            if (!name || !ip) {
-                showNotification('Please enter printer name and IP address', 'error');
-                return;
-            }
+            // Update the connected printers display
+            updateConnectedPrintersDisplay();
+            updateMainConnectedPrintersDisplay();
             
-            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-            if (!ipRegex.test(ip)) {
-                showNotification('Please enter a valid IP address', 'error');
-                return;
-            }
-            
-            // Use the same connection logic as discovered printers
-            console.log(`Manual WiFi printer connection: ${name} at ${ip}:${port}`);
-            
-            // Close modal first
-            closeWiFiPrinterModal();
-            
-            // Use the same connection function for consistency
-            await connectToDiscoveredPrinter(name, ip, port);
+            // Update employee validation UI
+            updateEmployeeValidationUI();
             
         } catch (error) {
-            console.error('WiFi printer connection error:', error);
-            showNotification(`Failed to connect to WiFi printer: ${error.message}`, 'error');
+            console.error('WiFi printer disconnection error:', error);
+            showNotification(`❌ Failed to disconnect: ${error.message}`, 'error');
         }
     }
+
+    // Update connected printers display in modal
+    function updateConnectedPrintersDisplay() {
+        const connectedPrinters = wifiPrinterManager.getConnectedPrinters();
+        const section = document.getElementById('connected-printers-section');
+        const list = document.getElementById('connected-printers-list');
+        
+        if (connectedPrinters.length > 0) {
+            section.classList.remove('hidden');
+            list.innerHTML = connectedPrinters.map(printer => `
+                <div class="flex items-center justify-between p-2 bg-white rounded border">
+                    <div>
+                        <span class="font-medium">${printer.name}</span>
+                        <span class="text-sm text-gray-500 ml-2">${printer.ip}:${printer.port}</span>
+                    </div>
+                    <button onclick="disconnectWiFiPrinter('${printer.id}')" 
+                            class="text-red-500 hover:text-red-700 px-2 py-1 rounded">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        } else {
+            section.classList.add('hidden');
+        }
+    }
+
+    // Update main connected printers display
+    function updateMainConnectedPrintersDisplay() {
+        const statusElement = document.getElementById('connected-printers-status');
+        if (!statusElement) return;
+        
+        const connectedPrinters = wifiPrinterManager.getConnectedPrinters();
+        if (connectedPrinters.length > 0) {
+            statusElement.innerHTML = `
+                <span class="text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    ${connectedPrinters.length} printer(s) connected
+                </span>
+            `;
+        } else {
+            statusElement.innerHTML = `
+                <span class="text-gray-500">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    No printers connected
+                </span>
+            `;
+        }
+    }
+
+    // Clean up WiFi printers (remove duplicates and disconnected)
+    function cleanupWiFiPrinters() {
+        try {
+            // Clean up duplicates first
+            wifiPrinterManager.cleanupDuplicates();
+            
+            // Clear disconnected printers
+            wifiPrinterManager.clearDisconnectedPrinters();
+            
+            // Update displays
+            updateConnectedPrintersDisplay();
+            updateMainConnectedPrintersDisplay();
+            updateEmployeeValidationUI();
+            
+            showNotification('✅ WiFi printers cleaned up successfully', 'success');
+            
+        } catch (error) {
+            console.error('WiFi printer cleanup error:', error);
+            showNotification(`❌ Cleanup failed: ${error.message}`, 'error');
+        }
+    }
+
+    // Console debugging functions
+    window.debugWiFiPrinters = function() {
+        console.log('=== WiFi Printer Debug Info ===');
+        console.log('Total printers:', wifiPrinterManager.connectedPrinters.size);
+        console.log('Connected printers:', wifiPrinterManager.getConnectedPrinters().length);
+        console.log('All printers:');
+        for (const [id, printer] of wifiPrinterManager.connectedPrinters) {
+            console.log(`  ${printer.name} (${printer.ip}:${printer.port}) - Status: ${printer.status}`);
+        }
+    };
+
+    window.cleanupWiFiPrinters = cleanupWiFiPrinters;
 
     // Test all connected printers
     async function testAllConnectedPrinters() {
@@ -3043,10 +3919,11 @@
 
     // Old generateReceiptContent function removed - now using database-driven version below
 
-    // Web Bluetooth functionality removed
+    // Universal Web Bluetooth support check
     function checkWebBluetoothSupport() {
-        const isSupported = 'bluetooth' in navigator;
+        const isSupported = !!(navigator.bluetooth && typeof navigator.bluetooth.requestDevice === 'function');
         const browserName = getBrowserName();
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         let message = '';
         let type = 'info';
@@ -3055,23 +3932,25 @@
             message = `✅ Web Bluetooth is supported in ${browserName}! You can connect to Bluetooth printers directly from your browser.`;
             type = 'success';
         } else {
-            message = `❌ Web Bluetooth is not supported in ${browserName}. Please use Chrome, Edge, or Opera for Bluetooth printing.`;
+            message = `❌ Web Bluetooth is not supported in ${browserName}. Please use Chrome, Edge, Opera, or Opera Mini for Bluetooth printing.`;
             type = 'warning';
         }
         
         // Show detailed compatibility info
         const details = `
             <div class="mt-3">
-                <h6>Browser Compatibility Details:</h6>
+                <h6>Universal Browser Compatibility:</h6>
                 <ul class="list-unstyled small">
-                    <li>• <strong>Chrome:</strong> ✅ Full support</li>
-                    <li>• <strong>Edge:</strong> ✅ Full support</li>
-                    <li>• <strong>Opera:</strong> ✅ Full support</li>
+                    <li>• <strong>Chrome:</strong> ✅ Full support (Desktop & Mobile)</li>
+                    <li>• <strong>Edge:</strong> ✅ Full support (Desktop & Mobile)</li>
+                    <li>• <strong>Opera:</strong> ✅ Full support (Desktop & Mobile)</li>
+                    <li>• <strong>Opera Mini:</strong> ✅ Full support (Mobile)</li>
                     <li>• <strong>Firefox:</strong> ❌ Not supported</li>
-                    <li>• <strong>Safari:</strong> ❌ Not supported</li>
+                    <li>• <strong>Safari:</strong> ❌ Limited support</li>
                 </ul>
                 <p class="small text-muted mt-2">
-                    <strong>Note:</strong> Web Bluetooth requires HTTPS connection and user permission to access Bluetooth devices.
+                    <strong>Note:</strong> Web Bluetooth requires HTTPS connection and user permission to access Bluetooth devices. 
+                    ${isMobile ? 'On mobile devices, ensure location services are enabled for Bluetooth scanning.' : ''}
                 </p>
             </div>
         `;
@@ -3081,6 +3960,7 @@
     
     function getBrowserName() {
         const userAgent = navigator.userAgent;
+        if (userAgent.includes('Opera Mini')) return 'Opera Mini';
         if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
         if (userAgent.includes('Edg')) return 'Edge';
         if (userAgent.includes('Firefox')) return 'Firefox';
@@ -3091,6 +3971,107 @@
     
     
 
+
+    // Universal Bluetooth scanning function - works on all compatible devices
+    async function scanForBluetoothPrinters() {
+        try {
+            // Check if Web Bluetooth is supported
+            if (!navigator.bluetooth || typeof navigator.bluetooth.requestDevice !== 'function') {
+                showNotification('Web Bluetooth is not supported in this browser. Please use Chrome, Edge, Opera, or Opera Mini.', 'error');
+                return false;
+            }
+
+            // Show Bluetooth scanning interface
+            showBluetoothScanInterface();
+            updateScanningStatus('Starting scan...', true);
+            
+            // Use enhanced manager if available
+            const manager = window.enhancedBluetoothPrinterManager || window.bluetoothPrinterManager;
+            
+            if (!manager) {
+                showNotification('Bluetooth manager not available. Please refresh the page.', 'error');
+                updateScanningStatus('Error: Manager not available', false);
+                return false;
+            }
+
+            // Universal device request
+            const device = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: [
+                    '000018f0-0000-1000-8000-00805f9b34fb', // BLE thermal printer
+                    '00001800-0000-1000-8000-00805f9b34fb', // Generic Access
+                    '00001801-0000-1000-8000-00805f9b34fb', // Generic Attribute
+                    '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile
+                    '0000ffe0-0000-1000-8000-00805f9b34fb', // Custom service
+                    '0000ffe1-0000-1000-8000-00805f9b34fb'  // Custom characteristic
+                ]
+            });
+
+            // Check if device was selected (not cancelled)
+            if (device) {
+                updateScanningStatus('Connecting to device...', true);
+                
+                // Connect to the device
+                const server = await device.gatt.connect();
+                
+                // Add printer to manager
+                const printerId = await manager.addPrinter(device, server);
+                
+                // Show success and close modal
+                showNotification(`Printer "${device.name || 'Unknown Device'}" connected successfully!`, 'success');
+                updateScanningStatus('Connected successfully!', false);
+                
+                // Update UI
+                updatePrinterSetupNotice();
+                updatePrinterControlButtons();
+                updateEmployeeValidationUI();
+                
+                // Close modal after successful connection
+                setTimeout(() => {
+                    hidePrinterSetupModal();
+                    hideBluetoothScanInterface();
+                }, 2000);
+                
+                return true;
+            } else {
+                // User cancelled the selection
+                console.log('User cancelled Bluetooth device selection');
+                updateScanningStatus('Scan cancelled', false);
+                return false;
+            }
+            
+        } catch (error) {
+            console.error('Bluetooth scanning error:', error);
+            
+            // Universal error handling - treat user cancellation as normal
+            if (error.name === 'NotFoundError') {
+                // Check if it's user cancellation or no devices found
+                if (error.message && error.message.includes('cancelled')) {
+                    // User cancelled the dialog - this is normal, don't show error
+                    console.log('User cancelled Bluetooth device selection');
+                    updateScanningStatus('Scan cancelled', false);
+                    return false;
+                } else {
+                    showNotification('No Bluetooth devices found. Make sure your printer is in pairing mode and nearby.', 'warning');
+                    updateScanningStatus('No devices found', false);
+                }
+            } else if (error.name === 'SecurityError') {
+                showNotification('Bluetooth access denied. Please allow Bluetooth permissions in your browser settings.', 'error');
+                updateScanningStatus('Access denied', false);
+            } else if (error.name === 'NotSupportedError') {
+                showNotification('Bluetooth not supported on this device. Please use a compatible browser.', 'error');
+                updateScanningStatus('Not supported', false);
+            } else if (error.name === 'NetworkError') {
+                showNotification('Connection failed. Make sure your printer is nearby and in pairing mode.', 'error');
+                updateScanningStatus('Connection failed', false);
+            } else {
+                showNotification(`Bluetooth scanning error: ${error.message}`, 'error');
+                updateScanningStatus('Error occurred', false);
+            }
+            
+            return false;
+        }
+    }
 
     async function printViaWebBluetooth(printerId, content) {
         try {
@@ -3747,31 +4728,81 @@
 
     // Print to all available printers (unified manager or fallback)
     async function printToAllAvailablePrinters(content) {
+        console.log('=== RECEIPT PRINTING DEBUG ===');
+        console.log('Content length:', content ? content.length : 'null');
+        console.log('Content preview:', content ? content.substring(0, 100) + '...' : 'null');
+        
         // Check if we're in a hosted environment
         const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
                         window.location.hostname.includes('github.io') || 
                         window.location.hostname.includes('netlify.app') ||
-                        window.location.hostname.includes('vercel.app');
+                        window.location.hostname.includes('vercel.app') ||
+                        window.location.hostname.includes('herokuapp.com') ||
+                        window.location.hostname.includes('railway.app') ||
+                        window.location.hostname.includes('render.com') ||
+                        window.location.hostname.includes('fly.dev') ||
+                        window.location.hostname.includes('aws.amazon.com') ||
+                        window.location.hostname.includes('azure.com') ||
+                        window.location.hostname.includes('digitalocean.com') ||
+                        (window.location.hostname !== 'localhost' && 
+                         window.location.hostname !== '127.0.0.1' &&
+                         !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/));
+        
+        console.log('Is hosted environment:', isHosted);
         
         if (isHosted) {
-            console.log('Hosted environment detected - printing not available');
-            showNotification('Printing is not available in hosted environments. Please use the system locally for full printer functionality.', 'warning');
-            return [{ printerId: 'hosted', success: false, error: 'Printing not available in hosted environment' }];
+            console.log('Hosted environment detected - using enhanced client-side printing approach');
+            // For hosted environments, try enhanced client-side printing with Bluetooth fallback
+            return await performEnhancedClientSidePrint(content);
         }
         
-        // Try unified manager first (preferred method)
+        // Try unified manager first (preferred method) - same as test function
         if (window.unifiedPrinterManager && window.unifiedPrinterManager.printToAllPrinters) {
             try {
-                return await window.unifiedPrinterManager.printToAllPrinters(content);
+                console.log('Using unified printer manager for receipt printing...');
+                const results = await window.unifiedPrinterManager.printToAllPrinters(content);
+                console.log('Unified printer manager results:', results);
+                return results;
             } catch (error) {
                 console.warn('Unified printer manager failed, trying fallback:', error);
             }
         }
         
-        // Fallback: Print to individual managers
+        // Fallback: Print to individual managers (same as test function)
         const results = [];
         
         // Print to Bluetooth printers
+        if (window.bluetoothPrinterManager) {
+            try {
+                console.log('Trying Bluetooth printer manager...');
+                const bluetoothResult = await window.bluetoothPrinterManager.printToAllPrinters(content);
+                results.push(...bluetoothResult);
+                console.log('Bluetooth printing results:', bluetoothResult);
+            } catch (error) {
+                console.warn('Bluetooth printing failed:', error);
+                results.push({ printerId: 'bluetooth', success: false, error: error.message });
+            }
+        }
+        
+        // Print to WiFi printers
+        if (window.wifiPrinterManager) {
+            try {
+                console.log('Trying WiFi printer manager...');
+                const wifiResult = await window.wifiPrinterManager.printToAllPrinters(content);
+                results.push(...wifiResult);
+                console.log('WiFi printing results:', wifiResult);
+            } catch (error) {
+                console.warn('WiFi printing failed:', error);
+                results.push({ printerId: 'wifi', success: false, error: error.message });
+            }
+        }
+        
+        // If we have results, return them
+        if (results.length > 0) {
+            return results;
+        }
+        
+        // Original fallback code (keeping for compatibility)
         if (window.bluetoothPrinterManager) {
             try {
                 const bluetoothResult = await window.bluetoothPrinterManager.printToAllPrinters(content);
@@ -4897,5 +5928,128 @@
             updateReprintEmployeeValidationUI();
         }, 2000);
     });
+    
+    // Manual printer setup for hosted environments
+    window.setupManualPrinter = async function(ip, port = 9100, name = null) {
+        console.log('🔧 Setting up manual printer...');
+        try {
+            if (!window.separateWiFiManager) {
+                console.error('❌ WiFi Manager not available');
+                return false;
+            }
+            
+            const result = await window.separateWiFiManager.setupManualPrinter(ip, port, name);
+            console.log('✅ Manual printer setup result:', result);
+            return result;
+        } catch (error) {
+            console.error('❌ Manual printer setup failed:', error);
+            return false;
+        }
+    };
+    
+    // Show manual printer setup modal
+    window.showManualPrinterSetup = function() {
+        const modal = document.createElement('div');
+        modal.id = 'manual-printer-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Manual Printer Setup</h3>
+                <p class="text-gray-600 mb-4">Enter your thermal printer's IP address and port to connect manually.</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Printer Name</label>
+                        <input type="text" id="manualPrinterName" placeholder="My Thermal Printer" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-orange">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">IP Address</label>
+                        <input type="text" id="manualPrinterIP" placeholder="192.168.1.100" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-orange">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Port</label>
+                        <input type="number" id="manualPrinterPort" value="9100" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-orange">
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="testManualPrinter()" 
+                            class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        Test Connection
+                    </button>
+                    <button onclick="connectManualPrinter()" 
+                            class="flex-1 bg-primary-orange text-white px-4 py-2 rounded-lg hover:bg-secondary-orange transition-colors">
+                        Connect
+                    </button>
+                    <button onclick="closeManualPrinterModal()" 
+                            class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    };
+    
+    // Test manual printer connection
+    window.testManualPrinter = async function() {
+        const ip = document.getElementById('manualPrinterIP').value;
+        const port = parseInt(document.getElementById('manualPrinterPort').value) || 9100;
+        
+        if (!ip) {
+            alert('Please enter an IP address');
+            return;
+        }
+        
+        try {
+            const result = await setupManualPrinter(ip, port, 'Test Printer');
+            if (result) {
+                alert('✅ Connection test successful!');
+            } else {
+                alert('❌ Connection test failed');
+            }
+        } catch (error) {
+            alert('❌ Connection test failed: ' + error.message);
+        }
+    };
+    
+    // Connect manual printer
+    window.connectManualPrinter = async function() {
+        const name = document.getElementById('manualPrinterName').value;
+        const ip = document.getElementById('manualPrinterIP').value;
+        const port = parseInt(document.getElementById('manualPrinterPort').value) || 9100;
+        
+        if (!ip) {
+            alert('Please enter an IP address');
+            return;
+        }
+        
+        try {
+            const result = await setupManualPrinter(ip, port, name);
+            if (result) {
+                alert('✅ Printer connected successfully!');
+                closeManualPrinterModal();
+                updateEmployeeValidationUI();
+            } else {
+                alert('❌ Failed to connect printer');
+            }
+        } catch (error) {
+            alert('❌ Connection failed: ' + error.message);
+        }
+    };
+    
+    // Close manual printer modal
+    window.closeManualPrinterModal = function() {
+        const modal = document.getElementById('manual-printer-modal');
+        if (modal) {
+            modal.remove();
+        }
+    };
 </script>
 {% endblock %}

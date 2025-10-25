@@ -1,0 +1,321 @@
+{% extends "role_base.html" %}
+
+{% block title %}Stock Management - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}cash-register{% endblock %}
+{% block sidebar_title %}Cashier Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Point of Sale -->
+<a href="/cashier/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process orders</p>
+    </div>
+</a>
+
+<!-- Cash Drawer Management -->
+<a href="/cashier/cash-drawer" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Cash Drawer Management</p>
+        <p class="text-xs text-white/70">Manage cash drawer</p>
+    </div>
+</a>
+
+<!-- Stock Management -->
+<a href="/cashier/stock-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group bg-white/20">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Receipt Confirmation -->
+<a href="/cashier/receipt-confirmation" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipt Confirmation</p>
+        <p class="text-xs text-white/70">Confirm receipts</p>
+    </div>
+</a>
+
+<!-- Payment Processing -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-credit-card text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Payments</p>
+        <p class="text-xs text-white/70">Process payments</p>
+    </div>
+</a>
+
+<!-- My Off Days -->
+<a href="/employee/off-days" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">My Off Days</p>
+        <p class="text-xs text-white/70">View time off</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Stock Management Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Stock Management</h1>
+            <p class="text-gray-600 text-lg">Monitor and manage inventory levels for your shift.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-boxes text-xl"></i>
+            <span class="font-bold text-lg">Cashier</span>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Status Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Items -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Total Items</p>
+                <p class="text-2xl font-bold text-gray-800">247</p>
+                <p class="text-blue-600 text-sm">In inventory</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-boxes text-blue-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Items -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Low Stock</p>
+                <p class="text-2xl font-bold text-orange-600">12</p>
+                <p class="text-orange-600 text-sm">Need reorder</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-orange-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Out of Stock -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Out of Stock</p>
+                <p class="text-2xl font-bold text-red-600">3</p>
+                <p class="text-red-600 text-sm">Urgent restock</p>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-times-circle text-red-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Sales -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Items Sold</p>
+                <p class="text-2xl font-bold text-green-600">89</p>
+                <p class="text-green-600 text-sm">This shift</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-chart-line text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Low Stock Items -->
+    <div class="bg-white rounded-xl shadow-lg">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-800">Low Stock Items</h2>
+                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">12 items</span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hamburger text-orange-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Beef Burger</p>
+                            <p class="text-sm text-gray-600">Only 5 left</p>
+                        </div>
+                    </div>
+                    <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors duration-200 text-sm">
+                        Reorder
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-coffee text-orange-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Coffee Beans</p>
+                            <p class="text-sm text-gray-600">Only 8 left</p>
+                        </div>
+                    </div>
+                    <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors duration-200 text-sm">
+                        Reorder
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-pizza-slice text-orange-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Pizza Dough</p>
+                            <p class="text-sm text-gray-600">Only 3 left</p>
+                        </div>
+                    </div>
+                    <button class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors duration-200 text-sm">
+                        Reorder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Out of Stock Items -->
+    <div class="bg-white rounded-xl shadow-lg">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-800">Out of Stock</h2>
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">3 items</span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-wine-bottle text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Red Wine</p>
+                            <p class="text-sm text-red-600">Out of stock</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm">
+                        Urgent Order
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ice-cream text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Vanilla Ice Cream</p>
+                            <p class="text-sm text-red-600">Out of stock</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm">
+                        Urgent Order
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bread-slice text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">Fresh Bread</p>
+                            <p class="text-sm text-red-600">Out of stock</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 text-sm">
+                        Urgent Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-8 bg-white rounded-xl shadow-lg">
+    <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button class="flex items-center justify-center p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                <div class="text-center">
+                    <i class="fas fa-search text-blue-600 text-2xl mb-2"></i>
+                    <p class="font-medium text-gray-800">Search Items</p>
+                </div>
+            </button>
+            
+            <button class="flex items-center justify-center p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                <div class="text-center">
+                    <i class="fas fa-plus text-green-600 text-2xl mb-2"></i>
+                    <p class="font-medium text-gray-800">Add Stock</p>
+                </div>
+            </button>
+            
+            <button class="flex items-center justify-center p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+                <div class="text-center">
+                    <i class="fas fa-edit text-orange-600 text-2xl mb-2"></i>
+                    <p class="font-medium text-gray-800">Update Stock</p>
+                </div>
+            </button>
+            
+            <button class="flex items-center justify-center p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                <div class="text-center">
+                    <i class="fas fa-chart-bar text-purple-600 text-2xl mb-2"></i>
+                    <p class="font-medium text-gray-800">Stock Report</p>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handlers for stock management operations
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Stock management operation clicked:', this.textContent.trim());
+                // Add your stock management functionality here
+            });
+        });
+    });
+</script>
+{% endblock %}

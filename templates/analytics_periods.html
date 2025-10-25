@@ -1,6 +1,94 @@
-{% extends "base.html" %}
+{% extends "role_base.html" %}
 
 {% block title %}Period Analytics - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}chart-line{% endblock %}
+{% block sidebar_title %}Analytics{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Analytics overview</p>
+    </div>
+</a>
+
+<!-- Sales Analytics -->
+{% if employee_role == 'admin' %}
+<a href="/analytics/sales" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Sales Analytics</p>
+        <p class="text-xs text-white/70">Revenue & transactions</p>
+    </div>
+</a>
+{% endif %}
+
+<!-- Item Analytics -->
+<a href="/analytics/items" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-box text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Analytics</p>
+        <p class="text-xs text-white/70">Product performance</p>
+    </div>
+</a>
+
+<!-- Stock Analytics -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Analytics</p>
+        <p class="text-xs text-white/70">Inventory insights</p>
+    </div>
+</a>
+
+<!-- Employee Analytics -->
+<a href="/analytics/employees" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Employee Analytics</p>
+        <p class="text-xs text-white/70">Staff performance</p>
+    </div>
+</a>
+
+<!-- Period Analytics -->
+<a href="/analytics/periods" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-calendar-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Period Analytics</p>
+        <p class="text-xs text-white/70">Time-based reports</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+{% endblock %}
 
 {% block content %}
 
@@ -114,45 +202,59 @@
 </div>
 
 <!-- Analytics Content -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="space-y-4 sm:space-y-6 px-2 sm:px-0">
     
-    <!-- Main Analytics Area -->
-    <div class="lg:col-span-8 space-y-6">
-        
-        <!-- Period Performance Chart -->
+    <!-- Period Summary Card (Top) -->
         <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center justify-between">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
                     <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-line text-white text-xs sm:text-sm"></i>
+                <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-white text-xs sm:text-sm"></i>
                         </div>
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800" id="chartTitle">Period Performance Analytics</h2>
-                    </div>
-                    <div class="text-sm text-gray-600" id="analyticsPeriod">All Time</div>
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800">Period Summary</h3>
                 </div>
             </div>
             <div class="p-4 sm:p-6">
-                <div class="relative">
-                    <canvas id="periodChart" width="400" height="200"></canvas>
+            <div id="periodSummaryContent">
+                <!-- Content will be loaded here -->
                 </div>
             </div>
         </div>
 
-        <!-- Time-Based Analytics -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Period Performance Chart -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-xs sm:text-sm"></i>
+                        </div>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800" id="chartTitle">Period Performance Analytics</h2>
+                    </div>
+                <div class="text-sm text-gray-600" id="analyticsPeriod">All Time</div>
+                </div>
+            </div>
+            <div class="p-4 sm:p-6">
+            <div class="relative">
+                <canvas id="periodChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+    <!-- Top Performers and Best Combinations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             
-            <!-- Best/Worst Selling Items -->
+        <!-- Top Performers -->
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
                 <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
                     <div class="flex items-center space-x-3">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
                             <i class="fas fa-trophy text-white text-xs sm:text-sm"></i>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Best/Worst Items</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Top Performers</h3>
                     </div>
                 </div>
-                <div class="p-4 sm:p-6">
+            <div class="p-4 sm:p-6 max-h-80 overflow-y-auto scrollable-card">
                     <div class="space-y-4">
                         <div>
                             <h4 class="text-sm font-semibold text-green-600 mb-2">🏆 Best Selling</h4>
@@ -180,120 +282,93 @@
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800">Best Combinations</h3>
                     </div>
                 </div>
-                <div class="p-4 sm:p-6">
+            <div class="p-4 sm:p-6 max-h-80 overflow-y-auto scrollable-card">
                     <div id="bestCombinationsContent">
                         <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Employee Activity -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-users text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Employee Activity</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="text-sm font-semibold text-green-600 mb-2">🔥 Most Active</h4>
-                            <div id="mostActiveEmployeesContent">
-                                <!-- Content will be loaded here -->
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-600 mb-2">😴 Least Active</h4>
-                            <div id="leastActiveEmployeesContent">
-                                <!-- Content will be loaded here -->
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Period Summary -->
+    <!-- All Items Analytics -->
             <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                     <div class="flex items-center space-x-3">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-bar text-white text-xs sm:text-sm"></i>
+                        <i class="fas fa-box text-white text-xs sm:text-sm"></i>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Period Summary</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800">All Items Sales Analytics</h3>
+                    </div>
+                <div class="flex flex-wrap items-center gap-2 mobile-buttons">
+                    <button id="sortByQuantity" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors">
+                        Sort by Quantity
+                    </button>
+                    <button id="sortByRevenue" class="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+                        Sort by Revenue
+                    </button>
+                    <button id="sortByTimesSold" class="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+                        Sort by Times Sold
+                    </button>
+                    <button id="sortByCategory" class="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+                        Group by Category
+                    </button>
+                </div>
                     </div>
                 </div>
-                <div class="p-4 sm:p-6">
-                    <div id="periodSummaryContent">
+        <div class="p-2 sm:p-6 max-h-96 overflow-y-auto scrollable-card">
+            <!-- Desktop Table View -->
+            <div class="hidden sm:block overflow-x-auto">
+                <table class="w-full">
+                    <thead class="sticky top-0 bg-white z-10">
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-2 px-1 font-semibold text-gray-700 text-sm">Item</th>
+                            <th class="text-right py-2 px-1 font-semibold text-gray-700 text-sm">Qty</th>
+                            <th class="text-right py-2 px-1 font-semibold text-gray-700 text-sm">Times</th>
+                            <th class="text-center py-2 px-1 font-semibold text-gray-700 text-sm">Peak Day</th>
+                            <th class="text-center py-2 px-1 font-semibold text-gray-700 text-sm">Peak Time</th>
+                            <th class="text-center py-2 px-1 font-semibold text-gray-700 text-sm">Employee</th>
+                            <th class="text-right py-2 px-1 font-semibold text-gray-700 text-sm">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allItemsTableBody">
                         <!-- Content will be loaded here -->
-                    </div>
-                </div>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Mobile Card View -->
+            <div class="sm:hidden space-y-3" id="allItemsMobileView">
+                <!-- Mobile cards will be loaded here -->
             </div>
         </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="lg:col-span-4 space-y-6">
-        
-        <!-- Period Statistics -->
+    <!-- Employee Activity -->
         <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
                 <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tachometer-alt text-white text-xs sm:text-sm"></i>
+                <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-white text-xs sm:text-sm"></i>
                     </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Period Statistics</h2>
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800">Employee Activity</h3>
                 </div>
             </div>
-            <div class="p-4 sm:p-6">
+        <div class="p-4 sm:p-6 max-h-80 overflow-y-auto scrollable-card">
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-receipt text-green-600 text-sm"></i>
+                            <div>
+                    <h4 class="text-sm font-semibold text-green-600 mb-2">🔥 Most Active</h4>
+                    <div id="mostActiveEmployeesContent">
+                        <!-- Content will be loaded here -->
+                            </div>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600">Total Transactions</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalTransactions">0</p>
+                    <h4 class="text-sm font-semibold text-gray-600 mb-2">😴 Least Active</h4>
+                    <div id="leastActiveEmployeesContent">
+                        <!-- Content will be loaded here -->
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-chart-line text-blue-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Average Items per Transaction</p>
-                                <p class="text-lg font-bold text-gray-800" id="avgItemsPerTransaction">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-box text-orange-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Items Sold</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalItemsSold">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-users text-purple-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Active Employees</p>
-                                <p class="text-lg font-bold text-gray-800" id="activeEmployees">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -307,10 +382,9 @@
                     <h2 class="text-lg sm:text-xl font-bold text-gray-800">Performance Insights</h2>
                 </div>
             </div>
-            <div class="p-4 sm:p-6">
+        <div class="p-4 sm:p-6 max-h-80 overflow-y-auto scrollable-card">
                 <div id="performanceInsightsContent">
                     <!-- Content will be loaded here -->
-                </div>
             </div>
         </div>
     </div>
@@ -321,11 +395,239 @@
 {% block extra_scripts %}
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Mobile responsiveness improvements */
+    @media (max-width: 768px) {
+        /* Main container adjustments */
+        .container {
+            padding: 0.5rem;
+        }
+        
+        /* Card spacing */
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
+        
+        .space-y-6 > * + * {
+            margin-top: 1.5rem;
+        }
+        
+        /* Card padding adjustments */
+        .bg-white {
+            margin: 0.5rem 0;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .py-3 {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        /* Header adjustments */
+        .text-lg {
+            font-size: 1rem;
+        }
+        
+        .text-xl {
+            font-size: 1.125rem;
+        }
+        
+        /* Grid adjustments */
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .lg\\:grid-cols-2 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        /* Table responsiveness - only for desktop */
+        .mobile-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Button layout */
+        .mobile-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            width: 100%;
+        }
+        
+        .mobile-buttons button {
+            flex: 1;
+            min-width: 80px;
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        /* Flex layout adjustments */
+        .flex-col {
+            flex-direction: column;
+        }
+        
+        .sm\\:flex-row {
+            flex-direction: column;
+        }
+        
+        .sm\\:items-center {
+            align-items: flex-start;
+        }
+        
+        .sm\\:justify-between {
+            justify-content: flex-start;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        .sm\\:space-y-0 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        /* Scrollable cards */
+        .scrollable-card {
+            max-height: 16rem;
+            overflow-y: auto;
+        }
+        
+        /* Chart adjustments */
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Text size adjustments */
+        .text-sm {
+            font-size: 0.75rem;
+        }
+        
+        .text-xs {
+            font-size: 0.625rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        /* Extra small screens */
+        .container {
+            padding: 0.25rem;
+        }
+        
+        .px-4 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        .py-3 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .p-4 {
+            padding: 0.75rem;
+        }
+        
+        /* Mobile uses cards, no table styles needed */
+        
+        .mobile-buttons button {
+            font-size: 0.625rem;
+            padding: 0.25rem 0.375rem;
+        }
+        
+        .scrollable-card {
+            max-height: 12rem;
+        }
+    }
+    
+    /* Ensure proper touch scrolling */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .overflow-y-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Mobile-specific improvements */
+    @media (max-width: 768px) {
+        /* Force single column layout */
+        .lg\\:grid-cols-2 {
+            grid-template-columns: 1fr !important;
+        }
+        
+        /* Reduce card margins */
+        .bg-white {
+            margin: 0.25rem 0;
+        }
+        
+        /* Compact headers */
+        .px-4 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        /* Smaller icons on mobile */
+        .w-6.h-6 {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        
+        .w-8.h-8 {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        
+        /* Compact text */
+        .text-lg {
+            font-size: 0.875rem;
+        }
+        
+        .text-xl {
+            font-size: 1rem;
+        }
+        
+        /* Better button spacing */
+        .mobile-buttons {
+            gap: 0.125rem;
+        }
+        
+        .mobile-buttons button {
+            font-size: 0.625rem;
+            padding: 0.25rem 0.375rem;
+        }
+    }
+    
+    /* Very small screens */
+    @media (max-width: 480px) {
+        /* Mobile uses cards, no table styles needed */
+        
+        .scrollable-card {
+            max-height: 10rem;
+        }
+        
+        .mobile-buttons button {
+            font-size: 0.5rem;
+            padding: 0.125rem 0.25rem;
+        }
+    }
+</style>
 <script>
     // Global variables
     let currentDataType = 'general'; // 'general' or 'verified'
     let currentFilterType = 'single';
     let periodChart = null;
+    let allItemsData = [];
+    let currentSortBy = 'quantity';
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
@@ -345,6 +647,9 @@
         
         // Initialize data type toggle
         initializeDataTypeToggle();
+        
+        // Initialize sorting functionality
+        initializeSorting();
         
         // Load initial data
         loadPeriodAnalytics();
@@ -509,26 +814,305 @@
         }
     }
 
+    // Initialize sorting functionality
+    function initializeSorting() {
+        const sortByQuantity = document.getElementById('sortByQuantity');
+        const sortByRevenue = document.getElementById('sortByRevenue');
+        const sortByTimesSold = document.getElementById('sortByTimesSold');
+        const sortByCategory = document.getElementById('sortByCategory');
+        
+        sortByQuantity.addEventListener('click', function() {
+            currentSortBy = 'quantity';
+            updateSortButtons();
+            updateAllItemsTable();
+        });
+
+        sortByRevenue.addEventListener('click', function() {
+            currentSortBy = 'revenue';
+            updateSortButtons();
+            updateAllItemsTable();
+        });
+
+        sortByTimesSold.addEventListener('click', function() {
+            currentSortBy = 'times_sold';
+            updateSortButtons();
+            updateAllItemsTable();
+        });
+        
+        sortByCategory.addEventListener('click', function() {
+            currentSortBy = 'category';
+            updateSortButtons();
+            updateAllItemsTable();
+        });
+    }
+    
+    // Update sort buttons appearance
+    function updateSortButtons() {
+        const sortByQuantity = document.getElementById('sortByQuantity');
+        const sortByRevenue = document.getElementById('sortByRevenue');
+        const sortByTimesSold = document.getElementById('sortByTimesSold');
+        const sortByCategory = document.getElementById('sortByCategory');
+        
+        // Reset all buttons
+        [sortByQuantity, sortByRevenue, sortByTimesSold, sortByCategory].forEach(btn => {
+            btn.classList.remove('bg-blue-100', 'text-blue-700');
+            btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+        });
+        
+        // Highlight active button
+        switch(currentSortBy) {
+            case 'quantity':
+                sortByQuantity.classList.add('bg-blue-100', 'text-blue-700');
+                sortByQuantity.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                break;
+            case 'revenue':
+                sortByRevenue.classList.add('bg-blue-100', 'text-blue-700');
+                sortByRevenue.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                break;
+            case 'times_sold':
+                sortByTimesSold.classList.add('bg-blue-100', 'text-blue-700');
+                sortByTimesSold.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                break;
+            case 'category':
+                sortByCategory.classList.add('bg-blue-100', 'text-blue-700');
+                sortByCategory.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                break;
+        }
+    }
+    
+    // Update all items table
+    function updateAllItemsTable() {
+        const tbody = document.getElementById('allItemsTableBody');
+        const mobileView = document.getElementById('allItemsMobileView');
+        
+        if (!allItemsData || !Array.isArray(allItemsData) || allItemsData.length === 0) {
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">No items data available</td></tr>';
+            }
+            if (mobileView) {
+                mobileView.innerHTML = '<div class="text-center py-8 text-gray-500">No items data available</div>';
+            }
+            return;
+        }
+        
+        // Sort items based on current sort criteria
+        const sortedItems = [...allItemsData].sort((a, b) => {
+            switch(currentSortBy) {
+                case 'quantity':
+                    return b.total_quantity - a.total_quantity;
+                case 'revenue':
+                    return b.total_revenue - a.total_revenue;
+                case 'times_sold':
+                    return b.times_sold - a.times_sold;
+                case 'category':
+                    // First sort by category, then by revenue within each category
+                    if (a.category !== b.category) {
+                        return (a.category || 'Uncategorized').localeCompare(b.category || 'Uncategorized');
+                    }
+                    return b.total_revenue - a.total_revenue;
+                default:
+                    return 0;
+            }
+        });
+        
+        // Desktop table view
+        if (tbody) {
+            tbody.innerHTML = sortedItems.map((item, index) => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-2 px-1">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                                <span class="text-xs font-bold text-blue-600">${index + 1}</span>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-medium text-gray-800 text-sm">${item.name}</div>
+                                <div class="text-xs text-gray-500">KSh ${item.price.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-2 px-1 text-right font-semibold text-gray-800 text-sm">
+                        ${item.total_quantity}
+                    </td>
+                    <td class="py-2 px-1 text-right text-gray-600 text-sm">
+                        ${item.times_sold}
+                    </td>
+                    <td class="py-2 px-1 text-center">
+                        ${item.peak_day && item.peak_day !== 'N/A' ? `
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs font-medium text-purple-600">${item.peak_day}</span>
+                                <span class="text-xs text-gray-500">${item.peak_day_quantity || 0}</span>
+                            </div>
+                        ` : '<span class="text-gray-400 text-xs">N/A</span>'}
+                    </td>
+                    <td class="py-2 px-1 text-center">
+                        ${item.peak_time && item.peak_time !== 'N/A' ? `
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs font-medium text-blue-600">${item.peak_time}</span>
+                                <span class="text-xs text-gray-500">${item.peak_time_quantity || 0}</span>
+                            </div>
+                        ` : '<span class="text-gray-400 text-xs">N/A</span>'}
+                    </td>
+                    <td class="py-2 px-1 text-center">
+                        ${item.best_employee && item.best_employee !== 'N/A' ? `
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs font-medium text-green-600">${item.best_employee}</span>
+                                <span class="text-xs text-gray-500">${item.best_employee_quantity || 0}</span>
+                            </div>
+                        ` : '<span class="text-gray-400 text-xs">N/A</span>'}
+                    </td>
+                    <td class="py-2 px-1 text-right font-semibold text-green-600 text-sm">
+                        KSh ${item.total_revenue.toFixed(2)}
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Mobile card view
+        if (mobileView) {
+            let currentCategory = null;
+            let categoryIndex = 0;
+            
+            mobileView.innerHTML = sortedItems.map((item, index) => {
+                let html = '';
+                
+                // Add category header if sorting by category and category changed
+                if (currentSortBy === 'category' && item.category !== currentCategory) {
+                    currentCategory = item.category;
+                    categoryIndex++;
+                    html += `
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-3 mb-3 border border-blue-200">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold">${categoryIndex}</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm">${currentCategory || 'Uncategorized'}</h4>
+                                    <p class="text-xs text-blue-600">Category ${categoryIndex}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm mb-3">
+                    <!-- Header with ranking and category -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                                <span class="text-xs font-bold text-blue-600">${index + 1}</span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800 text-sm">${item.name}</div>
+                                <div class="text-xs text-gray-500">KSh ${item.price.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-green-600 text-sm">KSh ${item.total_revenue.toFixed(2)}</div>
+                            <div class="text-xs text-gray-500">Revenue</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Category Badge -->
+                    <div class="mb-3">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <i class="fas fa-tag mr-1"></i>
+                            ${item.category || 'Uncategorized'}
+                        </span>
+                    </div>
+                    
+                    <!-- Performance Metrics Grid -->
+                    <div class="grid grid-cols-2 gap-3 text-xs mb-3">
+                        <div class="bg-gray-50 rounded p-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Quantity Sold:</span>
+                                <span class="font-bold text-lg text-blue-600">${item.total_quantity}</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded p-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Times Sold:</span>
+                                <span class="font-bold text-lg text-purple-600">${item.times_sold}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Peak Performance Info -->
+                    <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                        <div class="bg-purple-50 rounded p-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Peak Day:</span>
+                                <span class="font-semibold text-purple-600">${item.peak_day || 'N/A'}</span>
+                            </div>
+                            ${item.peak_day_quantity ? `<div class="text-xs text-gray-500 mt-1">${item.peak_day_quantity} qty</div>` : ''}
+                        </div>
+                        <div class="bg-blue-50 rounded p-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Peak Time:</span>
+                                <span class="font-semibold text-blue-600">${item.peak_time || 'N/A'}</span>
+                            </div>
+                            ${item.peak_time_quantity ? `<div class="text-xs text-gray-500 mt-1">${item.peak_time_quantity} qty</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- Best Employee -->
+                    ${item.best_employee && item.best_employee !== 'N/A' ? `
+                        <div class="bg-green-50 rounded p-2 border-t border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 text-xs">Best Employee:</span>
+                                <span class="font-semibold text-green-600 text-xs">${item.best_employee}</span>
+                            </div>
+                            ${item.best_employee_quantity ? `<div class="text-xs text-gray-500 mt-1">${item.best_employee_quantity} qty sold</div>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+                `;
+                
+                return html;
+            }).join('');
+        }
+    }
+
     // Update analytics display
     function updateAnalyticsDisplay(analytics) {
-        // Update summary statistics
-        document.getElementById('totalTransactions').textContent = analytics.summary.totalTransactions || 0;
-        document.getElementById('avgItemsPerTransaction').textContent = (analytics.summary.avgItemsPerTransaction || 0).toFixed(1);
-        document.getElementById('totalItemsSold').textContent = analytics.summary.totalItemsSold || 0;
-        document.getElementById('activeEmployees').textContent = analytics.summary.activeEmployees || 0;
-        
-        // Update chart
-        updatePeriodChart(analytics.chartData);
-        
-        // Update content sections
-        updateBestWorstItems(analytics.bestItems, analytics.worstItems);
-        updateBestCombinations(analytics.bestCombinations);
-        updateEmployeeActivity(analytics.mostActiveEmployees, analytics.leastActiveEmployees);
-        updatePeriodSummary(analytics.periodSummary);
-        updatePerformanceInsights(analytics.performanceInsights);
-        
-        // Update period display
-        updateAnalyticsPeriod();
+        try {
+            console.log('Updating analytics display with data:', analytics);
+            
+            // Store all items data with safety check
+            allItemsData = analytics.allItems || [];
+            console.log('All items data:', allItemsData);
+            
+            // Update summary statistics with safety checks
+            const totalTransactionsEl = document.getElementById('totalTransactions');
+            const avgItemsEl = document.getElementById('avgItemsPerTransaction');
+            const totalItemsEl = document.getElementById('totalItemsSold');
+            const activeEmployeesEl = document.getElementById('activeEmployees');
+            
+            if (totalTransactionsEl) totalTransactionsEl.textContent = analytics.summary?.totalTransactions || 0;
+            if (avgItemsEl) avgItemsEl.textContent = (analytics.summary?.avgItemsPerTransaction || 0).toFixed(1);
+            if (totalItemsEl) totalItemsEl.textContent = analytics.summary?.totalItemsSold || 0;
+            if (activeEmployeesEl) activeEmployeesEl.textContent = analytics.summary?.activeEmployees || 0;
+            
+            // Update chart with safety check
+            updatePeriodChart(analytics.chartData || {});
+            
+            // Update all items table
+            updateAllItemsTable();
+            
+            // Update content sections with safety checks
+            updateBestWorstItems(analytics.bestItems || [], analytics.worstItems || []);
+            updateBestCombinations(analytics.bestCombinations || []);
+            updateEmployeeActivity(analytics.mostActiveEmployees || [], analytics.leastActiveEmployees || []);
+            updatePeriodSummary(analytics.periodSummary || {});
+            updatePerformanceInsights(analytics.performanceInsights || []);
+            
+            // Update period display
+            updateAnalyticsPeriod();
+        } catch (error) {
+            console.error('Error updating analytics display:', error);
+            console.error('Analytics data received:', analytics);
+            showErrorState('Error displaying analytics data: ' + error.message);
+        }
     }
 
     // Update period chart
@@ -588,44 +1172,54 @@
         const bestContainer = document.getElementById('bestItemsContent');
         const worstContainer = document.getElementById('worstItemsContent');
         
-        if (!bestItems || bestItems.length === 0) {
+        if (!bestItems || !Array.isArray(bestItems) || bestItems.length === 0) {
+            if (bestContainer) {
             bestContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
+            }
         } else {
+            if (bestContainer) {
             bestContainer.innerHTML = bestItems.slice(0, 3).map((item, index) => `
                 <div class="flex items-center justify-between p-2 bg-green-50 rounded-lg mb-2">
                     <div class="flex items-center space-x-2">
                         <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
                             <span class="text-xs font-bold text-green-600">${index + 1}</span>
                         </div>
-                        <span class="text-sm font-medium text-gray-800">${item.name}</span>
+                            <span class="text-sm font-medium text-gray-800">${item.name || 'Unknown'}</span>
                     </div>
-                    <span class="text-sm font-bold text-green-600">${item.quantity}</span>
+                        <span class="text-sm font-bold text-green-600">${item.quantity || item.total_quantity || 0}</span>
                 </div>
             `).join('');
+            }
         }
         
-        if (!worstItems || worstItems.length === 0) {
+        if (!worstItems || !Array.isArray(worstItems) || worstItems.length === 0) {
+            if (worstContainer) {
             worstContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
+            }
         } else {
+            if (worstContainer) {
             worstContainer.innerHTML = worstItems.slice(0, 3).map((item, index) => `
                 <div class="flex items-center justify-between p-2 bg-red-50 rounded-lg mb-2">
                     <div class="flex items-center space-x-2">
                         <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
                             <span class="text-xs font-bold text-red-600">${index + 1}</span>
                         </div>
-                        <span class="text-sm font-medium text-gray-800">${item.name}</span>
+                            <span class="text-sm font-medium text-gray-800">${item.name || 'Unknown'}</span>
                     </div>
-                    <span class="text-sm font-bold text-red-600">${item.quantity}</span>
+                        <span class="text-sm font-bold text-red-600">${item.quantity || item.total_quantity || 0}</span>
                 </div>
             `).join('');
+            }
         }
     }
 
     // Update best combinations content
     function updateBestCombinations(combinations) {
         const container = document.getElementById('bestCombinationsContent');
-        if (!combinations || combinations.length === 0) {
+        if (!combinations || !Array.isArray(combinations) || combinations.length === 0) {
+            if (container) {
             container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
+            }
             return;
         }
         
@@ -650,8 +1244,10 @@
         const mostContainer = document.getElementById('mostActiveEmployeesContent');
         const leastContainer = document.getElementById('leastActiveEmployeesContent');
         
-        if (!mostActive || mostActive.length === 0) {
+        if (!mostActive || !Array.isArray(mostActive) || mostActive.length === 0) {
+            if (mostContainer) {
             mostContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
+            }
         } else {
             mostContainer.innerHTML = mostActive.slice(0, 3).map((employee, index) => `
                 <div class="flex items-center justify-between p-2 bg-green-50 rounded-lg mb-2">
@@ -666,8 +1262,10 @@
             `).join('');
         }
         
-        if (!leastActive || leastActive.length === 0) {
-            leastContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
+        if (!leastActive || !Array.isArray(leastActive) || leastActive.length === 0) {
+            if (leastContainer) {
+                leastContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
+            }
         } else {
             leastContainer.innerHTML = leastActive.slice(0, 3).map((employee, index) => `
                 <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
@@ -712,8 +1310,10 @@
     // Update performance insights content
     function updatePerformanceInsights(insights) {
         const container = document.getElementById('performanceInsightsContent');
-        if (!insights || insights.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No insights available</p>';
+        if (!insights || !Array.isArray(insights) || insights.length === 0) {
+            if (container) {
+                container.innerHTML = '<p class="text-gray-500 text-center">No insights available</p>';
+            }
             return;
         }
         
@@ -778,26 +1378,34 @@
 
     // Show loading state
     function showLoadingState() {
-        const containers = ['bestItemsContent', 'worstItemsContent', 'bestCombinationsContent', 
+        const containers = ['allItemsTableBody', 'bestItemsContent', 'worstItemsContent', 'bestCombinationsContent', 
                           'mostActiveEmployeesContent', 'leastActiveEmployeesContent', 
                           'periodSummaryContent', 'performanceInsightsContent'];
         containers.forEach(id => {
             const container = document.getElementById(id);
             if (container) {
-                container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400"></i></div>';
+                if (id === 'allItemsTableBody') {
+                    container.innerHTML = '<tr><td colspan="7" class="text-center py-8"><i class="fas fa-spinner fa-spin text-gray-400"></i></td></tr>';
+                } else {
+                    container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400"></i></div>';
+                }
             }
         });
     }
 
     // Show error state
     function showErrorState() {
-        const containers = ['bestItemsContent', 'worstItemsContent', 'bestCombinationsContent', 
+        const containers = ['allItemsTableBody', 'bestItemsContent', 'worstItemsContent', 'bestCombinationsContent', 
                           'mostActiveEmployeesContent', 'leastActiveEmployeesContent', 
                           'periodSummaryContent', 'performanceInsightsContent'];
         containers.forEach(id => {
             const container = document.getElementById(id);
             if (container) {
-                container.innerHTML = '<p class="text-red-500 text-center">Error loading data</p>';
+                if (id === 'allItemsTableBody') {
+                    container.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">Error loading data</td></tr>';
+                } else {
+                    container.innerHTML = '<p class="text-red-500 text-center">Error loading data</p>';
+                }
             }
         });
     }

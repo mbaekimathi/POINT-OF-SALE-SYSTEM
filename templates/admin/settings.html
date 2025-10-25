@@ -84,6 +84,10 @@
             <i class="fas fa-hotel mr-2"></i>
             Hotel Information
         </button>
+        <button class="settings-tab bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-white transition-all duration-200" data-tab="printing">
+            <i class="fas fa-print mr-2"></i>
+            Printing Settings
+        </button>
     </div>
 </div>
 
@@ -122,6 +126,12 @@
                             <textarea id="hotelAddress" name="hotel_address" rows="3"
                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
                                       placeholder="Enter hotel address"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Business Type</label>
+                            <input type="text" id="businessType" name="business_type"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   placeholder="e.g., Restaurant, Hotel, Cafe, Bar, etc.">
                         </div>
                     </div>
                 </div>
@@ -201,13 +211,122 @@
     </div>
 </div>
 
+<!-- Printing Settings -->
+<div id="printing-settings" class="settings-content hidden">
+    <div class="max-w-4xl mx-auto">
+        <form id="printingSettingsForm" class="space-y-8">
+            <!-- Display Settings -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Display Settings</h2>
+                    <p class="text-gray-600 mt-2">Configure how information is displayed in the system</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Till</h3>
+                                    <p class="text-sm text-gray-600">Display M-Pesa till/paybill info on receipts</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_till" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Include Tax</h3>
+                                    <p class="text-sm text-gray-600">Include tax in price calculations</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="include_tax" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Images</h3>
+                                    <p class="text-sm text-gray-600">Display item images in menu</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_images" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Printer Settings -->
+            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Printer Settings</h2>
+                    <p class="text-gray-600 mt-2">Configure receipt printing behavior</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Double Printing</h3>
+                                    <p class="text-sm text-gray-600">Print receipts twice for backup</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="double_print" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
+                    <i class="fas fa-save mr-3"></i>
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Load existing hotel settings
+        // Load existing settings
         loadHotelSettings();
+        loadPrintingSettings();
+
+        // Tab switching functionality
+        const settingsTabs = document.querySelectorAll('.settings-tab');
+        const settingsContents = document.querySelectorAll('.settings-content');
+
+        settingsTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Update tab appearance
+                settingsTabs.forEach(t => {
+                    t.classList.remove('active', 'bg-white', 'text-primary-orange', 'shadow-lg');
+                    t.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                this.classList.add('active', 'bg-white', 'text-primary-orange', 'shadow-lg');
+                this.classList.remove('bg-gray-200', 'text-gray-700');
+
+                // Show/hide content
+                settingsContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(targetTab + '-settings').classList.remove('hidden');
+            });
+        });
 
         // Payment method toggle functionality
         const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
@@ -231,11 +350,17 @@
             });
         });
 
-        // Form submission
+        // Form submissions
         const hotelSettingsForm = document.getElementById('hotelSettingsForm');
         hotelSettingsForm.addEventListener('submit', function(e) {
             e.preventDefault();
             saveHotelSettings();
+        });
+
+        const printingSettingsForm = document.getElementById('printingSettingsForm');
+        printingSettingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            savePrintingSettings();
         });
     });
 
@@ -263,6 +388,9 @@
         }
         if (settings.hotel_address) {
             document.getElementById('hotelAddress').value = settings.hotel_address;
+        }
+        if (settings.business_type) {
+            document.getElementById('businessType').value = settings.business_type;
         }
         if (settings.payment_method) {
             const paymentMethodRadio = document.querySelector(`input[name="payment_method"][value="${settings.payment_method}"]`);
@@ -321,6 +449,147 @@
         } catch (error) {
             console.error('Error saving hotel settings:', error);
             showNotification('Error saving settings. Please try again.', 'error');
+        }
+    }
+
+    async function loadPrintingSettings() {
+        try {
+            // Load from localStorage first (POS-style)
+            const savedSettings = localStorage.getItem('pos-settings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                console.log('Loaded settings from localStorage:', settings);
+                
+                // Convert POS settings format to form format
+                const formSettings = {
+                    double_print: settings.printer?.doublePrint || false,
+                    show_till: settings.till?.show || false,
+                    include_tax: settings.tax?.include !== false,
+                    show_images: settings.images?.show !== false
+                };
+                
+                populatePrintingForm(formSettings);
+                return;
+            }
+            
+            // Fallback to database
+            const response = await fetch('/api/printing-settings');
+            if (response.ok) {
+                const settings = await response.json();
+                populatePrintingForm(settings);
+            }
+        } catch (error) {
+            console.error('Error loading printing settings:', error);
+        }
+    }
+
+    function populatePrintingForm(settings) {
+        // No printer configuration fields in simplified version
+
+        // Checkboxes
+        const checkboxes = [
+            'double_print', 'show_till', 'include_tax', 'show_images'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            const checkbox = document.querySelector(`input[name="${checkboxName}"]`);
+            if (checkbox && settings[checkboxName] !== undefined) {
+                checkbox.checked = settings[checkboxName];
+            }
+        });
+    }
+
+    async function savePrintingSettings() {
+        const form = document.getElementById('printingSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Convert checkbox values to boolean
+        const checkboxes = [
+            'double_print', 'show_till', 'include_tax', 'show_images'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            settings[checkboxName] = formData.has(checkboxName);
+        });
+
+        try {
+            // Save to localStorage (POS-style)
+            const posSettings = {
+                printer: {
+                    enabled: true,
+                    doublePrint: settings.double_print || false
+                },
+                till: {
+                    show: settings.show_till || false
+                },
+                tax: {
+                    include: settings.include_tax !== false
+                },
+                images: {
+                    show: settings.show_images !== false
+                }
+            };
+            
+            localStorage.setItem('pos-settings', JSON.stringify(posSettings));
+            console.log('Settings saved to localStorage:', posSettings);
+
+            // Also save to database
+            const response = await fetch('/api/printing-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Settings saved successfully!', 'success');
+                // Apply settings immediately (POS-style)
+                applySettings(posSettings);
+            } else {
+                showNotification(result.message || 'Failed to save settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            showNotification('Error saving settings. Please try again.', 'error');
+        }
+    }
+
+
+    // Apply settings to the POS system (POS-style)
+    function applySettings(settings) {
+        console.log('Applying settings:', settings);
+        
+        try {
+            // Dispatch settings updated event (POS-style)
+            const event = new CustomEvent('settingsUpdated', {
+                detail: settings
+            });
+            window.dispatchEvent(event);
+            
+            // Update tax calculation
+            if (window.updateTaxSetting) {
+                window.updateTaxSetting(settings.tax.include);
+                console.log('Tax setting updated:', settings.tax.include);
+            }
+            
+            // Update image display
+            if (window.updateImageDisplay) {
+                window.updateImageDisplay(settings.images.show);
+                console.log('Image display updated:', settings.images.show);
+            }
+            
+            // Update till display
+            if (window.updateTillDisplay) {
+                window.updateTillDisplay(settings.till.show);
+                console.log('Till display updated:', settings.till.show);
+            }
+            
+            console.log('Settings applied successfully');
+        } catch (error) {
+            console.error('Error applying settings:', error);
         }
     }
 

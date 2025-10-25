@@ -69,9 +69,16 @@
         }
         
         .glass-effect {
-            backdrop-filter: blur(16px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-overlay {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
         }
         
         .gradient-text {
@@ -79,6 +86,159 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        
+        /* Password toggle button styling */
+        .password-toggle-btn {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+        }
+        
+        .password-toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .password-toggle-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .password-toggle-btn i {
+            font-size: 0.875rem;
+            transition: color 0.2s ease-in-out;
+        }
+        
+        /* Modal animations */
+        .modal-overlay {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-container {
+            animation: slideInUp 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Form field focus animations */
+        .form-field {
+            transition: all 0.3s ease;
+        }
+        
+        .form-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.2);
+        }
+        
+        /* Button hover animations */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        /* Input field animations */
+        .input-field {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .input-field:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.15);
+        }
+        
+        /* Icon animations */
+        .icon-bounce {
+            transition: transform 0.2s ease;
+        }
+        
+        .icon-bounce:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Enhanced button styles */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Loading state */
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
     
@@ -160,10 +320,6 @@
                         <span>Employee Login</span>
                     </a>
                     
-                    <a href="#" id="settings-nav" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
-                        <i class="fas fa-cog w-5 h-5 mr-3"></i>
-                        <span>Settings</span>
-                    </a>
                 </nav>
                 
                 <!-- Sidebar Footer -->
@@ -220,203 +376,171 @@
     </footer>
 
     <!-- Employee Login/Registration Modal -->
-    <div id="employee-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-effect bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div id="employee-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 modal-overlay">
+        <div class="glass-effect bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden border border-white/20 modal-container">
             <!-- Modal Header -->
-            <div class="p-6 border-b border-white/20">
+            <div class="relative p-8 border-b border-white/20 bg-gradient-to-r from-white/5 to-white/10">
                 <div class="flex items-center justify-between">
-                    <h2 id="modal-title" class="text-2xl font-bold text-white">Employee Login</h2>
-                    <button id="close-modal" class="text-white/70 hover:text-white transition-colors duration-200">
-                        <i class="fas fa-times text-xl"></i>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-orange to-primary-blue rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-shield text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 id="modal-title" class="text-2xl font-bold text-white mb-1">Employee Login</h2>
+                            <p class="text-white/70 text-sm">Access your employee account</p>
+                        </div>
+                    </div>
+                    <button id="close-modal" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 hover:scale-105">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Modal Content -->
-            <div class="p-6">
+            <div class="p-8">
                 <!-- Login Form -->
-                <form id="login-form" class="space-y-4">
-                    <div>
-                        <label class="block text-white/90 text-sm font-medium mb-2">Employee Code (4 digits)</label>
+                <form id="login-form" class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                            <i class="fas fa-id-card mr-2 text-primary-orange"></i>
+                            Employee Code (4 digits)
+                        </label>
                         <input type="text" id="employee-code" name="employee_code" maxlength="4" 
-                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
-                               placeholder="Enter your 4-digit code" required>
+                               class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 text-center text-lg font-mono tracking-widest input-field form-field"
+                               placeholder="0000" required>
                     </div>
                     
-                    <div>
-                        <label class="block text-white/90 text-sm font-medium mb-2">Password</label>
-                        <input type="password" id="password" name="password" 
-                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
-                               placeholder="Enter your password" required>
+                    <div class="space-y-2">
+                        <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                            <i class="fas fa-lock mr-2 text-primary-orange"></i>
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" 
+                                   class="w-full px-4 py-4 pr-14 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 input-field form-field"
+                                   placeholder="Enter your password" required>
+                            <button type="button" id="toggle-password" class="password-toggle-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-all duration-200">
+                                <i class="fas fa-eye" id="password-eye-icon"></i>
+                            </button>
+                        </div>
                     </div>
                     
-                    <button type="submit" class="w-full bg-primary-orange text-white py-3 rounded-lg font-semibold hover:bg-secondary-orange transition-colors duration-200">
-                        <i class="fas fa-sign-in-alt mr-2"></i>
-                        Login
+                    <button type="submit" class="w-full bg-gradient-to-r from-primary-orange to-secondary-orange text-white py-4 rounded-xl font-semibold hover:from-secondary-orange hover:to-primary-orange transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 btn-primary">
+                        <i class="fas fa-sign-in-alt icon-bounce"></i>
+                        <span>Sign In</span>
                     </button>
                 </form>
 
                 <!-- Registration Form -->
-                <form id="register-form" class="space-y-4 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white/90 text-sm font-medium mb-2">Full Name</label>
+                <form id="register-form" class="space-y-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                                <i class="fas fa-user mr-2 text-primary-orange"></i>
+                                Full Name
+                            </label>
                             <input type="text" id="full-name" name="full_name" 
-                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
                                    placeholder="Enter full name" required>
                         </div>
                         
-                        <div>
-                            <label class="block text-white/90 text-sm font-medium mb-2">Email</label>
+                        <div class="space-y-2">
+                            <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                                <i class="fas fa-envelope mr-2 text-primary-orange"></i>
+                                Email
+                            </label>
                             <input type="email" id="email" name="email" 
-                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                   class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
                                    placeholder="Enter email" required>
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-white/90 text-sm font-medium mb-2">Phone Number</label>
+                    <div class="space-y-2">
+                        <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                            <i class="fas fa-phone mr-2 text-primary-orange"></i>
+                            Phone Number
+                        </label>
                         <input type="tel" id="phone-number" name="phone_number" 
-                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                               class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
                                placeholder="Enter phone number" required>
                     </div>
                     
-                    <div>
-                        <label class="block text-white/90 text-sm font-medium mb-2">Employee Code (4 digits)</label>
+                    <div class="space-y-2">
+                        <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                            <i class="fas fa-id-card mr-2 text-primary-orange"></i>
+                            Employee Code (4 digits)
+                        </label>
                         <input type="text" id="reg-employee-code" name="employee_code" maxlength="4" 
-                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
-                               placeholder="Choose a 4-digit code" required>
+                               class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 text-center text-lg font-mono tracking-widest"
+                               placeholder="0000" required>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-white/90 text-sm font-medium mb-2">Password</label>
-                            <input type="password" id="reg-password" name="password" 
-                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
-                                   placeholder="Enter password" required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                                <i class="fas fa-lock mr-2 text-primary-orange"></i>
+                                Password
+                            </label>
+                            <div class="relative">
+                                <input type="password" id="reg-password" name="password" 
+                                       class="w-full px-4 py-4 pr-14 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                                       placeholder="Enter password" required>
+                                <button type="button" id="toggle-reg-password" class="password-toggle-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-all duration-200">
+                                    <i class="fas fa-eye" id="reg-password-eye-icon"></i>
+                                </button>
+                            </div>
                         </div>
                         
-                        <div>
-                            <label class="block text-white/90 text-sm font-medium mb-2">Confirm Password</label>
-                            <input type="password" id="confirm-password" name="confirm_password" 
-                                   class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent"
-                                   placeholder="Confirm password" required>
+                        <div class="space-y-2">
+                            <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                                <i class="fas fa-lock mr-2 text-primary-orange"></i>
+                                Confirm Password
+                            </label>
+                            <div class="relative">
+                                <input type="password" id="confirm-password" name="confirm_password" 
+                                       class="w-full px-4 py-4 pr-14 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                                       placeholder="Confirm password" required>
+                                <button type="button" id="toggle-confirm-password" class="password-toggle-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-all duration-200">
+                                    <i class="fas fa-eye" id="confirm-password-eye-icon"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-white/90 text-sm font-medium mb-2">Profile Photo (Optional)</label>
-                        <input type="file" id="profile-photo" name="profile_photo" accept="image/*" 
-                               class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-orange file:text-white hover:file:bg-secondary-orange">
+                    <div class="space-y-2">
+                        <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
+                            <i class="fas fa-camera mr-2 text-primary-orange"></i>
+                            Profile Photo (Optional)
+                        </label>
+                        <div class="relative">
+                            <input type="file" id="profile-photo" name="profile_photo" accept="image/*" 
+                                   class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-orange file:text-white hover:file:bg-secondary-orange transition-all duration-200">
+                        </div>
                     </div>
                     
-                    <button type="submit" class="w-full bg-primary-blue text-white py-3 rounded-lg font-semibold hover:bg-secondary-blue transition-colors duration-200">
-                        <i class="fas fa-user-plus mr-2"></i>
-                        Register
+                    <button type="submit" class="w-full text-white py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 btn-secondary">
+                        <i class="fas fa-user-plus icon-bounce"></i>
+                        <span>Create Account</span>
                     </button>
                 </form>
 
                 <!-- Toggle between Login and Register -->
-                <div class="mt-6 text-center">
-                    <p class="text-white/70 text-sm">
-                        <span id="toggle-text">Don't have an account?</span>
-                        <button id="toggle-form" class="text-primary-orange hover:text-secondary-orange font-medium ml-1">
-                            Sign up here
+                <div class="mt-8 pt-6 border-t border-white/20">
+                    <div class="text-center">
+                        <p class="text-white/70 text-sm mb-4">
+                            <span id="toggle-text">Don't have an account?</span>
+                        </p>
+                        <button id="toggle-form" class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 border border-white/20">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            <span id="toggle-button-text">Sign up here</span>
                         </button>
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-effect bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <!-- Modal Header -->
-            <div class="p-6 border-b border-white/20">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-white">Settings</h2>
-                    <button id="close-settings-modal" class="text-white/70 hover:text-white transition-colors duration-200">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Content -->
-            <div class="p-6 space-y-6">
-
-                <!-- Display Settings -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-white">Display Settings</h3>
-                    
-                    <!-- Show Till Toggle -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label class="text-white/90 font-medium">Show Till</label>
-                            <p class="text-white/70 text-sm">Display M-Pesa till/paybill info on receipts</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="till-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
-                        </label>
-                    </div>
-
-                    <!-- Include Tax Toggle -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label class="text-white/90 font-medium">Include Tax</label>
-                            <p class="text-white/70 text-sm">Include tax in price calculations</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="tax-toggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
-                        </label>
-                    </div>
-
-                    <!-- Show Images Toggle -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label class="text-white/90 font-medium">Show Images</label>
-                            <p class="text-white/70 text-sm">Display item images in menu</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="images-toggle" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Printer Settings -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-white">Printer Settings</h3>
-                    
-                    <!-- Double Printing Toggle -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label class="text-white/90 font-medium">Double Printing</label>
-                            <p class="text-white/70 text-sm">Print receipts twice for backup</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="double-print-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex space-x-3 pt-4">
-                    <button id="save-settings" class="flex-1 bg-primary-orange text-white py-3 rounded-lg font-semibold hover:bg-secondary-orange transition-colors duration-200">
-                        <i class="fas fa-save mr-2"></i>
-                        Save Settings
-                    </button>
-                    <button id="cancel-settings" class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200">
-                        <i class="fas fa-times mr-2"></i>
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- JavaScript -->
     <script>
@@ -486,6 +610,7 @@
         const registerForm = document.getElementById('register-form');
         const modalTitle = document.getElementById('modal-title');
         const toggleText = document.getElementById('toggle-text');
+        const toggleButtonText = document.getElementById('toggle-button-text');
         let isLoginForm = true;
 
         // Open modal
@@ -524,13 +649,13 @@
                 registerForm.classList.add('hidden');
                 modalTitle.textContent = 'Employee Login';
                 toggleText.textContent = "Don't have an account?";
-                toggleForm.textContent = 'Sign up here';
+                toggleButtonText.textContent = 'Sign up here';
             } else {
                 loginForm.classList.add('hidden');
                 registerForm.classList.remove('hidden');
                 modalTitle.textContent = 'Employee Registration';
                 toggleText.textContent = 'Already have an account?';
-                toggleForm.textContent = 'Login here';
+                toggleButtonText.textContent = 'Login here';
             }
         });
 
@@ -547,6 +672,44 @@
             regEmployeeCode.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
+        }
+
+        // Password visibility toggle functionality
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Add event listeners for password toggle buttons
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        if (togglePasswordBtn) {
+            togglePasswordBtn.addEventListener('click', () => {
+                togglePasswordVisibility('password', 'password-eye-icon');
+            });
+        }
+
+        const toggleRegPasswordBtn = document.getElementById('toggle-reg-password');
+        if (toggleRegPasswordBtn) {
+            toggleRegPasswordBtn.addEventListener('click', () => {
+                togglePasswordVisibility('reg-password', 'reg-password-eye-icon');
+            });
+        }
+
+        const toggleConfirmPasswordBtn = document.getElementById('toggle-confirm-password');
+        if (toggleConfirmPasswordBtn) {
+            toggleConfirmPasswordBtn.addEventListener('click', () => {
+                togglePasswordVisibility('confirm-password', 'confirm-password-eye-icon');
+            });
         }
 
         // Login form submission
@@ -665,117 +828,7 @@
             };
         }
 
-        // Settings Modal functionality
-        const settingsNav = document.getElementById('settings-nav');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettingsModal = document.getElementById('close-settings-modal');
-        const cancelSettings = document.getElementById('cancel-settings');
-        const saveSettings = document.getElementById('save-settings');
-        const printerToggle = document.getElementById('printer-toggle');
-        const printerOptions = document.getElementById('printer-options');
-        const tillToggle = document.getElementById('till-toggle');
-        const taxToggle = document.getElementById('tax-toggle');
-        const imagesToggle = document.getElementById('images-toggle');
-        const doublePrintToggle = document.getElementById('double-print-toggle');
 
-        // Debug: Check if all elements are found
-        console.log('Settings elements found:', {
-            settingsNav: !!settingsNav,
-            settingsModal: !!settingsModal,
-            closeSettingsModal: !!closeSettingsModal,
-            cancelSettings: !!cancelSettings,
-            saveSettings: !!saveSettings,
-            printerToggle: !!printerToggle,
-            printerOptions: !!printerOptions,
-            tillToggle: !!tillToggle,
-            taxToggle: !!taxToggle,
-            imagesToggle: !!imagesToggle,
-            doublePrintToggle: !!doublePrintToggle
-        });
-        
-        // Debug: Log actual elements for inspection
-        console.log('Settings elements details:', {
-            settingsNav: settingsNav,
-            settingsModal: settingsModal,
-            saveSettings: saveSettings,
-            printerToggle: printerToggle,
-            tillToggle: tillToggle,
-            taxToggle: taxToggle,
-            imagesToggle: imagesToggle,
-            doublePrintToggle: doublePrintToggle
-        });
-
-        // Open settings modal
-        if (settingsNav && settingsModal) {
-        settingsNav.addEventListener('click', (e) => {
-            e.preventDefault();
-                console.log('Opening settings modal');
-            settingsModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        });
-        } else {
-            console.error('Settings navigation or modal not found');
-        }
-
-        // Close settings modal
-        function closeSettings() {
-            settingsModal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Close modal event listeners with null checks
-        if (closeSettingsModal) {
-        closeSettingsModal.addEventListener('click', closeSettings);
-        } else {
-            console.error('closeSettingsModal element not found');
-        }
-        
-        if (cancelSettings) {
-        cancelSettings.addEventListener('click', closeSettings);
-        } else {
-            console.error('cancelSettings element not found');
-        }
-
-        // Close modal when clicking outside
-        if (settingsModal) {
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                closeSettings();
-            }
-        });
-        } else {
-            console.error('settingsModal element not found');
-        }
-
-        // Show/hide printer options based on printer toggle
-        if (printerToggle && printerOptions) {
-        printerToggle.addEventListener('change', () => {
-            if (printerToggle.checked) {
-                printerOptions.classList.remove('hidden');
-                // Check browser compatibility when printer options are shown
-                checkAndDisplayBrowserCompatibility();
-            } else {
-                printerOptions.classList.add('hidden');
-                // Hide all printer sub-options when printer is disabled
-                    const printerStatus = document.getElementById('printer-status');
-                    const availablePrinters = document.getElementById('available-printers');
-                    const manualPrinterConfig = document.getElementById('manual-printer-config');
-                    const browserCompatibilityWarning = document.getElementById('browser-compatibility-warning');
-                    
-                    if (printerStatus) printerStatus.classList.add('hidden');
-                    if (availablePrinters) availablePrinters.classList.add('hidden');
-                    if (manualPrinterConfig) manualPrinterConfig.classList.add('hidden');
-                    if (browserCompatibilityWarning) browserCompatibilityWarning.classList.add('hidden');
-                    
-                // Disconnect printer if connected
-                if (currentPrinter) {
-                    disconnectPrinter();
-                }
-            }
-        });
-        } else {
-            console.error('printerToggle or printerOptions element not found');
-        }
 
         // Check and display browser compatibility information
         function checkAndDisplayBrowserCompatibility() {
@@ -998,139 +1051,7 @@
             console.error('pair-bluetooth-device button not found');
         }
 
-        // Save settings
-        if (saveSettings) {
-            console.log('Save settings button found, adding event listener');
-            saveSettings.addEventListener('click', (event) => {
-                console.log('Save settings click event triggered', event);
-                try {
-                    console.log('Save settings clicked - starting save process');
-                    
-                    // Debug: Check if all elements exist
-                    console.log('Element check:', {
-                        printerToggle: !!printerToggle,
-                        tillToggle: !!tillToggle,
-                        taxToggle: !!taxToggle,
-                        imagesToggle: !!imagesToggle,
-                        doublePrintToggle: !!doublePrintToggle
-                    });
-                    
-                    // Debug: Check current values
-                    console.log('Current toggle values:', {
-                        printer: printerToggle ? printerToggle.checked : 'N/A',
-                        till: tillToggle ? tillToggle.checked : 'N/A',
-                        tax: taxToggle ? taxToggle.checked : 'N/A',
-                        images: imagesToggle ? imagesToggle.checked : 'N/A',
-                        doublePrint: doublePrintToggle ? doublePrintToggle.checked : 'N/A'
-                    });
-                    
-            const settings = {
-                printer: {
-                            enabled: printerToggle ? printerToggle.checked : false,
-                    type: document.querySelector('input[name="printer-type"]:checked')?.value || null,
-                    doublePrint: doublePrintToggle ? doublePrintToggle.checked : false
-                },
-                till: {
-                            show: tillToggle ? tillToggle.checked : false
-                },
-                tax: {
-                            include: taxToggle ? taxToggle.checked : true
-                },
-                images: {
-                            show: imagesToggle ? imagesToggle.checked : true
-                        }
-                    };
 
-                    console.log('Settings object created:', settings);
-
-                    // Test localStorage
-                    console.log('Testing localStorage...');
-                    try {
-                        localStorage.setItem('test-key', 'test-value');
-                        const testValue = localStorage.getItem('test-key');
-                        console.log('localStorage test successful:', testValue);
-                        localStorage.removeItem('test-key');
-                    } catch (storageError) {
-                        console.error('localStorage test failed:', storageError);
-                        throw new Error('localStorage not available: ' + storageError.message);
-                    }
-
-            // Save to localStorage
-                    console.log('Saving to localStorage...');
-            localStorage.setItem('pos-settings', JSON.stringify(settings));
-                    console.log('Settings saved to localStorage');
-                    
-                    // Verify save
-                    const savedSettings = localStorage.getItem('pos-settings');
-                    console.log('Verification - saved settings:', savedSettings);
-            
-            // Show success message
-                    console.log('Showing success notification...');
-            showNotification('Settings saved successfully!', 'success');
-                    console.log('Success notification shown');
-            
-            // Close modal
-                    console.log('Closing settings modal...');
-            closeSettings();
-                    console.log('Settings modal closed');
-            
-                    // Apply settings
-                    console.log('Applying settings...');
-            applySettings(settings);
-                    console.log('Settings applied');
-                    
-                    console.log('Save process completed successfully');
-                    
-                } catch (error) {
-                    console.error('Error saving settings:', error);
-                    console.error('Error stack:', error.stack);
-                    showNotification('Error saving settings: ' + error.message, 'error');
-                }
-            });
-            console.log('Save settings event listener added successfully');
-        } else {
-            console.error('Save settings button not found - element:', saveSettings);
-        }
-
-        // Load settings from localStorage
-        function loadSettings() {
-            try {
-                console.log('Loading settings from localStorage...');
-            const savedSettings = localStorage.getItem('pos-settings');
-                
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                    console.log('Loaded settings:', settings);
-                
-                // Apply saved settings to form
-                    if (printerToggle) printerToggle.checked = settings.printer?.enabled || false;
-                    if (tillToggle) tillToggle.checked = settings.till?.show || false;
-                    if (taxToggle) taxToggle.checked = settings.tax?.include !== false; // Default to true
-                    if (imagesToggle) imagesToggle.checked = settings.images?.show !== false; // Default to true
-                    if (doublePrintToggle) doublePrintToggle.checked = settings.printer?.doublePrint || false;
-                
-                // Show/hide printer options
-                    if (settings.printer?.enabled && printerOptions) {
-                    printerOptions.classList.remove('hidden');
-                }
-                
-                // Set printer type
-                if (settings.printer?.type) {
-                    const printerTypeRadio = document.querySelector(`input[name="printer-type"][value="${settings.printer.type}"]`);
-                    if (printerTypeRadio) {
-                        printerTypeRadio.checked = true;
-                    }
-                }
-                
-                // Apply settings
-                applySettings(settings);
-                } else {
-                    console.log('No saved settings found, using defaults');
-                }
-            } catch (error) {
-                console.error('Error loading settings:', error);
-            }
-        }
 
         // Apply settings to the POS system
         function applySettings(settings) {
@@ -1184,60 +1105,7 @@
             }
         }
 
-        // Load settings when page loads
-        loadSettings();
 
-        // Test function to verify settings save (can be called from console)
-        window.testSettingsSave = function() {
-            console.log('Testing settings save...');
-            
-            // Test localStorage
-            const testSettings = {
-                printer: { enabled: true, type: 'bluetooth' },
-                till: { show: true },
-                tax: { include: true },
-                images: { show: false }
-            };
-            
-            localStorage.setItem('pos-settings', JSON.stringify(testSettings));
-            const retrieved = localStorage.getItem('pos-settings');
-            console.log('Test save successful:', JSON.parse(retrieved));
-            
-            // Reload settings
-            loadSettings();
-        };
-        
-        // Test function to manually trigger save (can be called from console)
-        window.manualSaveSettings = function() {
-            console.log('Manually triggering save settings...');
-            if (saveSettings) {
-                console.log('Save button found, triggering click...');
-                saveSettings.click();
-            } else {
-                console.error('Save button not found');
-            }
-        };
-        
-        // Test function to check all settings elements
-        window.checkSettingsElements = function() {
-            console.log('Checking all settings elements...');
-            const elements = {
-                'settings-nav': document.getElementById('settings-nav'),
-                'settings-modal': document.getElementById('settings-modal'),
-                'save-settings': document.getElementById('save-settings'),
-                'printer-toggle': document.getElementById('printer-toggle'),
-                'till-toggle': document.getElementById('till-toggle'),
-                'tax-toggle': document.getElementById('tax-toggle'),
-                'images-toggle': document.getElementById('images-toggle'),
-                'double-print-toggle': document.getElementById('double-print-toggle')
-            };
-            
-            Object.entries(elements).forEach(([id, element]) => {
-                console.log(`${id}:`, element ? 'FOUND' : 'NOT FOUND', element);
-            });
-            
-            return elements;
-        };
 
 
 

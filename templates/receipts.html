@@ -315,6 +315,7 @@
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Receipt #</th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Total</th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
                                     <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                                 </tr>
                             </thead>
@@ -346,6 +347,14 @@
                                             {% elif receipt.status == 'cancelled' %}Cancelled
                                             {% else %}Pending{% endif %}
                                         </span>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="text-sm font-medium text-gray-800">
+                                            {{ receipt.sale_date.strftime('%Y-%m-%d') if receipt.sale_date else receipt.created_at.strftime('%Y-%m-%d') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ receipt.sale_date.strftime('%H:%M') if receipt.sale_date else receipt.created_at.strftime('%H:%M') }}
+                                        </div>
                                     </td>
                                     <td class="py-4 px-4">
                                         <div class="flex items-center space-x-2">
@@ -396,97 +405,7 @@
     <!-- Sidebar -->
     <div class="lg:col-span-4 space-y-6">
         
-        <!-- Quick Stats Card -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tachometer-alt text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Receipt Statistics</h2>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div class="space-y-4">
-                    <!-- Total Receipts -->
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-receipt text-indigo-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Total Receipts</p>
-                                <p class="text-lg font-bold text-gray-800" id="sidebarTotalReceipts">{{ total_receipts or 0 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Confirmed Receipts -->
-                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-check-circle text-green-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-green-700">Confirmed Receipts</p>
-                                <p class="text-lg font-bold text-green-800" id="sidebarConfirmedReceipts">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Cancelled Receipts -->
-                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-times-circle text-red-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-red-700">Cancelled Receipts</p>
-                                <p class="text-lg font-bold text-red-800" id="sidebarCancelledReceipts">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Pending Receipts -->
-                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-clock text-yellow-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-yellow-700">Pending Receipts</p>
-                                <p class="text-lg font-bold text-yellow-800" id="sidebarPendingReceipts">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
 
-        <!-- Recent Activity Card -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-history text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Recent Activity</h2>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div id="recentActivitiesList" class="space-y-3">
-                    <!-- Activities will be loaded here -->
-                </div>
-                <div id="noRecentActivity" class="text-center py-8 hidden">
-                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-clock text-purple-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-base font-semibold text-gray-800 mb-1">No Recent Activity</h3>
-                    <p class="text-gray-600 text-sm">No activities on receipts after 24 hours of creation.</p>
-                </div>
-            </div>
-        </div>
 
     </div>
 
@@ -816,7 +735,7 @@
         
         visibleRows.forEach(row => {
             const statusElement = row.querySelector('[id^="status-"]');
-            const totalElement = row.querySelector('td:nth-child(4) span');
+            const totalElement = row.querySelector('td:nth-child(3) span');
             
             if (!statusElement || !totalElement) return;
             
@@ -1248,8 +1167,6 @@
         // Initialize analytics
         initializeAnalytics();
         
-        // Initialize recent activities
-        loadRecentActivities();
         
         // Add live search functionality
         const searchInput = document.getElementById('receiptSearch');
@@ -1523,9 +1440,6 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update recent activities after status change
-                setTimeout(loadRecentActivities, 100);
-                
                 // Refresh the page to maintain proper sorting
                 alert(`Successfully updated ${receiptIds.length} receipt(s) status`);
                 window.location.reload();
@@ -1580,12 +1494,14 @@
         
         tableRows.forEach(row => {
             const receiptNumber = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-            const employeeName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-            const totalAmount = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            const totalAmount = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            const status = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            const date = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
             
             const matches = receiptNumber.includes(searchLower) || 
-                          employeeName.includes(searchLower) || 
-                          totalAmount.includes(searchLower);
+                          totalAmount.includes(searchLower) ||
+                          status.includes(searchLower) ||
+                          date.includes(searchLower);
             
             row.style.display = matches ? '' : 'none';
         });

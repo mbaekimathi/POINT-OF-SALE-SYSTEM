@@ -1,0 +1,83 @@
+{% block sidebar_icon %}chart-line{% endblock %}
+{% block sidebar_title %}Analytics{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl {% if request.endpoint == 'analytics' %}bg-white/20{% else %}hover:bg-white/20{% endif %} transition-all duration-200 group">
+    <div class="w-10 h-10 {% if request.endpoint == 'analytics' %}bg-white/30{% else %}bg-white/20 group-hover:bg-white/30{% endif %} rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Analytics overview</p>
+    </div>
+</a>
+
+<!-- Sales Analytics -->
+{% if employee_role == 'admin' %}
+<a href="/analytics/sales" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl {% if request.endpoint == 'analytics_sales' %}bg-white/20{% else %}hover:bg-white/20{% endif %} transition-all duration-200 group">
+    <div class="w-10 h-10 {% if request.endpoint == 'analytics_sales' %}bg-white/30{% else %}bg-white/20 group-hover:bg-white/30{% endif %} rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Sales Analytics</p>
+        <p class="text-xs text-white/70">Revenue & transactions</p>
+    </div>
+</a>
+{% endif %}
+
+<!-- Item Analytics -->
+<a href="/analytics/items" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl {% if request.endpoint == 'analytics_items' %}bg-white/20{% else %}hover:bg-white/20{% endif %} transition-all duration-200 group">
+    <div class="w-10 h-10 {% if request.endpoint == 'analytics_items' %}bg-white/30{% else %}bg-white/20 group-hover:bg-white/30{% endif %} rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-box text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Analytics</p>
+        <p class="text-xs text-white/70">Product performance</p>
+    </div>
+</a>
+
+<!-- Stock Analytics -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl {% if request.endpoint == 'analytics_stock' %}bg-white/20{% else %}hover:bg-white/20{% endif %} transition-all duration-200 group">
+    <div class="w-10 h-10 {% if request.endpoint == 'analytics_stock' %}bg-white/30{% else %}bg-white/20 group-hover:bg-white/30{% endif %} rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Analytics</p>
+        <p class="text-xs text-white/70">Inventory insights</p>
+    </div>
+</a>
+
+<!-- Employee Analytics -->
+<a href="/analytics/employees" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl {% if request.endpoint == 'analytics_employees' %}bg-white/20{% else %}hover:bg-white/20{% endif %} transition-all duration-200 group">
+    <div class="w-10 h-10 {% if request.endpoint == 'analytics_employees' %}bg-white/30{% else %}bg-white/20 group-hover:bg-white/30{% endif %} rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Employee Analytics</p>
+        <p class="text-xs text-white/70">Staff performance</p>
+    </div>
+</a>
+
+<!-- Period Analytics -->
+<a href="/analytics/periods" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl {% if request.endpoint == 'analytics_periods' %}bg-white/20{% else %}hover:bg-white/20{% endif %} transition-all duration-200 group">
+    <div class="w-10 h-10 {% if request.endpoint == 'analytics_periods' %}bg-white/30{% else %}bg-white/20 group-hover:bg-white/30{% endif %} rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-calendar-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Period Analytics</p>
+        <p class="text-xs text-white/70">Time-based reports</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}

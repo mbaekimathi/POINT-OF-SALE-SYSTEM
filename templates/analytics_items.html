@@ -1,39 +1,124 @@
-{% extends "base.html" %}
+{% extends "role_base.html" %}
 
 {% block title %}Item Analytics - Hotel POS System{% endblock %}
 
-{% block content %}
+{% block sidebar_icon %}chart-line{% endblock %}
+{% block sidebar_title %}Analytics{% endblock %}
 
-<!-- Item Analytics Header -->
-<div class="relative overflow-hidden bg-gradient-to-br from-green-900 via-emerald-900 to-teal-900 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8 shadow-2xl">
+{% block sidebar_nav %}
+<!-- Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Analytics overview</p>
+    </div>
+</a>
+
+<!-- Sales Analytics -->
+{% if employee_role == 'admin' %}
+<a href="/analytics/sales" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Sales Analytics</p>
+        <p class="text-xs text-white/70">Revenue & transactions</p>
+    </div>
+</a>
+{% endif %}
+
+<!-- Item Analytics -->
+<a href="/analytics/items" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-box text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Analytics</p>
+        <p class="text-xs text-white/70">Product performance</p>
+    </div>
+</a>
+
+<!-- Stock Analytics -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Analytics</p>
+        <p class="text-xs text-white/70">Inventory insights</p>
+    </div>
+</a>
+
+<!-- Employee Analytics -->
+<a href="/analytics/employees" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Employee Analytics</p>
+        <p class="text-xs text-white/70">Staff performance</p>
+    </div>
+</a>
+
+<!-- Period Analytics -->
+<a href="/analytics/periods" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Period Analytics</p>
+        <p class="text-xs text-white/70">Time-based reports</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 analytics-container">
+    <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 mobile-padding">
+        <!-- Item Analytics Header -->
+<div class="relative overflow-hidden bg-gradient-to-br from-green-900 via-emerald-900 to-teal-900 rounded-xl sm:rounded-2xl lg:rounded-3xl mb-4 sm:mb-6 lg:mb-8 shadow-2xl">
     <div class="absolute inset-0 bg-black/20"></div>
-    <div class="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 sm:space-y-6 lg:space-y-0">
+    <div class="relative px-3 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8 xl:px-8 xl:py-12">
+        <div class="flex flex-col space-y-4 sm:space-y-6">
             <div class="text-white">
-                <div class="flex items-center space-x-3 mb-3">
-                    <a href="/analytics" class="text-white/70 hover:text-white transition-colors">
-                        <i class="fas fa-arrow-left text-xl"></i>
+                <div class="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                    <a href="/analytics" class="text-white/70 hover:text-white transition-colors p-1">
+                        <i class="fas fa-arrow-left text-lg sm:text-xl"></i>
                     </a>
-                    <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-box text-white text-sm"></i>
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-box text-white text-xs sm:text-sm"></i>
                     </div>
                 </div>
-                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
+                <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-1 sm:mb-2 lg:mb-3 bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
                     Item Analytics
                 </h1>
-                <p class="text-green-100 text-base sm:text-lg lg:text-xl font-medium">Product performance and menu optimization</p>
+                <p class="text-green-100 text-sm sm:text-base lg:text-lg xl:text-xl font-medium">Product performance and menu optimization</p>
             </div>
             
-            <!-- Data Toggle -->
-            <div class="flex items-center space-x-4">
-                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-white text-sm font-medium">Data Type:</span>
-                        <div class="flex items-center space-x-2">
-                            <button id="generalDataBtn" class="px-3 py-1 bg-white/20 text-white rounded-lg text-sm font-medium transition-colors">
+            <!-- Data Toggle - Mobile Responsive -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg sm:rounded-xl px-3 py-2 sm:px-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                        <span class="text-white text-xs sm:text-sm font-medium">Data Type:</span>
+                        <div class="flex items-center space-x-1 sm:space-x-2">
+                            <button id="generalDataBtn" class="px-2 py-1 sm:px-3 bg-white/20 text-white rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-colors">
                                 General
                             </button>
-                            <button id="verifiedDataBtn" class="px-3 py-1 text-white/70 hover:text-white rounded-lg text-sm font-medium transition-colors">
+                            <button id="verifiedDataBtn" class="px-2 py-1 sm:px-3 text-white/70 hover:text-white rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-colors">
                                 Verified
                             </button>
                         </div>
@@ -45,21 +130,21 @@
 </div>
 
 <!-- Filters Section -->
-<div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden mb-6">
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-        <div class="flex items-center space-x-3">
-            <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+<div class="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center">
                 <i class="fas fa-filter text-white text-xs sm:text-sm"></i>
             </div>
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800">Analytics Filters</h2>
+            <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Analytics Filters</h2>
         </div>
     </div>
-    <div class="p-4 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="p-3 sm:p-4 lg:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
             <!-- Filter Type -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Filter Type</label>
-                <select id="filterType" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <div class="col-span-1">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Filter Type</label>
+                <select id="filterType" class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                     <option value="single">Single Day</option>
                     <option value="range">Date Range</option>
                     <option value="month">Month</option>
@@ -68,44 +153,44 @@
             </div>
             
             <!-- Date Input (Single Day) -->
-            <div id="singleDateContainer">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+            <div id="singleDateContainer" class="col-span-1">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Select Date</label>
                 <input type="date" id="singleDate" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                       class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
             </div>
             
             <!-- Range Inputs (Date Range) -->
-            <div id="rangeDateContainer" class="hidden">
-                <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+            <div id="rangeDateContainer" class="hidden col-span-1">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">From Date</label>
                 <input type="date" id="fromDate" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                       class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
             </div>
             
-            <div id="rangeToDateContainer" class="hidden">
-                <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+            <div id="rangeToDateContainer" class="hidden col-span-1">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">To Date</label>
                 <input type="date" id="toDate" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                       class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
             </div>
             
             <!-- Month Input -->
-            <div id="monthContainer" class="hidden">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
+            <div id="monthContainer" class="hidden col-span-1">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Select Month</label>
                 <input type="month" id="monthSelect" 
-                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                       class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
             </div>
             
             <!-- Year Input -->
-            <div id="yearContainer" class="hidden">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select Year</label>
+            <div id="yearContainer" class="hidden col-span-1">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Select Year</label>
                 <select id="yearSelect" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm">
                     <option value="">Select Year</option>
                 </select>
             </div>
             
             <!-- Apply Filter Button -->
-            <div class="flex items-end">
-                <button id="applyFilter" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-200 font-medium">
+            <div class="flex items-end col-span-1">
+                <button id="applyFilter" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-indigo-600 text-white rounded-lg sm:rounded-xl hover:bg-indigo-700 transition-colors duration-200 font-medium text-sm">
                     Apply Filter
                 </button>
             </div>
@@ -114,186 +199,58 @@
 </div>
 
 <!-- Analytics Content -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    
-    <!-- Main Analytics Area -->
-    <div class="lg:col-span-8 space-y-6">
+<div class="space-y-4 sm:space-y-6">
         
         <!-- Item Sales Chart -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+        <div class="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center">
                             <i class="fas fa-chart-bar text-white text-xs sm:text-sm"></i>
                         </div>
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800" id="chartTitle">Item Sales Analytics</h2>
+                        <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800" id="chartTitle">Item Sales Analytics</h2>
                     </div>
-                    <div class="text-sm text-gray-600" id="analyticsPeriod">All Time</div>
+                    <div class="text-xs sm:text-sm text-gray-600" id="analyticsPeriod">All Time</div>
                 </div>
             </div>
-            <div class="p-4 sm:p-6">
-                <div class="relative">
-                    <canvas id="itemSalesChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Item Performance Metrics -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Quantity Sold -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                                <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
-                            </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800">Quantity Sold</h3>
-                        </div>
-                        <span id="quantitySoldCount" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0 items</span>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="quantitySoldContent" class="max-h-96 overflow-y-auto">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Peak Sales Times -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-clock text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Peak Sales Times</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="peakSalesContent">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Top Selling Employees -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-user text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Top Selling Employees</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="topEmployeesContent">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item Pairs -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-link text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Popular Item Pairs</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="itemPairsContent">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="lg:col-span-4 space-y-6">
-        
-        <!-- Summary Statistics -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tachometer-alt text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Summary Statistics</h2>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-box text-green-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Total Items Sold</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalItemsSold">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-receipt text-blue-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Total Transactions</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalTransactions">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-chart-line text-orange-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Average Quantity per Sale</p>
-                                <p class="text-lg font-bold text-gray-800" id="avgQuantityPerSale">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-chart-line text-purple-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Avg. Items per Sale</p>
-                                <p class="text-lg font-bold text-gray-800" id="avgItemsPerSale">0.0</p>
-                            </div>
-                        </div>
-                    </div>
+            <div class="p-3 sm:p-4 lg:p-6">
+                <div class="relative h-64 sm:h-80 lg:h-96 chart-container">
+                    <canvas id="itemSalesChart" class="w-full h-full"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Top Items -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-trophy text-white text-xs sm:text-sm"></i>
+        <!-- Item Sales Distribution -->
+        <div class="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center">
+                            <i class="fas fa-list text-white text-xs sm:text-sm"></i>
+                        </div>
+                        <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Item Sales Distribution</h3>
                     </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Top Items</h2>
+                    <div class="flex items-center space-x-2">
+                        <span id="itemCount" class="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0 items</span>
+                        <div class="flex items-center space-x-1">
+                            <button id="toggleView" class="text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-medium p-1">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                            <button id="sortToggle" class="text-xs sm:text-sm text-gray-600 hover:text-gray-800 font-medium p-1">
+                                <i class="fas fa-sort-amount-down"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="p-4 sm:p-6">
-                <div id="topItemsContent">
+            <div class="p-3 sm:p-4 lg:p-6">
+                <div id="itemSalesContent" class="max-h-64 sm:max-h-80 lg:max-h-96 overflow-y-auto">
                     <!-- Content will be loaded here -->
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </div>
 
@@ -302,11 +259,68 @@
 {% block extra_scripts %}
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom CSS for preventing horizontal scroll -->
+<style>
+    /* Prevent horizontal scrolling */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Ensure proper container constraints */
+    .analytics-container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Responsive grid adjustments */
+    @media (max-width: 640px) {
+        .grid {
+            gap: 0.75rem;
+        }
+    }
+    
+    /* Ensure charts don't overflow */
+    .chart-container {
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {
+        .mobile-padding {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+    }
+    
+    /* Ensure text doesn't overflow */
+    .item-card {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+    
+    /* Prevent horizontal scroll on small screens */
+    @media (max-width: 480px) {
+        .grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+        
+        .mobile-padding {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
+    }
+</style>
 <script>
     // Global variables
     let currentDataType = 'general'; // 'general' or 'verified'
     let currentFilterType = 'single';
     let itemSalesChart = null;
+    let currentItemData = [];
+    let sortOrder = 'desc'; // 'asc' or 'desc'
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
@@ -326,6 +340,12 @@
         
         // Initialize data type toggle
         initializeDataTypeToggle();
+        
+        // Initialize toggle view functionality
+        initializeToggleView();
+        
+        // Initialize sort functionality
+        initializeSortFunctionality();
         
         // Load initial data
         loadItemAnalytics();
@@ -492,24 +512,59 @@
 
     // Update analytics display
     function updateAnalyticsDisplay(analytics) {
-        // Update summary statistics
-        document.getElementById('totalItemsSold').textContent = analytics.summary.totalItemsSold || 0;
-        document.getElementById('totalTransactions').textContent = analytics.summary.totalTransactions || 0;
-        document.getElementById('avgQuantityPerSale').textContent = analytics.summary.avgQuantityPerSale || 0;
-        document.getElementById('avgItemsPerSale').textContent = (analytics.summary.avgItemsPerSale || 0).toFixed(1);
-        
         // Update chart
         updateItemSalesChart(analytics.chartData);
         
         // Update content sections
-        updateQuantitySoldContent(analytics.quantitySold);
-        updatePeakSalesContent(analytics.peakSales);
-        updateTopEmployeesContent(analytics.topEmployees);
-        updateItemPairsContent(analytics.itemPairs);
-        updateTopItemsContent(analytics.topItems);
+        updateItemSalesContent(analytics.quantitySold);
         
         // Update period display
         updateAnalyticsPeriod();
+    }
+
+    // Initialize toggle view functionality
+    function initializeToggleView() {
+        const toggleBtn = document.getElementById('toggleView');
+        const contentContainer = document.getElementById('itemSalesContent');
+        
+        if (toggleBtn && contentContainer) {
+            toggleBtn.addEventListener('click', function() {
+                const isExpanded = contentContainer.classList.contains('max-h-none');
+                
+                if (isExpanded) {
+                    contentContainer.classList.remove('max-h-none');
+                    contentContainer.classList.add('max-h-64', 'sm:max-h-80', 'lg:max-h-96');
+                    toggleBtn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
+                } else {
+                    contentContainer.classList.remove('max-h-64', 'sm:max-h-80', 'lg:max-h-96');
+                    contentContainer.classList.add('max-h-none');
+                    toggleBtn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
+                }
+            });
+        }
+    }
+
+    // Initialize sort functionality
+    function initializeSortFunctionality() {
+        const sortBtn = document.getElementById('sortToggle');
+        
+        if (sortBtn) {
+            sortBtn.addEventListener('click', function() {
+                sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+                
+                // Update button icon
+                const icon = sortOrder === 'desc' ? 'fa-sort-amount-down' : 'fa-sort-amount-up';
+                sortBtn.innerHTML = `<i class="fas ${icon}"></i>`;
+                
+                // Sort and re-render data
+                if (currentItemData.length > 0) {
+                    const sortedData = [...currentItemData].sort((a, b) => {
+                        return sortOrder === 'desc' ? b.quantity - a.quantity : a.quantity - b.quantity;
+                    });
+                    updateItemSalesContent(sortedData);
+                }
+            });
+        }
     }
 
     // Update item sales chart
@@ -539,22 +594,56 @@
                     borderColor: 'rgba(34, 197, 94, 1)',
                     borderWidth: 2,
                     fill: isMultiDay,
-                    tension: isMultiDay ? 0.4 : 0
+                    tension: isMultiDay ? 0.4 : 0,
+                    pointBackgroundColor: isMultiDay ? 'rgba(34, 197, 94, 1)' : undefined,
+                    pointBorderColor: isMultiDay ? 'rgba(34, 197, 94, 1)' : undefined,
+                    pointRadius: isMultiDay ? 4 : undefined
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false
                     }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
                         ticks: {
-                            stepSize: 1
+                            stepSize: 1,
+                            font: {
+                                size: 12
+                            }
                         }
                     }
                 }
@@ -562,13 +651,16 @@
         });
     }
 
-    // Update quantity sold content
-    function updateQuantitySoldContent(data) {
-        const container = document.getElementById('quantitySoldContent');
-        const countElement = document.getElementById('quantitySoldCount');
+    // Update item sales content with all items data
+    function updateItemSalesContent(data) {
+        const container = document.getElementById('itemSalesContent');
+        const countElement = document.getElementById('itemCount');
+        
+        // Store current data for sorting
+        currentItemData = data || [];
         
         if (!data || data.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
+            container.innerHTML = '<div class="text-center py-8"><i class="fas fa-inbox text-gray-300 text-4xl mb-2"></i><p class="text-gray-500">No data available</p></div>';
             if (countElement) countElement.textContent = '0 items';
             return;
         }
@@ -578,109 +670,74 @@
             countElement.textContent = `${data.length} item${data.length !== 1 ? 's' : ''}`;
         }
         
-        // Show all items instead of limiting to 5
-        container.innerHTML = data.map(item => `
-            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-box text-green-600 text-sm"></i>
+        // Show all items with enhanced mobile-responsive design
+        container.innerHTML = data.map((item, index) => `
+            <div class="bg-white border border-gray-200 rounded-lg mb-3 shadow-sm hover:shadow-md transition-shadow duration-200 item-card">
+                <div class="p-3 sm:p-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        <!-- Item Info -->
+                        <div class="flex items-start space-x-3 sm:space-x-4">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs sm:text-sm font-bold text-white">${index + 1}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm sm:text-base font-bold text-gray-800 mb-2 break-words">${item.name}</h4>
+                                
+                                <!-- Mobile Layout -->
+                                <div class="block sm:hidden space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fas fa-shopping-cart text-green-500 text-xs"></i>
+                                            <span class="text-xs text-gray-600">Qty: <span class="font-semibold text-green-600">${item.quantity}</span></span>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-bold text-blue-600">${item.quantity}</div>
+                                            <div class="text-xs text-gray-500">sold</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 text-xs text-gray-600">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fas fa-clock text-purple-500"></i>
+                                            <span>Peak: <span class="font-semibold text-purple-600">${item.peakTime}</span></span>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fas fa-user text-orange-500"></i>
+                                            <span>Best: <span class="font-semibold text-orange-600">${item.bestEmployee}</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Desktop Layout -->
+                                <div class="hidden sm:block">
+                                    <div class="flex items-center space-x-4 text-xs sm:text-sm text-gray-600">
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fas fa-shopping-cart text-green-500"></i>
+                                            <span>Qty: <span class="font-semibold text-green-600">${item.quantity}</span></span>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fas fa-clock text-purple-500"></i>
+                                            <span>Peak: <span class="font-semibold text-purple-600">${item.peakTime}</span></span>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                            <i class="fas fa-user text-orange-500"></i>
+                                            <span>Best: <span class="font-semibold text-orange-600">${item.bestEmployee}</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Desktop Quantity Display -->
+                        <div class="hidden sm:block text-right">
+                            <div class="text-lg font-bold text-blue-600">${item.quantity}</div>
+                            <div class="text-xs text-gray-500">sold</div>
+                        </div>
                     </div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
                 </div>
-                <span class="text-sm font-bold text-green-600">${item.quantity}</span>
             </div>
         `).join('');
     }
 
-    // Update peak sales content
-    function updatePeakSalesContent(data) {
-        const container = document.getElementById('peakSalesContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
-            return;
-        }
-        
-        container.innerHTML = data.slice(0, 5).map(item => `
-            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-clock text-purple-600 text-sm"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm font-bold text-purple-600">${item.peakTime}</div>
-                    <div class="text-xs text-gray-500">${item.sales} sales</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Update top employees content
-    function updateTopEmployeesContent(data) {
-        const container = document.getElementById('topEmployeesContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
-            return;
-        }
-        
-        container.innerHTML = data.slice(0, 5).map(employee => `
-            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-user text-orange-600 text-sm"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-800">${employee.name}</span>
-                </div>
-                <span class="text-sm font-bold text-orange-600">${employee.sales}</span>
-            </div>
-        `).join('');
-    }
-
-    // Update item pairs content
-    function updateItemPairsContent(data) {
-        const container = document.getElementById('itemPairsContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
-            return;
-        }
-        
-        container.innerHTML = data.slice(0, 5).map(pair => `
-            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-link text-teal-600 text-sm"></i>
-                    </div>
-                    <div class="text-sm">
-                        <div class="font-medium text-gray-800">${pair.item1}</div>
-                        <div class="text-xs text-gray-500">+ ${pair.item2}</div>
-                    </div>
-                </div>
-                <span class="text-sm font-bold text-teal-600">${pair.count}</span>
-            </div>
-        `).join('');
-    }
-
-    // Update top items content
-    function updateTopItemsContent(data) {
-        const container = document.getElementById('topItemsContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
-            return;
-        }
-        
-        container.innerHTML = data.slice(0, 5).map((item, index) => `
-            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <span class="text-xs font-bold text-yellow-600">${index + 1}</span>
-                    </div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                </div>
-                <span class="text-sm font-bold text-yellow-600">${item.quantity}</span>
-            </div>
-        `).join('');
-    }
 
     // Update analytics period display
     function updateAnalyticsPeriod() {
@@ -731,24 +788,33 @@
 
     // Show loading state
     function showLoadingState() {
-        const containers = ['quantitySoldContent', 'peakSalesContent', 'topEmployeesContent', 'itemPairsContent', 'topItemsContent'];
-        containers.forEach(id => {
-            const container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400"></i></div>';
-            }
-        });
+        const container = document.getElementById('itemSalesContent');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="inline-flex items-center space-x-2">
+                        <i class="fas fa-spinner fa-spin text-indigo-500 text-lg"></i>
+                        <span class="text-gray-600 text-sm">Loading analytics data...</span>
+                    </div>
+                </div>
+            `;
+        }
     }
 
     // Show error state
     function showErrorState() {
-        const containers = ['quantitySoldContent', 'peakSalesContent', 'topEmployeesContent', 'itemPairsContent', 'topItemsContent'];
-        containers.forEach(id => {
-            const container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '<p class="text-red-500 text-center">Error loading data</p>';
-            }
-        });
+        const container = document.getElementById('itemSalesContent');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-2"></i>
+                    <p class="text-red-500 text-sm">Error loading data</p>
+                    <button onclick="loadItemAnalytics()" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors">
+                        Try Again
+                    </button>
+                </div>
+            `;
+        }
     }
 </script>
 {% endblock %}

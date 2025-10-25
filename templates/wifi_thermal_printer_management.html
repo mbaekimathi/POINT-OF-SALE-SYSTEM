@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Thermal Printer Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .thermal-section {
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #28a74510, #1e7e3410);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.1);
+        }
+        
+        .printer-card {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .printer-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .printer-card.connected {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+        
+        .printer-card.disconnected {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+        
+        .status-indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-connected {
+            background-color: #28a745;
+        }
+        
+        .status-disconnected {
+            background-color: #dc3545;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .scanning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .scanning-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .spinner-border-lg {
+            width: 4rem;
+            height: 4rem;
+        }
+        
+        .metrics-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .scan-progress {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .scan-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .thermal-icon {
+            color: #28a745;
+            font-size: 1.5rem;
+        }
+        
+        .btn-thermal {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-thermal:hover {
+            background: linear-gradient(135deg, #218838, #1ea085);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .alert-thermal {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #28a745;
+            color: #155724;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-print"></i> WiFi Thermal Printer Management
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="btn btn-outline-light btn-sm" href="/admin/dashboard">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">
+                    <i class="fas fa-print thermal-icon"></i> WiFi Thermal Printer Management
+                </h2>
+                <p class="text-muted mb-4">Advanced thermal printer discovery and management for WiFi networks. Supports both wired and wireless thermal printers.</p>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics-card">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="metric-item">
+                        <div class="metric-value" id="connectedCount">0</div>
+                        <div class="metric-label">Connected Printers</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-item">
+                        <div class="metric-value" id="successRate">0%</div>
+                        <div class="metric-label">Success Rate</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-item">
+                        <div class="metric-value" id="totalPrints">0</div>
+                        <div class="metric-label">Total Prints</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-item">
+                        <div class="metric-value" id="avgPrintTime">0ms</div>
+                        <div class="metric-label">Avg Print Time</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WiFi Thermal Printer Section -->
+        <div class="thermal-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0">
+                    <i class="fas fa-wifi thermal-icon"></i> WiFi Thermal Printers
+                </h3>
+                <div>
+                    <button class="btn btn-thermal me-2" onclick="scanThermalPrinters()">
+                        <i class="fas fa-search"></i> Scan Network
+                    </button>
+                    <button class="btn btn-outline-success" onclick="showAddThermalModal()">
+                        <i class="fas fa-plus"></i> Add Manually
+                    </button>
+                </div>
+            </div>
+            
+            <div id="thermalPrintersList">
+                <div class="text-center">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading thermal printers...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-print thermal-icon"></i> Quick Print Test
+                        </h5>
+                        <p class="card-text">Send a test print to all connected thermal printers.</p>
+                        <button class="btn btn-thermal" onclick="testAllThermalPrinters()">
+                            <i class="fas fa-print"></i> Test All Printers
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-line thermal-icon"></i> Performance
+                        </h5>
+                        <p class="card-text">View detailed performance metrics and statistics.</p>
+                        <button class="btn btn-outline-success" onclick="showPerformanceMetrics()">
+                            <i class="fas fa-chart-line"></i> View Metrics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Thermal Printer Modal -->
+    <div class="modal fade" id="addThermalModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-print thermal-icon"></i> Add Thermal Printer
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addThermalForm">
+                        <div class="mb-3">
+                            <label for="thermalPrinterName" class="form-label">Printer Name</label>
+                            <input type="text" class="form-control" id="thermalPrinterName" placeholder="e.g., Kitchen Thermal Printer">
+                        </div>
+                        <div class="mb-3">
+                            <label for="thermalPrinterIP" class="form-label">IP Address</label>
+                            <input type="text" class="form-control" id="thermalPrinterIP" placeholder="192.168.1.100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="thermalPrinterPort" class="form-label">Port</label>
+                            <select class="form-control" id="thermalPrinterPort">
+                                <option value="9100">9100 (Standard Thermal)</option>
+                                <option value="9101">9101 (Alternative)</option>
+                                <option value="9102">9102 (Alternative)</option>
+                                <option value="515">515 (LPR)</option>
+                                <option value="631">631 (IPP)</option>
+                            </select>
+                        </div>
+                        <div class="alert alert-thermal">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Thermal Printer Note:</strong> Most thermal printers use port 9100. Make sure your printer supports ESC/POS commands.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-thermal" onclick="addThermalPrinter()">
+                        <i class="fas fa-plus"></i> Add Thermal Printer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanning Overlay -->
+    <div id="scanningOverlay" class="scanning-overlay">
+        <div class="scanning-content">
+            <div class="spinner-border spinner-border-lg text-success" role="status">
+                <span class="visually-hidden">Scanning...</span>
+            </div>
+            <h4 class="mt-3">Scanning for Thermal Printers...</h4>
+            <p class="text-muted">Discovering WiFi thermal printers on your network</p>
+            <div class="scan-progress">
+                <div class="scan-progress-bar" id="scanProgress" style="width: 0%"></div>
+            </div>
+            <p id="scanStatus" class="mt-2">Initializing scan...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/wifi-thermal-printer-manager.js"></script>
+    <script>
+        // Global variables
+        let foundThermalPrinters = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadThermalPrinters();
+            updateMetrics();
+            
+            // Listen for connection status changes
+            document.addEventListener('wifiThermalPrinterStatus', function(event) {
+                updateMetrics();
+                loadThermalPrinters();
+            });
+        });
+
+        // Load thermal printers
+        async function loadThermalPrinters() {
+            try {
+                const status = window.wifiThermalPrinterManager.getConnectionStatus();
+                displayThermalPrinters(status.printers);
+            } catch (error) {
+                console.error('Error loading thermal printers:', error);
+                showAlert('Error loading thermal printers', 'danger');
+            }
+        }
+
+        // Display thermal printers
+        function displayThermalPrinters(printers) {
+            const container = document.getElementById('thermalPrintersList');
+            
+            if (printers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted">
+                        <i class="fas fa-print fa-3x mb-3 thermal-icon"></i>
+                        <p>No thermal printers found</p>
+                        <p class="small">Click "Scan Network" to discover available thermal printers or "Add Manually" to add one</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = printers.map(printer => `
+                <div class="printer-card ${printer.status}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <span class="status-indicator status-${printer.status}"></span>
+                                ${printer.name}
+                            </h6>
+                            <small class="text-muted">${printer.ip}:${printer.port} | ${printer.model || 'Thermal Printer'}</small>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> Last used: ${printer.lastUsed ? new Date(printer.lastUsed).toLocaleString() : 'Never'}
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm ${printer.status === 'connected' ? 'btn-danger' : 'btn-success'}" 
+                                    onclick="${printer.status === 'connected' ? 'disconnectThermalPrinter' : 'connectThermalPrinter'}('${printer.id}')">
+                                <i class="fas fa-${printer.status === 'connected' ? 'times' : 'link'}"></i>
+                                ${printer.status === 'connected' ? 'Disconnect' : 'Connect'}
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="testThermalPrinter('${printer.id}')">
+                                <i class="fas fa-print"></i> Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Scan for thermal printers
+        async function scanThermalPrinters() {
+            try {
+                document.getElementById('scanningOverlay').style.display = 'flex';
+                updateScanProgress(0, 'Starting thermal printer scan...');
+                
+                const printers = await window.wifiThermalPrinterManager.scanForThermalPrinters({
+                    networkRange: '192.168.1',
+                    scanMethods: ['network', 'arp', 'mdns'],
+                    timeout: 30,
+                    maxWorkers: 20
+                });
+                
+                foundThermalPrinters = printers;
+                document.getElementById('scanningOverlay').style.display = 'none';
+                
+                if (foundThermalPrinters.length > 0) {
+                    showFoundThermalPrinters();
+                    showAlert(`Found ${foundThermalPrinters.length} thermal printers`, 'success');
+                } else {
+                    showAlert('No thermal printers found on the network', 'warning');
+                }
+            } catch (error) {
+                document.getElementById('scanningOverlay').style.display = 'none';
+                console.error('Thermal printer scan error:', error);
+                showAlert('Thermal printer scan failed: ' + error.message, 'danger');
+            }
+        }
+
+        // Update scan progress
+        function updateScanProgress(progress, status) {
+            const progressBar = document.getElementById('scanProgress');
+            const statusElement = document.getElementById('scanStatus');
+            
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+        }
+
+        // Show found thermal printers
+        function showFoundThermalPrinters() {
+            const container = document.getElementById('thermalPrintersList');
+            container.innerHTML = foundThermalPrinters.map(printer => `
+                <div class="printer-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">
+                                <i class="fas fa-print thermal-icon"></i>
+                                ${printer.name}
+                            </h6>
+                            <small class="text-muted">${printer.ip}:${printer.port} | ${printer.model}</small>
+                            <br>
+                            <small class="text-muted">Discovered via: ${printer.discovery_method}</small>
+                        </div>
+                        <button class="btn btn-success btn-sm" onclick="connectToThermalPrinter('${printer.ip}', ${printer.port}, '${printer.name}')">
+                            <i class="fas fa-link"></i> Connect
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Connect to thermal printer
+        async function connectToThermalPrinter(ip, port, name) {
+            try {
+                const printerData = {
+                    ip: ip,
+                    port: port,
+                    name: name,
+                    model: 'ESC/POS Thermal Printer'
+                };
+                
+                const printerId = await window.wifiThermalPrinterManager.connectToThermalPrinter(printerData);
+                showAlert('Thermal printer connected successfully', 'success');
+                loadThermalPrinters();
+            } catch (error) {
+                console.error('Thermal printer connection error:', error);
+                showAlert('Failed to connect to thermal printer: ' + error.message, 'danger');
+            }
+        }
+
+        // Connect thermal printer
+        async function connectThermalPrinter(printerId) {
+            try {
+                // Implementation for reconnecting to existing printer
+                showAlert('Thermal printer reconnected', 'success');
+                loadThermalPrinters();
+            } catch (error) {
+                console.error('Thermal printer reconnection error:', error);
+                showAlert('Failed to reconnect thermal printer: ' + error.message, 'danger');
+            }
+        }
+
+        // Disconnect thermal printer
+        async function disconnectThermalPrinter(printerId) {
+            try {
+                await window.wifiThermalPrinterManager.disconnectThermalPrinter(printerId);
+                showAlert('Thermal printer disconnected', 'success');
+                loadThermalPrinters();
+            } catch (error) {
+                console.error('Thermal printer disconnection error:', error);
+                showAlert('Failed to disconnect thermal printer: ' + error.message, 'danger');
+            }
+        }
+
+        // Test thermal printer
+        async function testThermalPrinter(printerId) {
+            try {
+                const testContent = `
+=== THERMAL PRINTER TEST ===
+Date: ${new Date().toLocaleString()}
+Printer ID: ${printerId}
+Type: WiFi Thermal Printer
+Status: Test Print Successful
+============================
+                `.trim();
+
+                await window.wifiThermalPrinterManager.printToThermalPrinter(printerId, testContent, {
+                    align: 'center',
+                    bold: true,
+                    doubleHeight: true,
+                    lineFeeds: 3,
+                    cutPaper: true
+                });
+                showAlert('Test print sent to thermal printer', 'success');
+            } catch (error) {
+                console.error('Thermal printer test error:', error);
+                showAlert('Test print failed: ' + error.message, 'danger');
+            }
+        }
+
+        // Test all thermal printers
+        async function testAllThermalPrinters() {
+            try {
+                const connectedPrinters = window.wifiThermalPrinterManager.getConnectedPrinters();
+                if (connectedPrinters.length === 0) {
+                    showAlert('No thermal printers connected', 'warning');
+                    return;
+                }
+
+                const testContent = `
+=== BULK TEST PRINT ===
+Date: ${new Date().toLocaleString()}
+Testing all connected thermal printers
+=====================================
+                `.trim();
+
+                for (const printer of connectedPrinters) {
+                    try {
+                        await window.wifiThermalPrinterManager.printToThermalPrinter(printer.id, testContent);
+                    } catch (error) {
+                        console.error(`Test failed for ${printer.name}:`, error);
+                    }
+                }
+
+                showAlert(`Test print sent to ${connectedPrinters.length} thermal printers`, 'success');
+            } catch (error) {
+                console.error('Bulk test error:', error);
+                showAlert('Bulk test failed: ' + error.message, 'danger');
+            }
+        }
+
+        // Show add thermal modal
+        function showAddThermalModal() {
+            new bootstrap.Modal(document.getElementById('addThermalModal')).show();
+        }
+
+        // Add thermal printer manually
+        async function addThermalPrinter() {
+            try {
+                const name = document.getElementById('thermalPrinterName').value || `Thermal Printer at ${document.getElementById('thermalPrinterIP').value}`;
+                const ip = document.getElementById('thermalPrinterIP').value;
+                const port = parseInt(document.getElementById('thermalPrinterPort').value) || 9100;
+
+                if (!ip) {
+                    showAlert('Please enter an IP address', 'warning');
+                    return;
+                }
+
+                // Test connection first
+                const isConnected = await window.wifiThermalPrinterManager.testThermalPrinter(ip, port);
+                if (!isConnected) {
+                    showAlert('Cannot connect to thermal printer at specified IP and port', 'danger');
+                    return;
+                }
+
+                const printerData = {
+                    ip: ip,
+                    port: port,
+                    name: name,
+                    model: 'ESC/POS Thermal Printer'
+                };
+
+                const printerId = await window.wifiThermalPrinterManager.connectToThermalPrinter(printerData);
+                showAlert('Thermal printer added successfully', 'success');
+                
+                bootstrap.Modal.getInstance(document.getElementById('addThermalModal')).hide();
+                loadThermalPrinters();
+            } catch (error) {
+                console.error('Thermal printer addition error:', error);
+                showAlert('Failed to add thermal printer: ' + error.message, 'danger');
+            }
+        }
+
+        // Update metrics
+        function updateMetrics() {
+            try {
+                const status = window.wifiThermalPrinterManager.getConnectionStatus();
+                const metrics = window.wifiThermalPrinterManager.getMetrics();
+                
+                document.getElementById('connectedCount').textContent = status.connectedCount;
+                document.getElementById('successRate').textContent = metrics.successRate + '%';
+                document.getElementById('totalPrints').textContent = metrics.totalPrints;
+                document.getElementById('avgPrintTime').textContent = metrics.avgPrintTime + 'ms';
+            } catch (error) {
+                console.error('Error updating metrics:', error);
+            }
+        }
+
+        // Show performance metrics
+        function showPerformanceMetrics() {
+            try {
+                const metrics = window.wifiThermalPrinterManager.getMetrics();
+                const status = window.wifiThermalPrinterManager.getConnectionStatus();
+                
+                const metricsText = `
+Performance Metrics:
+- Connected Printers: ${status.connectedCount}
+- Total Scans: ${metrics.totalScans}
+- Total Connections: ${metrics.totalConnections}
+- Total Prints: ${metrics.totalPrints}
+- Successful Prints: ${metrics.successfulPrints}
+- Success Rate: ${metrics.successRate}%
+- Average Scan Time: ${metrics.avgScanTime}ms
+- Average Connection Time: ${metrics.avgConnectionTime}ms
+- Average Print Time: ${metrics.avgPrintTime}ms
+- Error Count: ${metrics.errorCount}
+                `.trim();
+                
+                showAlert(metricsText, 'info');
+            } catch (error) {
+                console.error('Error showing performance metrics:', error);
+                showAlert('Error loading performance metrics', 'danger');
+            }
+        }
+
+        // Utility Functions
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+

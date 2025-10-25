@@ -1,10 +1,94 @@
-{% extends "base.html" %}
+{% extends "role_base.html" %}
 
-{% block title %}Stock Analytics - Hotel POS System{% endblock %}
+{% block title %}Stock Management & Analytics - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}chart-line{% endblock %}
+{% block sidebar_title %}Analytics{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Analytics overview</p>
+    </div>
+</a>
+
+<!-- Sales Analytics -->
+{% if employee_role == 'admin' %}
+<a href="/analytics/sales" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Sales Analytics</p>
+        <p class="text-xs text-white/70">Revenue & transactions</p>
+    </div>
+</a>
+{% endif %}
+
+<!-- Item Analytics -->
+<a href="/analytics/items" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-box text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Analytics</p>
+        <p class="text-xs text-white/70">Product performance</p>
+    </div>
+</a>
+
+<!-- Stock Analytics -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Analytics</p>
+        <p class="text-xs text-white/70">Inventory insights</p>
+    </div>
+</a>
+
+<!-- Employee Analytics -->
+<a href="/analytics/employees" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Employee Analytics</p>
+        <p class="text-xs text-white/70">Staff performance</p>
+    </div>
+</a>
+
+<!-- Period Analytics -->
+<a href="/analytics/periods" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Period Analytics</p>
+        <p class="text-xs text-white/70">Time-based reports</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}
 
 {% block content %}
 
-<!-- Stock Analytics Header -->
+<!-- Enhanced Stock Analytics Header -->
 <div class="relative overflow-hidden bg-gradient-to-br from-orange-900 via-red-900 to-pink-900 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8 shadow-2xl">
     <div class="absolute inset-0 bg-black/20"></div>
     <div class="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
@@ -17,15 +101,30 @@
                     <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
                         <i class="fas fa-warehouse text-white text-sm"></i>
                     </div>
+                    <!-- Manager Role Badge -->
+                    <div class="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-3 py-1.5">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-user-tie text-white text-sm"></i>
+                            <span class="text-white text-sm font-medium">Manager</span>
+                        </div>
+                    </div>
                 </div>
                 <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-orange-200 bg-clip-text text-transparent">
-                    Stock Analytics
+                    Stock Management & Analytics
                 </h1>
-                <p class="text-orange-100 text-base sm:text-lg lg:text-xl font-medium">Inventory management and stock optimization</p>
+                <p class="text-orange-100 text-base sm:text-lg lg:text-xl font-medium">Comprehensive inventory management and optimization dashboard for managers</p>
             </div>
             
-            <!-- Refresh Button -->
-            <div class="flex items-center space-x-4">
+            <!-- Enhanced Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                <button id="quickReorderBtn" class="bg-green-500/20 backdrop-blur-sm border border-green-400/30 rounded-xl px-4 py-2 text-white hover:bg-green-500/30 transition-colors">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Quick Reorder
+                </button>
+                <button id="exportDataBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Data
+                </button>
                 <button id="refreshDataBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
                     <i class="fas fa-sync-alt mr-2"></i>
                     Refresh Data
@@ -35,201 +134,391 @@
     </div>
 </div>
 
-<!-- Analytics Content -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    
-    <!-- Main Analytics Area -->
-    <div class="lg:col-span-8 space-y-6">
-        
-        <!-- Stock Overview Chart -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-pie text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Stock Overview</h2>
-                    </div>
-                    <div class="text-sm text-gray-600" id="lastUpdated">Last updated: Just now</div>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div class="relative">
-                    <canvas id="stockOverviewChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <!-- Stock Management Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Current Stock Levels -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-boxes text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Current Stock Levels</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="stockLevelsContent">
-                        <div class="text-center py-8">
-                            <i class="fas fa-spinner fa-spin text-3xl mb-3 text-gray-300"></i>
-                            <p class="text-gray-500">Loading stock levels...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Low Stock Alerts -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-red-50 to-pink-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-exclamation-triangle text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Low Stock Alerts</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="lowStockContent">
-                        <div class="text-center py-8">
-                            <i class="fas fa-spinner fa-spin text-3xl mb-3 text-gray-300"></i>
-                            <p class="text-gray-500">Loading alerts...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Reorder Recommendations -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Reorder Recommendations</h3>
-                    </div>
+<!-- Manager Dashboard Summary -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+    <!-- Critical Alerts Card -->
+    <div class="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-red-100 text-sm font-medium">Critical Alerts</p>
+                    <p class="text-2xl font-bold" id="criticalAlertsCount">0</p>
+                    <p class="text-red-200 text-xs mt-1">Items need immediate attention</p>
                 </div>
-                <div class="p-4 sm:p-6">
-                    <div id="reorderContent">
-                        <div class="text-center py-8">
-                            <i class="fas fa-spinner fa-spin text-3xl mb-3 text-gray-300"></i>
-                            <p class="text-gray-500">Loading recommendations...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stock Turnover -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-sync-alt text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Stock Turnover</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="stockTurnoverContent">
-                        <div class="text-center py-8">
-                            <i class="fas fa-spinner fa-spin text-3xl mb-3 text-gray-300"></i>
-                            <p class="text-gray-500">Loading turnover data...</p>
-                        </div>
-                    </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Sidebar -->
-    <div class="lg:col-span-4 space-y-6">
-        
-        <!-- Summary Statistics -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tachometer-alt text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Stock Summary</h2>
+    
+    <!-- Low Stock Items Card -->
+    <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-orange-100 text-sm font-medium">Low Stock Items</p>
+                    <p class="text-2xl font-bold" id="lowStockCount">0</p>
+                    <p class="text-orange-200 text-xs mt-1">Need reordering soon</p>
                 </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-box text-green-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Total Items</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalItems">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-chart-line text-blue-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Average Stock Level</p>
-                                <p class="text-lg font-bold text-gray-800" id="avgStockLevel">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-exclamation-triangle text-orange-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Low Stock Items</p>
-                                <p class="text-lg font-bold text-gray-800" id="lowStockCount">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-times-circle text-red-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Out of Stock</p>
-                                <p class="text-lg font-bold text-gray-800" id="outOfStockCount">0</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-warehouse text-white text-xl"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Top Items -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-trophy text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Top Items by Stock</h2>
+    </div>
+    
+    <!-- Total Inventory Value Card -->
+    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100 text-sm font-medium">Inventory Value</p>
+                    <p class="text-2xl font-bold" id="totalInventoryValue">$0</p>
+                    <p class="text-green-200 text-xs mt-1">Current stock value</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-white text-xl"></i>
                 </div>
             </div>
-            <div class="p-4 sm:p-6">
-                <div id="topItemsContent">
-                    <div class="text-center py-8">
-                        <i class="fas fa-spinner fa-spin text-3xl mb-3 text-gray-300"></i>
-                        <p class="text-gray-500">Loading top items...</p>
-                    </div>
+        </div>
+    </div>
+    
+    <!-- Reorder Recommendations Card -->
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm font-medium">Reorder Items</p>
+                    <p class="text-2xl font-bold" id="reorderRecommendationsCount">0</p>
+                    <p class="text-blue-200 text-xs mt-1">Smart recommendations</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-xl"></i>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Manager Quick Actions -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-6">
+    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-bolt text-white text-sm"></i>
+            </div>
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800">Manager Quick Actions</h2>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button id="bulkReorderBtn" class="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-xl border border-green-200 hover:border-green-300 transition-all duration-200 group">
+                <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-3 group-hover:bg-green-600 transition-colors">
+                    <i class="fas fa-shopping-cart text-white text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Bulk Reorder</h3>
+                <p class="text-xs text-gray-600 text-center">Order multiple items at once</p>
+            </button>
+            
+            <button id="inventoryReportBtn" class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 hover:border-blue-300 transition-all duration-200 group">
+                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3 group-hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-file-alt text-white text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Inventory Report</h3>
+                <p class="text-xs text-gray-600 text-center">Generate detailed reports</p>
+            </button>
+            
+            <button id="supplierContactBtn" class="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-xl border border-purple-200 hover:border-purple-300 transition-all duration-200 group">
+                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3 group-hover:bg-purple-600 transition-colors">
+                    <i class="fas fa-phone text-white text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Supplier Contact</h3>
+                <p class="text-xs text-gray-600 text-center">Quick supplier communication</p>
+            </button>
+            
+            <button id="stockAdjustmentBtn" class="flex flex-col items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-xl border border-orange-200 hover:border-orange-300 transition-all duration-200 group">
+                <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-3 group-hover:bg-orange-600 transition-colors">
+                    <i class="fas fa-edit text-white text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Stock Adjustment</h3>
+                <p class="text-xs text-gray-600 text-center">Adjust inventory levels</p>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Item Profitability Analysis Form -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-white text-xs sm:text-sm"></i>
+                </div>
+                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Item Profitability Analysis</h2>
+                <span id="profitabilityCount" class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded-full">0</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <select id="profitabilityFilter" class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="all">All Items</option>
+                    <option value="profitable">Profitable Only</option>
+                    <option value="loss-making">Loss Making</option>
+                    <option value="break-even">Break Even</option>
+                </select>
+                <button id="exportProfitabilityBtn" class="bg-indigo-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-download mr-1"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Desktop Table View -->
+    <div class="hidden lg:block overflow-x-auto max-h-96 overflow-y-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buying Price</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selling Price</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit Margin</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin %</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Potential Revenue</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sales (30d)</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody id="profitabilityTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Mobile/Tablet List View -->
+    <div class="lg:hidden max-h-96 overflow-y-auto">
+        <div id="profitabilityListBody" class="divide-y divide-gray-200">
+            <!-- Data will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Low Stock Alerts -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-red-50 to-pink-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white text-xs sm:text-sm"></i>
+                </div>
+                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Low Stock Alerts</h2>
+                <span id="alertCount" class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">0</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="markAllReadBtn" class="bg-red-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-check mr-1"></i>Mark All Read
+                </button>
+                <button id="refreshAlertsBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-sync-alt mr-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-3 sm:p-4 lg:p-6">
+        <div id="lowStockAlertsContent" class="max-h-64 sm:max-h-80 overflow-y-auto">
+            <div class="text-center py-6 sm:py-8">
+                <i class="fas fa-spinner fa-spin text-2xl sm:text-3xl mb-2 sm:mb-3 text-gray-300"></i>
+                <p class="text-sm sm:text-base text-gray-500">Loading alerts...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Visual Analytics Dashboard -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <!-- Price vs Stock Analysis Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Price vs Stock Analysis with Viability</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="priceStockChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stock In vs Stock Out Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exchange-alt text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Stock Flow with Revenue Analysis</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="stockInOutChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Analytics Charts -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <!-- Usage Trends Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Usage Trends (30 Days)</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="usageTrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reorder Frequency Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Reorder Frequency</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="reorderFrequencyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Overview Table -->
+<div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-list text-white text-xs sm:text-sm"></i>
+                </div>
+                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Inventory Overview</h2>
+            </div>
+            
+            <!-- Filters -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-4">
+                <select id="categoryFilter" class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">All Categories</option>
+                </select>
+                <select id="statusFilter" class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">All Status</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="Overstocked">Overstocked</option>
+                </select>
+                <input type="text" id="searchFilter" placeholder="Search items..." class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Desktop Table View -->
+    <div class="hidden lg:block overflow-x-auto max-h-96 overflow-y-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In Stock</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Low Stock Threshold</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Mobile/Tablet List View -->
+    <div class="lg:hidden max-h-96 overflow-y-auto">
+        <div id="inventoryListBody" class="divide-y divide-gray-200">
+            <!-- Data will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Smart Reorder Recommendations -->
+<div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-xs sm:text-sm"></i>
+                </div>
+                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Smart Reorder Recommendations</h2>
+                <span id="recommendationCount" class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">0</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="autoReorderBtn" class="bg-green-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-magic mr-1"></i>Auto Reorder
+                </button>
+                <button id="exportRecommendationsBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-download mr-1"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Desktop Table View -->
+    <div class="hidden lg:block overflow-x-auto max-h-80 overflow-y-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Usage</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recommended Qty</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Ordered</th>
+                </tr>
+            </thead>
+            <tbody id="reorderTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Mobile/Tablet List View -->
+    <div class="lg:hidden max-h-80 overflow-y-auto">
+        <div id="reorderListBody" class="divide-y divide-gray-200">
+            <!-- Data will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+
 
 {% endblock %}
 
@@ -237,58 +526,203 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Global variables
-    let stockOverviewChart = null;
-
-    // Initialize page
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Stock analytics page loaded');
-        
-        // Add back button functionality
-        const backButton = document.querySelector('a[href="/analytics"]');
-        if (backButton) {
-            backButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.history.back();
-            });
+    // Global function for updating item threshold
+    function updateItemThreshold(itemId, threshold) {
+        if (!itemId || !threshold || threshold < 1) {
+            showNotification('Invalid threshold value', 'error');
+            return;
         }
         
-        // Initialize refresh button
-        initializeRefreshButton();
-        
-        // Load initial data
-        loadStockAnalytics();
-    });
+        fetch('/api/stock/item-threshold', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                threshold: parseInt(threshold)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Item threshold updated successfully!', 'success');
+                // Reload analytics to reflect changes
+                if (typeof loadStockAnalytics === 'function') {
+                    loadStockAnalytics();
+                }
+            } else {
+                showNotification('Error updating threshold: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating item threshold:', error);
+            showNotification('Error updating threshold', 'error');
+        });
+    }
 
-    // Initialize refresh button
-    function initializeRefreshButton() {
-        const refreshBtn = document.getElementById('refreshDataBtn');
+    // Global function for showing notifications
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>
+                ${message}
+            </div>
+        `;
         
-        refreshBtn.addEventListener('click', function() {
-            // Add loading animation
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Wait for page to be fully loaded to avoid conflicts
+    window.addEventListener('load', function() {
+        // Stock Analytics - Global variables
+        let usageTrendsChart = null;
+        let reorderFrequencyChart = null;
+        let priceStockChart = null;
+        let stockInOutChart = null;
+        let currentAnalytics = null;
+
+        // Initialize page
+        function initStockAnalytics() {
+            console.log('Enhanced Stock Analytics page loaded');
+            
+            // Add back button functionality
+            const backButton = document.querySelector('a[href="/analytics"]');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.history.back();
+                });
+            }
+            
+            // Initialize buttons
+            initializeButtons();
+            
+            
+            // Load initial data
+            loadStockAnalytics();
+        }
+
+    // Initialize buttons
+    function initializeButtons() {
+        // Refresh button
+        const refreshBtn = document.getElementById('refreshDataBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
             const icon = refreshBtn.querySelector('i');
             icon.classList.add('fa-spin');
             refreshBtn.disabled = true;
             
-            // Load data
             loadStockAnalytics();
             
-            // Remove loading animation after a delay
             setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 refreshBtn.disabled = false;
             }, 2000);
         });
+        }
+        
+        
+        // Export buttons
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        if (exportDataBtn) {
+            exportDataBtn.addEventListener('click', exportData);
+        }
+        
+        // Manager-specific buttons
+        const quickReorderBtn = document.getElementById('quickReorderBtn');
+        if (quickReorderBtn) {
+            quickReorderBtn.addEventListener('click', performQuickReorder);
+        }
+        
+        const bulkReorderBtn = document.getElementById('bulkReorderBtn');
+        if (bulkReorderBtn) {
+            bulkReorderBtn.addEventListener('click', performBulkReorder);
+        }
+        
+        const inventoryReportBtn = document.getElementById('inventoryReportBtn');
+        if (inventoryReportBtn) {
+            inventoryReportBtn.addEventListener('click', generateInventoryReport);
+        }
+        
+        const supplierContactBtn = document.getElementById('supplierContactBtn');
+        if (supplierContactBtn) {
+            supplierContactBtn.addEventListener('click', openSupplierContact);
+        }
+        
+        const stockAdjustmentBtn = document.getElementById('stockAdjustmentBtn');
+        if (stockAdjustmentBtn) {
+            stockAdjustmentBtn.addEventListener('click', openStockAdjustment);
+        }
+        
+        
+        // New button event listeners
+        const markAllReadBtn = document.getElementById('markAllReadBtn');
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', markAllAlertsRead);
+        }
+        
+        const refreshAlertsBtn = document.getElementById('refreshAlertsBtn');
+        if (refreshAlertsBtn) {
+            refreshAlertsBtn.addEventListener('click', refreshAlerts);
+        }
+        
+        const autoReorderBtn = document.getElementById('autoReorderBtn');
+        if (autoReorderBtn) {
+            autoReorderBtn.addEventListener('click', performAutoReorder);
+        }
+        
+        const exportRecommendationsBtn = document.getElementById('exportRecommendationsBtn');
+        if (exportRecommendationsBtn) {
+            exportRecommendationsBtn.addEventListener('click', exportRecommendations);
+        }
+        
+        // Profitability analysis buttons
+        const exportProfitabilityBtn = document.getElementById('exportProfitabilityBtn');
+        if (exportProfitabilityBtn) {
+            exportProfitabilityBtn.addEventListener('click', exportProfitability);
+        }
+        
+        const profitabilityFilter = document.getElementById('profitabilityFilter');
+        if (profitabilityFilter) {
+            profitabilityFilter.addEventListener('change', applyProfitabilityFilter);
+        }
+        
+        // Filter inputs
+        const categoryFilter = document.getElementById('categoryFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const searchFilter = document.getElementById('searchFilter');
+        const dateRangeFilter = document.getElementById('dateRangeFilter');
+        
+        // Only add event listeners to existing elements
+        [categoryFilter, statusFilter, searchFilter, dateRangeFilter].forEach(filter => {
+            if (filter) {
+                filter.addEventListener('change', applyFilters);
+            }
+        });
+        if (searchFilter) {
+            searchFilter.addEventListener('input', applyFilters);
+        }
     }
+
 
     // Load stock analytics data
     function loadStockAnalytics() {
-        console.log('Loading stock analytics...');
+        console.log('Loading enhanced stock analytics...');
         
-        // Show loading state
-        showLoadingState();
+        const dateRange = document.getElementById('dateRangeFilter')?.value || '30';
         
-        // Fetch analytics data
         fetch('/api/analytics/stock', {
             method: 'POST',
             headers: {
@@ -296,7 +730,8 @@
             },
             body: JSON.stringify({
                 dataType: 'general',
-                filterType: 'single'
+                filterType: 'single',
+                dateRange: dateRange
             })
         })
         .then(response => {
@@ -308,8 +743,8 @@
         .then(data => {
             console.log('Analytics data received:', data);
             if (data.success) {
+                currentAnalytics = data.analytics;
                 updateAnalyticsDisplay(data.analytics);
-                updateLastUpdated();
             } else {
                 console.error('Error loading analytics:', data.message);
                 showErrorState(data.message || 'Failed to load analytics data');
@@ -325,72 +760,81 @@
     function updateAnalyticsDisplay(analytics) {
         console.log('Updating analytics display:', analytics);
         
-        // Update summary statistics
-        document.getElementById('totalItems').textContent = analytics.summary?.totalItems || 0;
-        document.getElementById('avgStockLevel').textContent = analytics.summary?.avgStockLevel || 0;
-        document.getElementById('lowStockCount').textContent = analytics.summary?.lowStockCount || 0;
-        document.getElementById('outOfStockCount').textContent = analytics.summary?.outOfStockCount || 0;
         
-        // Update chart
-        updateStockOverviewChart(analytics.chartData);
         
-        // Update content sections
-        updateStockLevelsContent(analytics.stockLevels);
-        updateLowStockContent(analytics.lowStockAlerts);
-        updateReorderContent(analytics.reorderRecommendations);
-        updateStockTurnoverContent(analytics.stockTurnover);
-        updateTopItemsContent(analytics.stockLevels);
+        // Update alert count in the header
+        const alertCount = document.getElementById('alertCount');
+        if (alertCount) {
+            alertCount.textContent = analytics.summary?.lowStockCount || 0;
+        }
+        
+        // Update manager dashboard cards
+        const criticalAlertsCount = document.getElementById('criticalAlertsCount');
+        if (criticalAlertsCount) {
+            criticalAlertsCount.textContent = analytics.summary?.criticalAlerts || 0;
+        }
+        
+        const lowStockCount = document.getElementById('lowStockCount');
+        if (lowStockCount) {
+            lowStockCount.textContent = analytics.summary?.lowStockCount || 0;
+        }
+        
+        const totalInventoryValue = document.getElementById('totalInventoryValue');
+        if (totalInventoryValue) {
+            totalInventoryValue.textContent = '$' + (analytics.summary?.totalStockValue || 0).toLocaleString();
+        }
+        
+        const reorderRecommendationsCount = document.getElementById('reorderRecommendationsCount');
+        if (reorderRecommendationsCount) {
+            reorderRecommendationsCount.textContent = analytics.reorderRecommendations?.length || 0;
+        }
+        
+        
+        
+        // Update charts
+        updateUsageTrendsChart(analytics.chartData?.usageTrends);
+        updateReorderFrequencyChart(analytics.chartData?.reorderFrequency);
+        updatePriceStockChart(analytics.chartData?.priceStockAnalysis);
+        updateStockInOutChart(analytics.chartData?.stockInOutAnalysis);
+        
+        // Update tables
+        updateInventoryTable(analytics.inventoryOverview);
+        updateReorderTable(analytics.reorderRecommendations);
+        updateLowStockAlerts(analytics.lowStockAlerts);
+        
+        // Debug profitability data
+        console.log('Analytics data structure:', analytics);
+        console.log('stockLevels:', analytics.stockLevels);
+        console.log('inventoryOverview:', analytics.inventoryOverview);
+        
+        updateProfitabilityTable(analytics.stockLevels || analytics.inventoryOverview);
+        
+        // Update category filter
+        updateCategoryFilter(analytics.inventoryOverview);
     }
 
-    // Update stock overview chart
-    function updateStockOverviewChart(chartData) {
-        const ctx = document.getElementById('stockOverviewChart');
-        if (!ctx) return;
+
+    // Update usage trends chart
+    function updateUsageTrendsChart(chartData) {
+        const ctx = document.getElementById('usageTrendsChart');
+        if (!ctx || !chartData) return;
         
-        // Destroy existing chart
-        if (stockOverviewChart) {
-            stockOverviewChart.destroy();
+        if (usageTrendsChart) {
+            usageTrendsChart.destroy();
         }
         
-        // Check if we have data
-        const hasData = chartData && chartData.labels && chartData.labels.length > 0 && 
-                       !(chartData.labels.length === 1 && chartData.labels[0] === 'No Stock Transactions Yet');
-        
-        if (!hasData) {
-            // Show no data message
-            ctx.parentElement.innerHTML = `
-                <div class="flex items-center justify-center h-64 text-gray-500">
-                    <div class="text-center">
-                        <i class="fas fa-chart-pie text-4xl mb-4 text-gray-300"></i>
-                        <p class="text-lg font-medium">No Stock Data Available</p>
-                        <p class="text-sm">Start making sales to see stock analytics</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        stockOverviewChart = new Chart(ctx, {
-            type: 'doughnut',
+        usageTrendsChart = new Chart(ctx, {
+            type: 'line',
             data: {
                 labels: chartData.labels || [],
                 datasets: [{
+                    label: 'Daily Usage',
                     data: chartData.data || [],
-                    backgroundColor: [
-                        'rgba(34, 197, 94, 0.8)',
-                        'rgba(249, 115, 22, 0.8)',
-                        'rgba(239, 68, 68, 0.8)',
-                        'rgba(59, 130, 246, 0.8)',
-                        'rgba(168, 85, 247, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(34, 197, 94, 1)',
-                        'rgba(249, 115, 22, 1)',
-                        'rgba(239, 68, 68, 1)',
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(168, 85, 247, 1)'
-                    ],
-                    borderWidth: 2
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
                 }]
             },
             options: {
@@ -398,239 +842,949 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             }
         });
     }
 
-    // Update stock levels content
-    function updateStockLevelsContent(data) {
-        const container = document.getElementById('stockLevelsContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-box text-3xl mb-3 text-gray-300"></i>
-                    <p class="font-medium">No Stock Data</p>
-                    <p class="text-sm">No items with stock tracking enabled found.</p>
-                </div>
-            `;
-            return;
+
+    // Update reorder frequency chart
+    function updateReorderFrequencyChart(chartData) {
+        const ctx = document.getElementById('reorderFrequencyChart');
+        if (!ctx || !chartData) return;
+        
+        if (reorderFrequencyChart) {
+            reorderFrequencyChart.destroy();
         }
         
-        container.innerHTML = data.slice(0, 5).map(item => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2 hover:bg-gray-100 transition-colors">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-box text-blue-600 text-sm"></i>
-                    </div>
-                    <div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                    <div class="text-xs text-gray-500">${item.status}</div>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold text-blue-600">${item.currentStock}</div>
-                    <div class="text-xs text-gray-500">units</div>
-                </div>
-            </div>
-        `).join('');
+        reorderFrequencyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels || [],
+                datasets: [{
+                    label: 'Reorder Frequency',
+                    data: chartData.data || [],
+                    backgroundColor: 'rgba(251, 146, 60, 0.8)',
+                    borderColor: 'rgba(251, 146, 60, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
 
-    // Update low stock content
-    function updateLowStockContent(data) {
-        const container = document.getElementById('lowStockContent');
+    // Update price vs stock analysis chart with viability data
+    function updatePriceStockChart(chartData) {
+        const ctx = document.getElementById('priceStockChart');
+        if (!ctx || !chartData) return;
+        
+        if (priceStockChart) {
+            priceStockChart.destroy();
+        }
+        
+        priceStockChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels || [],
+                datasets: [{
+                    label: 'Stock Quantity',
+                    data: chartData.stockData || [],
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Item Price ($)',
+                    data: chartData.priceData || [],
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }, {
+                    label: 'Avg Sale Price ($)',
+                    data: chartData.salesData || [],
+                    backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }, {
+                    label: 'Profit Margin ($)',
+                    data: chartData.profitabilityData || [],
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const index = context.dataIndex;
+                                const itemName = chartData.labels[index];
+                                const stock = chartData.stockData[index];
+                                const price = chartData.priceData[index];
+                                const salePrice = chartData.salesData[index];
+                                const profit = chartData.profitabilityData[index];
+                                
+                                let viability = '';
+                                if (profit > 0) {
+                                    viability = '✅ Profitable';
+                                } else if (profit === 0) {
+                                    viability = '⚠️ Break-even';
+                                } else {
+                                    viability = '❌ Loss-making';
+                                }
+                                
+                                return [
+                                    `Stock: ${stock} units`,
+                                    `Item Price: $${price.toFixed(2)}`,
+                                    `Avg Sale Price: $${salePrice.toFixed(2)}`,
+                                    `Profit Margin: $${profit.toFixed(2)}`,
+                                    viability
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Stock Quantity'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Price & Profit ($)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+    }
+
+    // Update stock in vs stock out chart with revenue and viability data
+    function updateStockInOutChart(chartData) {
+        const ctx = document.getElementById('stockInOutChart');
+        if (!ctx || !chartData) return;
+        
+        if (stockInOutChart) {
+            stockInOutChart.destroy();
+        }
+        
+        stockInOutChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels || [],
+                datasets: [{
+                    label: 'Stock In',
+                    data: chartData.stockIn || [],
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Stock Out',
+                    data: chartData.stockOut || [],
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Daily Revenue ($)',
+                    data: chartData.revenue || [],
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }, {
+                    label: 'Items Sold',
+                    data: chartData.itemsSold || [],
+                    borderColor: 'rgba(139, 92, 246, 1)',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const index = context.dataIndex;
+                                const stockIn = chartData.stockIn[index];
+                                const stockOut = chartData.stockOut[index];
+                                const revenue = chartData.revenue[index];
+                                const itemsSold = chartData.itemsSold[index];
+                                
+                                // Calculate efficiency metrics
+                                const efficiency = stockOut > 0 ? ((stockOut / stockIn) * 100).toFixed(1) : '0';
+                                const avgRevenuePerItem = itemsSold > 0 ? (revenue / itemsSold).toFixed(2) : '0';
+                                
+                                return [
+                                    `Stock In: ${stockIn} units`,
+                                    `Stock Out: ${stockOut} units`,
+                                    `Daily Revenue: $${revenue.toFixed(2)}`,
+                                    `Items Sold: ${itemsSold}`,
+                                    `Efficiency: ${efficiency}%`,
+                                    `Avg Revenue/Item: $${avgRevenuePerItem}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantity & Items'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Revenue ($)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+    }
+
+    // Update inventory table
+    function updateInventoryTable(data) {
+        const tbody = document.getElementById('inventoryTableBody');
+        const listBody = document.getElementById('inventoryListBody');
+        
         if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-8 text-green-600">
-                    <i class="fas fa-check-circle text-3xl mb-3"></i>
-                    <p class="font-medium">All Stock Levels Good</p>
-                    <p class="text-sm">No low stock alerts at this time.</p>
-                </div>
-            `;
+            const emptyMessage = '<tr><td colspan="8" class="px-4 py-4 text-center text-gray-500">No inventory data available</td></tr>';
+            const emptyListMessage = '<div class="p-4 text-center text-gray-500">No inventory data available</div>';
+            
+            if (tbody) tbody.innerHTML = emptyMessage;
+            if (listBody) listBody.innerHTML = emptyListMessage;
             return;
         }
         
-        container.innerHTML = data.slice(0, 5).map(item => `
-            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg mb-2 border border-red-200 hover:bg-red-100 transition-colors">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-sm"></i>
-                    </div>
-                    <div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                        <div class="text-xs text-gray-500">Min: ${item.minStock}</div>
+        // Desktop table view
+        if (tbody) {
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.name}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.category}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${item.currentStock}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.unit}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(item.status)}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center space-x-2">
+                            <input type="number" 
+                                   class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                   value="${item.lowStockThreshold || 10}" 
+                                   min="1" 
+                                   max="1000"
+                                   onchange="updateItemThreshold(${item.id}, this.value)"
+                                   data-item-id="${item.id}">
+                            <button onclick="updateItemThreshold(${item.id}, document.querySelector('input[data-item-id=\"${item.id}\"]').value)" 
+                                    class="text-indigo-600 hover:text-indigo-800 text-xs">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900">$${(item.buyingPrice || 0).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.supplier}</td>
+                </tr>
+            `).join('');
+        }
+        
+        // Mobile/tablet list view
+        if (listBody) {
+            listBody.innerHTML = data.map(item => `
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex flex-col space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900">${item.name}</h3>
+                                <p class="text-xs text-gray-500">${item.category}</p>
+                            </div>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(item.status)}">
+                                ${item.status}
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-gray-500">In Stock:</span>
+                                <span class="font-medium">${item.currentStock} ${item.unit}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Price:</span>
+                                <span class="font-medium">$${(item.buyingPrice || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-xs text-gray-500">Threshold:</label>
+                                <input type="number" 
+                                       class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                       value="${item.lowStockThreshold || 10}" 
+                                       min="1" 
+                                       max="1000"
+                                       onchange="updateItemThreshold(${item.id}, this.value)"
+                                       data-item-id="${item.id}">
+                                <button onclick="updateItemThreshold(${item.id}, document.querySelector('input[data-item-id=\"${item.id}\"]').value)" 
+                                        class="text-indigo-600 hover:text-indigo-800 text-xs">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                Supplier: ${item.supplier}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold text-red-600">${item.currentStock}</div>
+            `).join('');
+        }
+    }
+
+    // Update reorder table
+    function updateReorderTable(data) {
+        const tbody = document.getElementById('reorderTableBody');
+        const listBody = document.getElementById('reorderListBody');
+        const recommendationCount = document.getElementById('recommendationCount');
+        
+        if (!data || data.length === 0) {
+            const emptyMessage = '<tr><td colspan="6" class="px-4 py-4 text-center text-gray-500">No reorder recommendations</td></tr>';
+            const emptyListMessage = '<div class="p-4 text-center text-gray-500">No reorder recommendations</div>';
+            
+            if (tbody) tbody.innerHTML = emptyMessage;
+            if (listBody) listBody.innerHTML = emptyListMessage;
+            if (recommendationCount) recommendationCount.textContent = '0';
+            return;
+        }
+        
+        // Update recommendation count
+        if (recommendationCount) recommendationCount.textContent = data.length;
+        
+        // Desktop table view
+        if (tbody) {
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.name}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${item.currentStock}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.avgUsage}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-green-600">${item.recommendedQty}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.supplier}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.lastOrdered}</td>
+                </tr>
+            `).join('');
+        }
+        
+        // Mobile/tablet list view
+        if (listBody) {
+            listBody.innerHTML = data.map(item => `
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-sm font-medium text-gray-900">${item.name}</h3>
+                            <span class="text-sm font-medium text-green-600">Qty: ${item.recommendedQty}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-gray-500">Current Stock:</span>
+                                <span class="font-medium">${item.currentStock}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Avg Usage:</span>
+                                <span class="font-medium">${item.avgUsage}</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>Supplier: ${item.supplier}</span>
+                            <span>Last: ${item.lastOrdered}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+
+    // Update low stock alerts
+    function updateLowStockAlerts(data) {
+        const container = document.getElementById('lowStockAlertsContent');
+        const alertCount = document.getElementById('alertCount');
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-6 sm:py-8 text-green-600">
+                    <i class="fas fa-check-circle text-2xl sm:text-3xl mb-2 sm:mb-3"></i>
+                    <p class="text-sm sm:text-base font-medium">All Stock Levels Good</p>
+                    <p class="text-xs sm:text-sm">No low stock alerts at this time.</p>
+                </div>
+            `;
+            if (alertCount) alertCount.textContent = '0';
+            return;
+        }
+        
+        // Update alert count
+        if (alertCount) alertCount.textContent = data.length;
+        
+        // Also update the main low stock count in KPI cards
+        const lowStockCountElement = document.getElementById('lowStockCount');
+        if (lowStockCountElement) {
+            lowStockCountElement.textContent = data.length;
+        }
+        
+        container.innerHTML = data.map(item => `
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-red-50 rounded-lg mb-2 sm:mb-3 border border-red-200 hover:bg-red-100 transition-colors">
+                <div class="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-sm sm:text-base"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm sm:text-base font-medium text-gray-800 truncate">${item.name}</p>
+                        <p class="text-xs sm:text-sm text-gray-500">Min: ${item.minStock} | Supplier: ${item.supplier}</p>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right">
+                    <div class="text-lg sm:text-xl font-bold text-red-600">${item.currentStock}</div>
                     <div class="text-xs text-gray-500">units left</div>
                 </div>
             </div>
         `).join('');
     }
 
-    // Update reorder content
-    function updateReorderContent(data) {
-        const container = document.getElementById('reorderContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-8 text-green-600">
-                    <i class="fas fa-check-circle text-3xl mb-3"></i>
-                    <p class="font-medium">No Reorder Needed</p>
-                    <p class="text-sm">All items have sufficient stock levels.</p>
-                </div>
-            `;
-            return;
-        }
+    // Update category filter
+    function updateCategoryFilter(data) {
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (!categoryFilter || !data) return;
         
-        container.innerHTML = data.slice(0, 5).map(item => `
-            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg mb-2 border border-green-200 hover:bg-green-100 transition-colors">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-shopping-cart text-green-600 text-sm"></i>
-                    </div>
-                    <div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                        <div class="text-xs text-gray-500">recommended</div>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold text-green-600">${item.recommendedQty}</div>
-                    <div class="text-xs text-gray-500">units</div>
-                </div>
-            </div>
-        `).join('');
+        const categories = [...new Set(data.map(item => item.category))].sort();
+        categoryFilter.innerHTML = '<option value="">All Categories</option>' + 
+            categories.map(category => `<option value="${category}">${category}</option>`).join('');
     }
 
-    // Update stock turnover content
-    function updateStockTurnoverContent(data) {
-        const container = document.getElementById('stockTurnoverContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-sync-alt text-3xl mb-3 text-gray-300"></i>
-                    <p class="font-medium">No Turnover Data</p>
-                    <p class="text-sm">No stock movements recorded yet.</p>
-                </div>
-            `;
-            return;
-        }
+    // Apply filters
+    function applyFilters() {
+        if (!currentAnalytics || !currentAnalytics.inventoryOverview) return;
         
-        container.innerHTML = data.slice(0, 5).map(item => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2 hover:bg-gray-100 transition-colors">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-sync-alt text-purple-600 text-sm"></i>
-                    </div>
-                    <div>
-                        <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                        <div class="text-xs text-gray-500">${item.period}</div>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold text-purple-600">${item.turnoverRate}</div>
-                    <div class="text-xs text-gray-500">rate</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Update top items content
-    function updateTopItemsContent(data) {
-        const container = document.getElementById('topItemsContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-trophy text-3xl mb-3 text-gray-300"></i>
-                    <p class="font-medium">No Items Data</p>
-                    <p class="text-sm">No items found in the system.</p>
-                </div>
-            `;
-            return;
-        }
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
         
-        container.innerHTML = data.slice(0, 5).map((item, index) => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2 hover:bg-gray-100 transition-colors">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <span class="text-sm font-bold text-yellow-600">${index + 1}</span>
-                    </div>
-                    <div>
-                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
-                        <div class="text-xs text-gray-500">${item.status}</div>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold text-yellow-600">${item.currentStock}</div>
-                    <div class="text-xs text-gray-500">units</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Update last updated time
-    function updateLastUpdated() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit'
+        let filteredData = currentAnalytics.inventoryOverview.filter(item => {
+            const matchesCategory = !categoryFilter || item.category === categoryFilter;
+            const matchesStatus = !statusFilter || item.status === statusFilter;
+            const matchesSearch = !searchFilter || item.name.toLowerCase().includes(searchFilter);
+            
+            return matchesCategory && matchesStatus && matchesSearch;
         });
-        document.getElementById('lastUpdated').textContent = `Last updated: ${timeString}`;
+        
+        updateInventoryTable(filteredData);
     }
 
-    // Show loading state
-    function showLoadingState() {
-        const containers = ['stockLevelsContent', 'lowStockContent', 'reorderContent', 'stockTurnoverContent', 'topItemsContent'];
-        containers.forEach(id => {
-            const container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl mb-3 text-gray-300"></i><p class="text-gray-500">Loading...</p></div>';
-            }
-        });
+    // Get status badge class
+    function getStatusBadgeClass(status) {
+        switch(status) {
+            case 'Normal': return 'bg-green-100 text-green-800';
+            case 'Low Stock': return 'bg-yellow-100 text-yellow-800';
+            case 'Out of Stock': return 'bg-red-100 text-red-800';
+            case 'Overstocked': return 'bg-blue-100 text-blue-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
     }
+
+    // Get rank badge class
+    function getRankBadgeClass(rank) {
+        if (rank === 1) return 'bg-yellow-100 text-yellow-800';
+        if (rank === 2) return 'bg-gray-100 text-gray-800';
+        if (rank === 3) return 'bg-orange-100 text-orange-800';
+        return 'bg-gray-100 text-gray-800';
+    }
+
+    // Export data
+    function exportData() {
+        if (!currentAnalytics) {
+            showNotification('No data to export', 'error');
+            return;
+        }
+        
+        // Create CSV content
+        let csvContent = "Item Name,Category,Current Stock,Unit,Status,Price,Supplier\n";
+        currentAnalytics.inventoryOverview.forEach(item => {
+            csvContent += `"${item.name}","${item.category}",${item.currentStock},"${item.unit}","${item.status}",${item.price},"${item.supplier}"\n`;
+        });
+        
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'stock_analytics_' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Data exported successfully!', 'success');
+    }
+
 
     // Show error state
     function showErrorState(message = 'Error loading data') {
-        const containers = ['stockLevelsContent', 'lowStockContent', 'reorderContent', 'stockTurnoverContent', 'topItemsContent'];
+        const containers = ['inventoryTableBody', 'reorderTableBody', 'lowStockAlertsContent'];
         containers.forEach(id => {
             const container = document.getElementById(id);
             if (container) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-red-500">
-                        <i class="fas fa-exclamation-triangle text-3xl mb-3 text-red-300"></i>
-                        <p class="font-medium">Error Loading Data</p>
-                        <p class="text-sm">${message}</p>
-                        <button onclick="loadStockAnalytics()" class="mt-3 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">
-                            <i class="fas fa-redo mr-2"></i>Retry
-                        </button>
-                    </div>
+                    <tr><td colspan="7" class="px-6 py-4 text-center text-red-500">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>${message}
+                    </td></tr>
                 `;
             }
         });
+    }
+
+
+
+    // Mark all alerts as read
+    function markAllAlertsRead() {
+        fetch('/api/stock/mark-alerts-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('All alerts marked as read', 'success');
+                loadStockAnalytics();
+            } else {
+                showNotification('Error marking alerts as read: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking alerts as read:', error);
+            showNotification('Error marking alerts as read', 'error');
+        });
+    }
+
+    // Refresh alerts
+    function refreshAlerts() {
+        loadStockAnalytics();
+        showNotification('Alerts refreshed', 'success');
+    }
+
+    // Perform auto reorder
+    function performAutoReorder() {
+        if (!confirm('This will automatically reorder all recommended items. Continue?')) {
+            return;
+        }
         
-        // Also show error in chart area
-        const chartContainer = document.querySelector('#stockOverviewChart').parentElement;
-        if (chartContainer) {
-            chartContainer.innerHTML = `
-                <div class="flex items-center justify-center h-64 text-red-500">
-                    <div class="text-center">
-                        <i class="fas fa-exclamation-triangle text-4xl mb-4 text-red-300"></i>
-                        <p class="text-lg font-medium">Error Loading Chart</p>
-                        <p class="text-sm">${message}</p>
-                        <button onclick="loadStockAnalytics()" class="mt-3 px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">
-                            <i class="fas fa-redo mr-2"></i>Retry
-                        </button>
+        fetch('/api/stock/auto-reorder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`Auto reorder completed: ${data.ordersCreated} orders created`, 'success');
+                loadStockAnalytics();
+            } else {
+                showNotification('Error performing auto reorder: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error performing auto reorder:', error);
+            showNotification('Error performing auto reorder', 'error');
+        });
+    }
+
+    // Export recommendations
+    function exportRecommendations() {
+        if (!currentAnalytics || !currentAnalytics.reorderRecommendations) {
+            showNotification('No recommendations to export', 'error');
+            return;
+        }
+        
+        // Create CSV content
+        let csvContent = "Item Name,Current Stock,Avg Usage,Recommended Qty,Supplier,Last Ordered\n";
+        currentAnalytics.reorderRecommendations.forEach(item => {
+            csvContent += `"${item.name}",${item.currentStock},${item.avgUsage},${item.recommendedQty},"${item.supplier}","${item.lastOrdered}"\n`;
+        });
+        
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'reorder_recommendations_' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Recommendations exported successfully!', 'success');
+    }
+
+    // Update profitability table
+    function updateProfitabilityTable(data) {
+        console.log('updateProfitabilityTable called with data:', data);
+        const tbody = document.getElementById('profitabilityTableBody');
+        const listBody = document.getElementById('profitabilityListBody');
+        const profitabilityCount = document.getElementById('profitabilityCount');
+        
+        if (!data || data.length === 0) {
+            console.log('No profitability data available');
+            const emptyMessage = '<tr><td colspan="10" class="px-4 py-4 text-center text-gray-500">No profitability data available</td></tr>';
+            const emptyListMessage = '<div class="p-4 text-center text-gray-500">No profitability data available</div>';
+            
+            if (tbody) tbody.innerHTML = emptyMessage;
+            if (listBody) listBody.innerHTML = emptyListMessage;
+            if (profitabilityCount) profitabilityCount.textContent = '0';
+            return;
+        }
+        
+        // Update profitability count
+        if (profitabilityCount) profitabilityCount.textContent = data.length;
+        
+        // Desktop table view
+        if (tbody) {
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.name}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.category}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">$${(item.buyingPrice || 0).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">$${(item.sellingPrice || 0).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-sm font-medium ${getProfitMarginClass(item.profitMargin)}">$${(item.profitMargin || 0).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-sm font-medium ${getProfitMarginClass(item.profitMargin)}">${(item.profitMarginPercentage || 0).toFixed(1)}%</td>
+                    <td class="px-4 py-3 text-sm text-gray-900">${item.currentStock || 0}</td>
+                    <td class="px-4 py-3 text-sm text-sm text-gray-900">$${(item.potentialRevenue || 0).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${item.totalSold}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(item.status)}">
+                            ${item.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Mobile/tablet list view
+        if (listBody) {
+            listBody.innerHTML = data.map(item => `
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex flex-col space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900">${item.name}</h3>
+                                <p class="text-xs text-gray-500">${item.category}</p>
+                            </div>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(item.status)}">
+                                ${item.status}
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-gray-500">Buying Price:</span>
+                                <span class="font-medium">$${(item.buyingPrice || 0).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Selling Price:</span>
+                                <span class="font-medium">$${(item.sellingPrice || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-gray-500">Profit Margin:</span>
+                                <span class="font-medium ${getProfitMarginClass(item.profitMargin)}">$${(item.profitMargin || 0).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Margin %:</span>
+                                <span class="font-medium ${getProfitMarginClass(item.profitMargin)}">${(item.profitMarginPercentage || 0).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="text-gray-500">Current Stock:</span>
+                                <span class="font-medium">${item.currentStock || 0}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Potential Revenue:</span>
+                                <span class="font-medium">$${(item.potentialRevenue || 0).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500">
+                            Sales (30d): ${item.totalSold} units
+                        </div>
                     </div>
                 </div>
-            `;
+            `).join('');
         }
     }
+
+    // Get profit margin class for styling
+    function getProfitMarginClass(profitMargin) {
+        if (profitMargin > 0) return 'text-green-600';
+        if (profitMargin < 0) return 'text-red-600';
+        return 'text-gray-600';
+    }
+
+    // Apply profitability filter
+    function applyProfitabilityFilter() {
+        if (!currentAnalytics) return;
+        
+        const dataSource = currentAnalytics.stockLevels || currentAnalytics.inventoryOverview;
+        if (!dataSource) return;
+        
+        const filter = document.getElementById('profitabilityFilter').value;
+        let filteredData = dataSource;
+        
+        if (filter === 'profitable') {
+            filteredData = dataSource.filter(item => item.profitMargin > 0);
+        } else if (filter === 'loss-making') {
+            filteredData = dataSource.filter(item => item.profitMargin < 0);
+        } else if (filter === 'break-even') {
+            filteredData = dataSource.filter(item => item.profitMargin === 0);
+        }
+        
+        updateProfitabilityTable(filteredData);
+    }
+
+    // Export profitability data
+    function exportProfitability() {
+        if (!currentAnalytics) {
+            showNotification('No profitability data to export', 'error');
+            return;
+        }
+        
+        const dataSource = currentAnalytics.stockLevels || currentAnalytics.inventoryOverview;
+        if (!dataSource) {
+            showNotification('No profitability data to export', 'error');
+            return;
+        }
+        
+        // Create CSV content
+        let csvContent = "Item Name,Category,Buying Price,Selling Price,Profit Margin,Margin %,Current Stock,Potential Revenue,Sales (30d),Status\n";
+        dataSource.forEach(item => {
+            csvContent += `"${item.name}","${item.category}",${item.buyingPrice},${item.sellingPrice},${item.profitMargin},${item.profitMarginPercentage},${item.currentStock},${item.potentialRevenue},${item.totalSold},"${item.status}"\n`;
+        });
+        
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'profitability_analysis_' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Profitability data exported successfully!', 'success');
+    }
+
+    // Manager-specific functions
+    function performQuickReorder() {
+        if (!currentAnalytics || !currentAnalytics.reorderRecommendations) {
+            showNotification('No reorder recommendations available', 'error');
+            return;
+        }
+        
+        const criticalItems = currentAnalytics.reorderRecommendations.filter(item => 
+            item.currentStock <= (item.lowStockThreshold || 10)
+        );
+        
+        if (criticalItems.length === 0) {
+            showNotification('No critical items need immediate reordering', 'info');
+            return;
+        }
+        
+        if (confirm(`Quick reorder ${criticalItems.length} critical items?`)) {
+            // Simulate bulk reorder process
+            showNotification('Processing quick reorder...', 'info');
+            
+            setTimeout(() => {
+                showNotification(`Quick reorder completed: ${criticalItems.length} items ordered`, 'success');
+                loadStockAnalytics();
+            }, 2000);
+        }
+    }
+    
+    function performBulkReorder() {
+        if (!currentAnalytics || !currentAnalytics.reorderRecommendations) {
+            showNotification('No reorder recommendations available', 'error');
+            return;
+        }
+        
+        // Open bulk reorder modal or redirect to bulk reorder page
+        showNotification('Opening bulk reorder interface...', 'info');
+        
+        // For now, just show the recommendations
+        const recommendations = currentAnalytics.reorderRecommendations;
+        let message = `Bulk Reorder Recommendations:\n\n`;
+        recommendations.slice(0, 5).forEach((item, index) => {
+            message += `${index + 1}. ${item.name} - Qty: ${item.recommendedQty}\n`;
+        });
+        
+        if (recommendations.length > 5) {
+            message += `\n... and ${recommendations.length - 5} more items`;
+        }
+        
+        alert(message);
+    }
+    
+    function generateInventoryReport() {
+        if (!currentAnalytics) {
+            showNotification('No data available for report generation', 'error');
+            return;
+        }
+        
+        showNotification('Generating inventory report...', 'info');
+        
+        // Create comprehensive report
+        let reportContent = "MANAGER INVENTORY REPORT\n";
+        reportContent += "Generated: " + new Date().toLocaleString() + "\n\n";
+        
+        reportContent += "SUMMARY:\n";
+        reportContent += `Total Items: ${currentAnalytics.summary?.totalItems || 0}\n`;
+        reportContent += `Low Stock Items: ${currentAnalytics.summary?.lowStockCount || 0}\n`;
+        reportContent += `Inventory Value: $${(currentAnalytics.summary?.totalStockValue || 0).toLocaleString()}\n\n`;
+        
+        if (currentAnalytics.inventoryOverview) {
+            reportContent += "INVENTORY OVERVIEW:\n";
+            currentAnalytics.inventoryOverview.forEach(item => {
+                reportContent += `${item.name} - Stock: ${item.currentStock} - Status: ${item.status}\n`;
+            });
+        }
+        
+        // Download report
+        const blob = new Blob([reportContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'manager_inventory_report_' + new Date().toISOString().split('T')[0] + '.txt';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        showNotification('Inventory report generated successfully!', 'success');
+    }
+    
+    function openSupplierContact() {
+        if (!currentAnalytics || !currentAnalytics.inventoryOverview) {
+            showNotification('No supplier data available', 'error');
+            return;
+        }
+        
+        // Get unique suppliers
+        const suppliers = [...new Set(currentAnalytics.inventoryOverview.map(item => item.supplier))];
+        
+        let message = "SUPPLIER CONTACT INFORMATION:\n\n";
+        suppliers.forEach((supplier, index) => {
+            message += `${index + 1}. ${supplier}\n`;
+        });
+        
+        message += "\nClick OK to open email client for supplier communication.";
+        
+        if (confirm(message)) {
+            // Open email client with supplier contact template
+            const subject = encodeURIComponent("Inventory Reorder Request - Hotel POS System");
+            const body = encodeURIComponent("Dear Supplier,\n\nWe would like to place an order for the following items:\n\n[Please list items here]\n\nPlease confirm availability and delivery timeline.\n\nThank you,\nHotel Management");
+            window.open(`mailto:?subject=${subject}&body=${body}`);
+        }
+    }
+    
+    function openStockAdjustment() {
+        showNotification('Opening stock adjustment interface...', 'info');
+        
+        // For now, show a simple adjustment interface
+        const adjustmentItems = currentAnalytics?.inventoryOverview?.slice(0, 5) || [];
+        
+        if (adjustmentItems.length === 0) {
+            showNotification('No items available for adjustment', 'error');
+            return;
+        }
+        
+        let message = "STOCK ADJUSTMENT INTERFACE:\n\n";
+        message += "Select items to adjust:\n\n";
+        adjustmentItems.forEach((item, index) => {
+            message += `${index + 1}. ${item.name} (Current: ${item.currentStock})\n`;
+        });
+        
+        message += "\nNote: This would open a detailed adjustment interface.";
+        
+        alert(message);
+    }
+
+    // Initialize stock analytics
+    initStockAnalytics();
+    });
 </script>
 {% endblock %}

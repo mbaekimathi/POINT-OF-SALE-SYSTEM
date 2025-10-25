@@ -35,7 +35,7 @@ class EnhancedBluetoothPrinterManager {
         };
     }
 
-    // Detect browser and capabilities
+    // Detect browser and capabilities - simplified for universal compatibility
     detectBrowser() {
         const userAgent = navigator.userAgent;
         const isChrome = /Chrome/.test(userAgent) && !/Edg/.test(userAgent);
@@ -43,6 +43,11 @@ class EnhancedBluetoothPrinterManager {
         const isFirefox = /Firefox/.test(userAgent);
         const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
         const isOpera = /OPR/.test(userAgent);
+        const isOperaMini = /Opera Mini/.test(userAgent);
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        
+        // Universal Bluetooth support check
+        const supportsBluetooth = !!(navigator.bluetooth && typeof navigator.bluetooth.requestDevice === 'function');
         
         return {
             isChrome,
@@ -50,9 +55,13 @@ class EnhancedBluetoothPrinterManager {
             isFirefox,
             isSafari,
             isOpera,
-            name: isChrome ? 'Chrome' : isEdge ? 'Edge' : isFirefox ? 'Firefox' : isSafari ? 'Safari' : isOpera ? 'Opera' : 'Unknown',
-            supportsBluetooth: !!(navigator.bluetooth && typeof navigator.bluetooth.requestDevice === 'function'),
-            supportsSerial: !!(navigator.serial && typeof navigator.serial.requestPort === 'function')
+            isOperaMini,
+            isMobile,
+            name: isChrome ? 'Chrome' : isEdge ? 'Edge' : isFirefox ? 'Firefox' : isSafari ? 'Safari' : isOpera ? 'Opera' : isOperaMini ? 'Opera Mini' : 'Unknown',
+            supportsBluetooth,
+            supportsSerial: !!(navigator.serial && typeof navigator.serial.requestPort === 'function'),
+            // Universal compatibility flag
+            isCompatible: supportsBluetooth
         };
     }
 
@@ -239,24 +248,41 @@ class EnhancedBluetoothPrinterManager {
         }
     }
 
-    // Request device with timeout
+    // Universal device request with simplified options for maximum compatibility
     async requestDeviceWithTimeout() {
-        return Promise.race([
-            navigator.bluetooth.requestDevice({
+        try {
+            // Simplified request for universal compatibility
+            const device = await navigator.bluetooth.requestDevice({
                 acceptAllDevices: true,
                 optionalServices: [
-                    '000018f0-0000-1000-8000-00805f9b34fb',
-                    '00001800-0000-1000-8000-00805f9b34fb',
-                    '00001801-0000-1000-8000-00805f9b34fb',
-                    '00001101-0000-1000-8000-00805f9b34fb',
-                    '0000ffe0-0000-1000-8000-00805f9b34fb',
-                    '0000ffe1-0000-1000-8000-00805f9b34fb'
+                    '000018f0-0000-1000-8000-00805f9b34fb', // BLE thermal printer
+                    '00001800-0000-1000-8000-00805f9b34fb', // Generic Access
+                    '00001801-0000-1000-8000-00805f9b34fb', // Generic Attribute
+                    '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile
+                    '0000ffe0-0000-1000-8000-00805f9b34fb', // Custom service
+                    '0000ffe1-0000-1000-8000-00805f9b34fb'  // Custom characteristic
                 ]
-            }),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Device selection timeout')), this.connectionTimeout)
-            )
-        ]);
+            });
+            return device;
+        } catch (error) {
+            // Enhanced error handling for different scenarios
+            if (error.name === 'SecurityError') {
+                throw new Error('Bluetooth access denied. Please allow Bluetooth permissions in your browser settings.');
+            } else if (error.name === 'NotFoundError') {
+                // Check if it's user cancellation
+                if (error.message && error.message.includes('cancelled')) {
+                    // User cancelled - this is normal, don't throw error
+                    console.log('User cancelled Bluetooth device selection');
+                    return null;
+                } else {
+                    throw new Error('No Bluetooth devices found. Make sure your printer is in pairing mode and nearby.');
+                }
+            } else if (error.name === 'NotSupportedError') {
+                throw new Error('Bluetooth not supported on this device. Please use a compatible browser.');
+            } else {
+                throw new Error(`Bluetooth error: ${error.message}`);
+            }
+        }
     }
 
     // Connect with timeout

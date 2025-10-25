@@ -79,77 +79,233 @@
 </div>
 
 <!-- Data Type Filter -->
-<div class="mb-6">
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Data Filter</h3>
-                <p class="text-gray-600 text-sm">Choose the type of data to display on the dashboard</p>
+<div class="filter-container animate-fade-in">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex-1">
+            <h3 class="responsive-text-lg font-semibold text-gray-800 mb-2">Data Filter</h3>
+            <p class="responsive-text-sm text-gray-600">Choose the type of data to display on the dashboard</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <div class="filter-option" id="general-data-container">
+                <input type="radio" id="general-data" name="data-type" value="general" class="w-4 h-4" checked>
+                <label for="general-data" class="responsive-text-sm font-medium cursor-pointer">General Data</label>
             </div>
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-2 p-3 rounded-lg border-2 border-transparent hover:border-gray-200 transition-colors duration-200" id="general-data-container">
-                    <input type="radio" id="general-data" name="data-type" value="general" class="w-4 h-4 text-primary-blue bg-gray-100 border-gray-300 focus:ring-primary-blue" checked>
-                    <label for="general-data" class="text-sm font-medium text-gray-700 cursor-pointer">General Data</label>
-                </div>
-                <div class="flex items-center space-x-2 p-3 rounded-lg border-2 border-transparent hover:border-gray-200 transition-colors duration-200" id="verified-data-container">
-                    <input type="radio" id="verified-data" name="data-type" value="verified" class="w-4 h-4 text-primary-blue bg-gray-100 border-gray-300 focus:ring-primary-blue">
-                    <label for="verified-data" class="text-sm font-medium text-gray-700 cursor-pointer">Verified Data</label>
-                </div>
+            <div class="filter-option" id="verified-data-container">
+                <input type="radio" id="verified-data" name="data-type" value="verified" class="w-4 h-4">
+                <label for="verified-data" class="responsive-text-sm font-medium cursor-pointer">Verified Data</label>
             </div>
         </div>
-        <div class="mt-4 flex items-center justify-between">
-            <div class="flex items-center space-x-2 text-sm text-gray-600">
-                <i class="fas fa-info-circle"></i>
-                <span id="filter-description">Showing general data - all transactions and activities</span>
+    </div>
+    <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div class="flex items-center space-x-2 responsive-text-sm text-gray-600">
+            <i class="fas fa-info-circle"></i>
+            <span id="filter-description">Showing general data - all transactions and activities</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span class="responsive-text-sm text-gray-500">Last updated:</span>
+            <span id="last-updated" class="responsive-text-sm font-medium text-gray-700">Just now</span>
+        </div>
+    </div>
+</div>
+
+<!-- Live Analytics Section -->
+<div class="compact-section">
+    <div class="compact-section-header">
+        <h3 class="responsive-text-lg font-semibold text-gray-800">Live Analytics</h3>
+        <p class="responsive-text-sm text-gray-600">Real-time business metrics</p>
+    </div>
+    <div class="compact-section-body">
+        <div class="space-y-1">
+            <!-- Live Revenue -->
+            <div class="metric-item">
+                <div class="metric-info">
+                    <div class="metric-icon bg-green-100 text-green-600">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div>
+                        <div class="metric-label">Live Revenue</div>
+                        <div class="responsive-text-xs text-gray-500" id="live-revenue-time">Updated just now</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="live-revenue">$0</div>
             </div>
-            <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-500">Last updated:</span>
-                <span id="last-updated" class="text-sm font-medium text-gray-700">Just now</span>
+
+            <!-- Live Transactions -->
+            <div class="metric-item">
+                <div class="metric-info">
+                    <div class="metric-icon bg-blue-100 text-blue-600">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="metric-label">Live Transactions</div>
+                        <div class="responsive-text-xs text-gray-500" id="live-transactions-time">Updated just now</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="live-transactions">0</div>
+            </div>
+
+            <!-- Live Quantity Sold -->
+            <div class="metric-item">
+                <div class="metric-info">
+                    <div class="metric-icon bg-purple-100 text-purple-600">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div>
+                        <div class="metric-label">Items Sold Today</div>
+                        <div class="responsive-text-xs text-gray-500" id="live-quantity-time">Updated just now</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="live-quantity">0</div>
+            </div>
+
+            <!-- Active Employees -->
+            <div class="metric-item">
+                <div class="metric-info">
+                    <div class="metric-icon bg-orange-100 text-orange-600">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="metric-label">Active Employees</div>
+                        <div class="responsive-text-xs text-gray-500">Currently working</div>
+                    </div>
+                </div>
+                <div class="metric-value" id="active-employees">0</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Admin Stats Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <!-- Total Revenue -->
-    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-        <div class="flex items-center justify-between">
+<!-- Today's Sales Trend Chart -->
+<div class="compact-section">
+    <div class="compact-section-header">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-                <p class="text-gray-600 text-sm font-medium">Total Revenue</p>
-                <p class="text-2xl font-bold text-gray-800">0</p>
-                <p class="text-gray-500 text-sm">No revenue today</p>
+                <h3 class="responsive-text-lg font-semibold text-gray-800">Today's Sales Trend</h3>
+                <p class="responsive-text-sm text-gray-600">Hourly sales performance</p>
             </div>
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center space-x-2">
+                    <span class="responsive-text-xs text-gray-500">Quantity</span>
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="responsive-text-xs text-gray-500">Transactions</span>
+                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="responsive-text-xs text-gray-500">Live</span>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Active Employees -->
-    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm font-medium">Active Employees</p>
-                <p class="text-2xl font-bold text-gray-800">0</p>
-                <p class="text-gray-500 text-sm">No active employees</p>
+    <div class="compact-section-body">
+        <!-- Chart Container -->
+        <div class="chart-container mb-4">
+            <canvas id="todayTimeTrendChart" width="400" height="200"></canvas>
+            <div id="timeChartLoading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+                <div class="text-center">
+                    <div class="inline-flex items-center text-gray-600">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        Loading time trend data...
+                    </div>
+                </div>
             </div>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-users text-orange-600 text-xl"></i>
+            <div id="timeChartError" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+                <div class="text-center">
+                    <div class="text-red-600">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Failed to load time trend data
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chart Summary -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-green-600" id="todayTotalQuantity">0</div>
+                <div class="text-xs text-gray-600">Items Sold</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-blue-600" id="todayTotalTransactions">0</div>
+                <div class="text-xs text-gray-600">Transactions</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-orange-600" id="todayAverageHourly">0</div>
+                <div class="text-xs text-gray-600">Avg/Hour</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-purple-600" id="todayPeakHour">-</div>
+                <div class="text-xs text-gray-600">Peak Hour</div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Total Items -->
-    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-        <div class="flex items-center justify-between">
+<!-- Live Sales Trend Chart -->
+<div class="compact-section">
+    <div class="compact-section-header">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-                <p class="text-gray-600 text-sm font-medium">Total Items</p>
-                <p class="text-2xl font-bold text-gray-800">0</p>
-                <p class="text-gray-500 text-sm">No items in inventory</p>
+                <h3 class="responsive-text-lg font-semibold text-gray-800">Live Sales Trend</h3>
+                <p class="responsive-text-sm text-gray-600">Real-time sales performance</p>
             </div>
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-boxes text-purple-600 text-xl"></i>
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center space-x-2">
+                    <span class="responsive-text-xs text-gray-500">Revenue</span>
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="responsive-text-xs text-gray-500">Transactions</span>
+                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="responsive-text-xs text-gray-500">Live</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="compact-section-body">
+        <!-- Chart Container -->
+        <div class="chart-container mb-4">
+            <canvas id="liveSalesTrendChart" width="400" height="200"></canvas>
+            <div id="liveChartLoading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+                <div class="text-center">
+                    <div class="inline-flex items-center text-gray-600">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        Loading live data...
+                    </div>
+                </div>
+            </div>
+            <div id="liveChartError" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+                <div class="text-center">
+                    <div class="text-red-600">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Failed to load live data
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Live Chart Summary -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-green-600" id="liveTotalRevenue">$0</div>
+                <div class="text-xs text-gray-600">Total Revenue</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-blue-600" id="liveTotalTransactions">0</div>
+                <div class="text-xs text-gray-600">Transactions</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-purple-600" id="liveTotalQuantity">0</div>
+                <div class="text-xs text-gray-600">Items Sold</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <div class="text-lg font-bold text-orange-600" id="livePeakHour">-</div>
+                <div class="text-xs text-gray-600">Peak Hour</div>
             </div>
         </div>
     </div>
@@ -159,8 +315,8 @@
 <div class="mb-8">
     <div class="bg-white rounded-xl shadow-lg">
         <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold text-gray-800">Monthly Sales Trend</h2>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">Monthly Sales Trend</h2>
                 <div class="flex items-center space-x-2">
                     <span class="text-sm text-gray-500">Quantity Sold</span>
                     <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
@@ -169,7 +325,7 @@
         </div>
         <div class="p-6">
             <!-- Chart Container -->
-            <div class="relative">
+            <div class="relative chart-container">
                 <canvas id="monthlyTrendChart" width="400" height="200"></canvas>
                 <div id="chartLoading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
                     <div class="text-center">
@@ -192,16 +348,16 @@
             <!-- Chart Summary -->
             <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-2xl font-bold text-blue-600" id="totalQuantitySold">0</div>
-                    <div class="text-sm text-gray-600">Total Items Sold</div>
+                    <div class="text-xl md:text-2xl font-bold text-blue-600" id="totalQuantitySold">0</div>
+                    <div class="text-xs md:text-sm text-gray-600">Total Items Sold</div>
                 </div>
                 <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-2xl font-bold text-green-600" id="averageMonthly">0</div>
-                    <div class="text-sm text-gray-600">Monthly Average</div>
+                    <div class="text-xl md:text-2xl font-bold text-green-600" id="averageMonthly">0</div>
+                    <div class="text-xs md:text-sm text-gray-600">Monthly Average</div>
                 </div>
                 <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-2xl font-bold text-orange-600" id="bestMonth">-</div>
-                    <div class="text-sm text-gray-600">Best Month</div>
+                    <div class="text-xl md:text-2xl font-bold text-orange-600" id="bestMonth">-</div>
+                    <div class="text-xs md:text-sm text-gray-600">Best Month</div>
                 </div>
             </div>
         </div>
@@ -228,7 +384,7 @@
         </div>
         <div class="p-6">
             <!-- Chart Container -->
-            <div class="relative">
+            <div class="relative chart-container">
                 <canvas id="todayTimeTrendChart" width="400" height="200"></canvas>
                 <div id="timeChartLoading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
                     <div class="text-center">
@@ -271,99 +427,447 @@
     </div>
 </div>
 
-<!-- Main Content Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Staff Management -->
-    <div class="lg:col-span-2">
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-semibold text-gray-800">Staff Management</h2>
-                    <a href="/admin/human-resources" class="text-primary-blue hover:text-secondary-blue font-medium">
-                        View All Staff
-                    </a>
+<!-- Employee Performance & Low Stock Alerts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Employee Performance -->
+    <div class="bg-white rounded-xl shadow-lg">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">Live Employee Performance</h2>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-gray-500">Live</span>
                 </div>
             </div>
-            <div class="p-6">
-                <div class="text-center py-8">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-users text-gray-400 text-2xl"></i>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Best Employee -->
+                <div class="bg-green-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-medium text-green-800">Best Performer</h3>
+                        <i class="fas fa-trophy text-green-600"></i>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">No Staff Data Available</h3>
-                    <p class="text-gray-500 mb-4">Staff information will appear here once employees are added to the system.</p>
-                    <a href="/admin/human-resources" class="inline-flex items-center px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                        <i class="fas fa-plus mr-2"></i>
-                        Add Staff Members
-                    </a>
+                    <p class="text-lg font-bold text-green-900" id="best-employee-name">No sales today</p>
+                    <p class="text-sm text-green-700" id="best-employee-sales">$0.00</p>
+                </div>
+                
+                <!-- Worst Employee -->
+                <div class="bg-red-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-medium text-red-800">Needs Improvement</h3>
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <p class="text-lg font-bold text-red-900" id="worst-employee-name">No sales today</p>
+                    <p class="text-sm text-red-700" id="worst-employee-sales">$0.00</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Admin Quick Actions -->
-    <div class="space-y-8">
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">Admin Actions</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-3">
-                    <a href="/admin/human-resources" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
-                        <i class="fas fa-users mr-3"></i>
-                        Manage Staff
-                    </a>
-                    <a href="/admin/analytics" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
-                        <i class="fas fa-chart-bar mr-3"></i>
-                        View Reports
-                    </a>
-                    <a href="/admin/item-management" class="flex items-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
-                        <i class="fas fa-boxes mr-3"></i>
-                        Manage Items
-                    </a>
-                    <a href="/admin/settings" class="flex items-center p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
-                        <i class="fas fa-cog mr-3"></i>
-                        Settings
-                    </a>
+    <!-- Low Stock Alerts -->
+    <div class="bg-white rounded-xl shadow-lg">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">Low Stock Alerts</h2>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse" id="stock-alert-indicator"></div>
+                    <span class="text-sm text-gray-500" id="stock-alert-count">0 alerts</span>
                 </div>
             </div>
         </div>
-
-        <!-- Today's Summary -->
-        <div class="bg-white rounded-xl shadow-lg">
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">Today's Summary</h2>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Orders Completed</span>
-                        <span class="font-semibold text-gray-800">0</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Active Employees</span>
-                        <span class="font-semibold text-gray-800">0</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Items Sold</span>
-                        <span class="font-semibold text-gray-800">0</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600">Total Transactions</span>
-                        <span class="font-semibold text-gray-800">0</span>
-                    </div>
+        <div class="p-6">
+            <div id="low-stock-list" class="space-y-3">
+                <div class="text-center py-4 text-gray-500">
+                    <i class="fas fa-check-circle text-2xl mb-2"></i>
+                    <p>No low stock alerts</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_scripts %}
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Modern Responsive Design System */
+    :root {
+        --primary-color: #3b82f6;
+        --primary-dark: #1e40af;
+        --secondary-color: #6366f1;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --border-radius: 0.75rem;
+        --border-radius-lg: 1rem;
+        --border-radius-xl: 1.25rem;
+    }
+
+    /* Base responsive typography */
+    .responsive-text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .responsive-text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .responsive-text-base { font-size: 1rem; line-height: 1.5rem; }
+    .responsive-text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .responsive-text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .responsive-text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .responsive-text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .responsive-text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+
+    /* Compact section system */
+    .compact-section {
+        background: white;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .compact-section-header {
+        padding: 1rem 1.5rem;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .compact-section-body {
+        padding: 1rem 1.5rem;
+    }
+
+    /* Responsive grid system */
+    .responsive-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .responsive-grid-2 {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .responsive-grid-3 {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .responsive-grid-4 {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    /* Compact metric items */
+    .metric-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--gray-100);
+        transition: background-color 0.2s ease;
+    }
+
+    .metric-item:last-child {
+        border-bottom: none;
+    }
+
+    .metric-item:hover {
+        background-color: var(--gray-50);
+    }
+
+    .metric-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .metric-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .metric-label {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .metric-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+
+    /* Progress bars */
+    .progress-container {
+        width: 100%;
+        height: 0.5rem;
+        background: var(--gray-200);
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 0.75rem;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+
+    /* Chart containers */
+    .chart-container {
+        position: relative;
+        height: 200px;
+        width: 100%;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 0.75rem;
+        border: 1px solid var(--gray-200);
+    }
+
+    .chart-container canvas {
+        max-height: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Filter controls */
+    .filter-container {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 2rem;
+    }
+
+    .filter-option {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: var(--gray-50);
+    }
+
+    .filter-option:hover {
+        background: var(--gray-100);
+        border-color: var(--gray-300);
+    }
+
+    .filter-option.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-dark);
+    }
+
+    .filter-option input[type="radio"] {
+        margin-right: 0.75rem;
+        accent-color: var(--primary-color);
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1536px) {
+        .responsive-grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+    }
+
+    @media (max-width: 1280px) {
+        .responsive-grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+        .responsive-grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .chart-container {
+            height: 180px;
+        }
+        .compact-section-header,
+        .compact-section-body {
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .chart-container {
+            height: 160px;
+        }
+        .compact-section-header,
+        .compact-section-body {
+            padding: 0.5rem 0.75rem;
+        }
+        .metric-item {
+            padding: 0.5rem 0.75rem;
+        }
+        .metric-value {
+            font-size: 1.125rem;
+        }
+        .metric-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .chart-container {
+            height: 140px;
+        }
+        .metric-value {
+            font-size: 1rem;
+        }
+        .responsive-text-4xl {
+            font-size: 1.875rem;
+        }
+        .responsive-text-3xl {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .chart-container {
+            height: 120px;
+        }
+        .compact-section {
+            margin-bottom: 1rem;
+        }
+        .metric-item {
+            padding: 0.375rem 0.5rem;
+        }
+        .metric-value {
+            font-size: 0.875rem;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Animation utilities */
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Loading states */
+    .loading-skeleton {
+        background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --gray-50: #1f2937;
+            --gray-100: #374151;
+            --gray-200: #4b5563;
+            --gray-300: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-500: #d1d5db;
+            --gray-600: #e5e7eb;
+            --gray-700: #f3f4f6;
+            --gray-800: #f9fafb;
+            --gray-900: #ffffff;
+        }
+    }
+
+    /* Print styles */
+    @media print {
+        .modern-card {
+            box-shadow: none;
+            border: 1px solid var(--gray-300);
+        }
+        .chart-container {
+            height: auto;
+        }
+    }
+</style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Enhanced responsive behavior
+        function handleResize() {
+            const isMobile = window.innerWidth < 768;
+            const isTablet = window.innerWidth < 1024;
+            
+            // Adjust chart heights based on screen size
+            const chartContainers = document.querySelectorAll('.chart-container');
+            chartContainers.forEach(container => {
+                if (isMobile) {
+                    container.style.height = '160px';
+                } else if (isTablet) {
+                    container.style.height = '200px';
+                } else {
+                    container.style.height = '300px';
+                }
+            });
+            
+            // Update grid layouts
+            const grids = document.querySelectorAll('.responsive-grid-4, .responsive-grid-3, .responsive-grid-2');
+            grids.forEach(grid => {
+                if (isMobile) {
+                    grid.style.gridTemplateColumns = '1fr';
+                } else if (isTablet) {
+                    grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                }
+            });
+        }
+        
+        // Add resize listener
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial call
+        
         // Data filter functionality
         const dataTypeRadios = document.querySelectorAll('input[name="data-type"]');
         const filterDescription = document.getElementById('filter-description');
@@ -407,6 +911,8 @@
             updateStaffSection('general');
             // Update summary with general data
             await updateSummarySection('general');
+            // Load live analytics for general data (all statuses)
+            await loadLiveAnalytics('general');
             // Reload charts with general data
             loadMonthlyTrendChart();
             loadTodayTimeTrendChart();
@@ -421,6 +927,8 @@
             updateStaffSection('verified');
             // Update summary with verified data
             await updateSummarySection('verified');
+            // Load live analytics for verified data (confirmed only)
+            await loadLiveAnalytics('verified');
             // Reload charts with verified data
             loadMonthlyTrendChart();
             loadTodayTimeTrendChart();
@@ -429,14 +937,11 @@
         // Update stats cards based on data type
         async function updateStatsCards(dataType) {
             try {
-                const response = await fetch('/api/manager/dashboard-data', {
-                    method: 'POST',
+                const response = await fetch('/api/admin/live-analytics', {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dataType: dataType
-                    })
+                    }
                 });
                 
                 const result = await response.json();
@@ -444,30 +949,43 @@
                 if (result.success) {
                     const data = result.data;
                     
-                    // Update stats cards with real data
-                    const revenueElement = document.querySelectorAll('.text-2xl.font-bold.text-gray-800')[0];
-                    const employeesElement = document.querySelectorAll('.text-2xl.font-bold.text-gray-800')[1];
-                    const itemsElement = document.querySelectorAll('.text-2xl.font-bold.text-gray-800')[2];
+                    // Update live analytics cards
+                    const liveRevenueElement = document.getElementById('live-revenue');
+                    const liveTransactionsElement = document.getElementById('live-transactions');
+                    const liveQuantityElement = document.getElementById('live-quantity');
+                    const activeEmployeesElement = document.getElementById('active-employees');
                     
-                    if (revenueElement) {
-                        const revenue = data.totalRevenue || 0;
-                        revenueElement.textContent = revenue > 0 ? `$${revenue.toLocaleString()}` : '0';
+                    if (liveRevenueElement) {
+                        liveRevenueElement.textContent = `$${data.live_revenue.toLocaleString()}`;
                     }
-                    if (employeesElement) employeesElement.textContent = data.activeEmployees || '0';
-                    if (itemsElement) itemsElement.textContent = data.totalItems || '0';
+                    if (liveTransactionsElement) {
+                        liveTransactionsElement.textContent = data.live_transactions;
+                    }
+                    if (liveQuantityElement) {
+                        liveQuantityElement.textContent = data.live_quantity;
+                    }
+                    if (activeEmployeesElement) {
+                        activeEmployeesElement.textContent = data.active_employees || 0;
+                    }
                     
-                    console.log(`Updated stats cards with ${dataType} data:`, data);
+                    console.log(`Updated live analytics with data:`, data);
                 } else {
-                    console.error('Failed to fetch dashboard data:', result.message);
+                    console.error('Failed to fetch live analytics:', result.message);
                     // Fallback to showing 0
-                    const elements = document.querySelectorAll('.text-2xl.font-bold.text-gray-800');
-                    elements.forEach(el => el.textContent = '0');
+                    const elements = ['live-revenue', 'live-transactions', 'live-quantity', 'active-employees'];
+                    elements.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = '0';
+                    });
                 }
             } catch (error) {
-                console.error('Error fetching dashboard data:', error);
+                console.error('Error fetching live analytics:', error);
                 // Fallback to showing 0
-                const elements = document.querySelectorAll('.text-2xl.font-bold.text-gray-800');
-                elements.forEach(el => el.textContent = '0');
+                const elements = ['live-revenue', 'live-transactions', 'live-quantity', 'active-employees'];
+                elements.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '0';
+                });
             }
         }
         
@@ -535,6 +1053,15 @@
         // Chart variables
         let monthlyTrendChart = null;
         let todayTimeTrendChart = null;
+        let liveSalesTrendChart = null;
+        
+        // Live analytics variables
+        let liveAnalyticsInterval = null;
+        let previousLiveData = {
+            revenue: 0,
+            transactions: 0,
+            quantity: 0
+        };
         
         // Load monthly trend chart
         async function loadMonthlyTrendChart() {
@@ -579,6 +1106,13 @@
                 console.error('Error loading monthly trend chart:', error);
                 chartLoading.classList.add('hidden');
                 chartError.classList.remove('hidden');
+                
+                // Show sample data if API fails
+                const sampleData = {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    quantities: [0, 0, 0, 0, 0, 0]
+                };
+                renderMonthlyTrendChart(sampleData);
             }
         }
         
@@ -707,6 +1241,14 @@
                 console.error('Error loading today\'s time trend chart:', error);
                 chartLoading.classList.add('hidden');
                 chartError.classList.remove('hidden');
+                
+                // Show sample data if API fails
+                const sampleData = {
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    quantities: Array(24).fill(0),
+                    transactions: Array(24).fill(0)
+                };
+                renderTodayTimeTrendChart(sampleData);
             }
         }
         
@@ -839,6 +1381,404 @@
             document.getElementById('todayPeakHour').textContent = summary.peakHour || '-';
         }
         
+        // Live Analytics Functions
+        async function loadLiveAnalytics(dataType = 'general') {
+            console.log('Loading live analytics for data type:', dataType);
+            try {
+                const response = await fetch(`/api/admin/live-analytics?dataType=${dataType}`);
+                console.log('Live analytics response status:', response.status);
+                
+                const result = await response.json();
+                console.log('Live analytics result:', result);
+                
+                if (result.success) {
+                    const data = result.data;
+                    console.log('Live analytics data:', data);
+                    updateLiveAnalytics(data);
+                    updateEmployeePerformance(data);
+                    updateLowStockAlerts(data);
+                } else {
+                    console.error('Failed to fetch live analytics:', result.message);
+                    // Set default values
+                    updateLiveAnalytics({
+                        live_revenue: 0,
+                        live_transactions: 0,
+                        live_quantity: 0,
+                        active_employees: 0
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching live analytics:', error);
+                // Set default values
+                updateLiveAnalytics({
+                    live_revenue: 0,
+                    live_transactions: 0,
+                    live_quantity: 0,
+                    active_employees: 0
+                });
+            }
+        }
+        
+        function updateLiveAnalytics(data) {
+            console.log('Updating live analytics with data:', data);
+            
+            // Update live revenue
+            const revenueElement = document.getElementById('live-revenue');
+            const revenueTimeElement = document.getElementById('live-revenue-time');
+            console.log('Revenue element found:', !!revenueElement);
+            
+            if (revenueElement) {
+                const revenue = data.live_revenue || 0;
+                console.log('Setting revenue to:', revenue);
+                revenueElement.textContent = `$${revenue.toLocaleString()}`;
+                if (revenueTimeElement) {
+                    revenueTimeElement.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+                }
+                
+                // Update progress bar
+                const progressElement = document.getElementById('revenue-progress');
+                if (progressElement) {
+                    const progress = Math.min((revenue / 10000) * 100, 100); // Assuming 10k as max
+                    progressElement.style.width = `${progress}%`;
+                }
+            } else {
+                console.error('Revenue element not found!');
+            }
+            
+            // Update live transactions
+            const transactionsElement = document.getElementById('live-transactions');
+            const transactionsTimeElement = document.getElementById('live-transactions-time');
+            console.log('Transactions element found:', !!transactionsElement);
+            
+            if (transactionsElement) {
+                const transactions = data.live_transactions || 0;
+                console.log('Setting transactions to:', transactions);
+                transactionsElement.textContent = transactions;
+                if (transactionsTimeElement) {
+                    transactionsTimeElement.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+                }
+                
+                // Update progress bar
+                const progressElement = document.getElementById('transactions-progress');
+                if (progressElement) {
+                    const progress = Math.min((transactions / 100) * 100, 100); // Assuming 100 as max
+                    progressElement.style.width = `${progress}%`;
+                }
+            } else {
+                console.error('Transactions element not found!');
+            }
+            
+            // Update live quantity
+            const quantityElement = document.getElementById('live-quantity');
+            const quantityTimeElement = document.getElementById('live-quantity-time');
+            console.log('Quantity element found:', !!quantityElement);
+            
+            if (quantityElement) {
+                const quantity = data.live_quantity || 0;
+                console.log('Setting quantity to:', quantity);
+                quantityElement.textContent = quantity;
+                if (quantityTimeElement) {
+                    quantityTimeElement.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+                }
+                
+                // Update progress bar
+                const progressElement = document.getElementById('quantity-progress');
+                if (progressElement) {
+                    const progress = Math.min((quantity / 500) * 100, 100); // Assuming 500 as max
+                    progressElement.style.width = `${progress}%`;
+                }
+            } else {
+                console.error('Quantity element not found!');
+            }
+            
+            // Update active employees
+            const activeEmployeesElement = document.getElementById('active-employees');
+            console.log('Active employees element found:', !!activeEmployeesElement);
+            
+            if (activeEmployeesElement) {
+                const activeEmployees = data.active_employees || 0;
+                console.log('Setting active employees to:', activeEmployees);
+                activeEmployeesElement.textContent = activeEmployees;
+            } else {
+                console.error('Active employees element not found!');
+            }
+        }
+        
+        function updateEmployeePerformance(data) {
+            // Update best employee
+            const bestEmployeeName = document.getElementById('best-employee-name');
+            const bestEmployeeSales = document.getElementById('best-employee-sales');
+            if (bestEmployeeName && bestEmployeeSales) {
+                const bestEmployee = data.best_employee || { name: 'No sales today', sales: 0 };
+                bestEmployeeName.textContent = bestEmployee.name;
+                bestEmployeeSales.textContent = `$${bestEmployee.sales.toLocaleString()}`;
+            }
+            
+            // Update worst employee
+            const worstEmployeeName = document.getElementById('worst-employee-name');
+            const worstEmployeeSales = document.getElementById('worst-employee-sales');
+            if (worstEmployeeName && worstEmployeeSales) {
+                const worstEmployee = data.worst_employee || { name: 'No sales today', sales: 0 };
+                worstEmployeeName.textContent = worstEmployee.name;
+                worstEmployeeSales.textContent = `$${worstEmployee.sales.toLocaleString()}`;
+            }
+        }
+        
+        function updateLowStockAlerts(data) {
+            const lowStockList = document.getElementById('low-stock-list');
+            const stockAlertCount = document.getElementById('stock-alert-count');
+            const stockAlertIndicator = document.getElementById('stock-alert-indicator');
+            
+            const lowStockAlerts = data.low_stock_alerts || [];
+            
+            if (lowStockAlerts.length > 0) {
+                // Show alerts
+                if (stockAlertCount) {
+                    stockAlertCount.textContent = `${lowStockAlerts.length} alerts`;
+                }
+                if (stockAlertIndicator) {
+                    stockAlertIndicator.className = 'w-2 h-2 bg-red-500 rounded-full animate-pulse';
+                }
+                
+                if (lowStockList) {
+                    lowStockList.innerHTML = '';
+                    lowStockAlerts.forEach(item => {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200';
+                        alertDiv.innerHTML = `
+                            <div class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <div>
+                                    <p class="font-medium text-red-900">${item.name || 'Unknown Item'}</p>
+                                    <p class="text-sm text-red-700">${item.category || 'No Category'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-red-900">${item.stock || 0}</p>
+                                <p class="text-xs text-red-600">units left</p>
+                            </div>
+                        `;
+                        lowStockList.appendChild(alertDiv);
+                    });
+                }
+            } else {
+                // No alerts
+                if (stockAlertCount) {
+                    stockAlertCount.textContent = '0 alerts';
+                }
+                if (stockAlertIndicator) {
+                    stockAlertIndicator.className = 'w-2 h-2 bg-green-500 rounded-full';
+                }
+                
+                if (lowStockList) {
+                    lowStockList.innerHTML = `
+                        <div class="text-center py-4 text-gray-500">
+                            <i class="fas fa-check-circle text-2xl mb-2"></i>
+                            <p>No low stock alerts</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        async function loadLiveSalesTrend() {
+            const chartLoading = document.getElementById('liveChartLoading');
+            const chartError = document.getElementById('liveChartError');
+            
+            // Show loading state
+            chartLoading.classList.remove('hidden');
+            chartError.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/admin/live-sales-trend');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Hide loading state
+                    chartLoading.classList.add('hidden');
+                    
+                    // Render chart
+                    renderLiveSalesTrendChart(result.data.daily_trend);
+                    
+                    // Update summary statistics
+                    updateLiveChartSummary(result.data.daily_trend);
+                } else {
+                    throw new Error(result.message || 'Failed to load live sales trend');
+                }
+            } catch (error) {
+                console.error('Error loading live sales trend:', error);
+                chartLoading.classList.add('hidden');
+                chartError.classList.remove('hidden');
+            }
+        }
+        
+        function renderLiveSalesTrendChart(dailyTrend) {
+            const ctx = document.getElementById('liveSalesTrendChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (liveSalesTrendChart) {
+                liveSalesTrendChart.destroy();
+            }
+            
+            // Prepare data
+            const labels = dailyTrend.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            
+            const revenueData = dailyTrend.map(item => item.revenue);
+            const transactionData = dailyTrend.map(item => item.transactions);
+            
+            liveSalesTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenueData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(34, 197, 94)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Transactions',
+                        data: transactionData,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgb(34, 197, 94)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) {
+                                        return `Revenue: $${context.parsed.y.toLocaleString()}`;
+                                    } else {
+                                        return `Transactions: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#6b7280'
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#6b7280'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Revenue ($)',
+                                color: '#6b7280'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                color: '#6b7280'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Transactions',
+                                color: '#6b7280'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+        
+        function updateLiveChartSummary(dailyTrend) {
+            const totalRevenue = dailyTrend.reduce((sum, item) => sum + item.revenue, 0);
+            const totalTransactions = dailyTrend.reduce((sum, item) => sum + item.transactions, 0);
+            const totalQuantity = dailyTrend.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // Find peak day
+            const peakDay = dailyTrend.reduce((max, item) => item.revenue > max.revenue ? item : max, dailyTrend[0]);
+            const peakHour = peakDay ? new Date(peakDay.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-';
+            
+            document.getElementById('liveTotalRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+            document.getElementById('liveTotalTransactions').textContent = totalTransactions.toLocaleString();
+            document.getElementById('liveTotalQuantity').textContent = totalQuantity.toLocaleString();
+            document.getElementById('livePeakHour').textContent = peakHour;
+        }
+        
+        // Start live analytics updates
+        function startLiveAnalytics() {
+            // Get current data type
+            const selectedDataType = document.querySelector('input[name="data-type"]:checked').value;
+            
+            // Load initial data
+            loadLiveAnalytics(selectedDataType);
+            loadLiveSalesTrend();
+            
+            // Set up interval for live updates (every 30 seconds)
+            liveAnalyticsInterval = setInterval(() => {
+                const currentDataType = document.querySelector('input[name="data-type"]:checked').value;
+                loadLiveAnalytics(currentDataType);
+            }, 30000);
+        }
+        
+        // Stop live analytics updates
+        function stopLiveAnalytics() {
+            if (liveAnalyticsInterval) {
+                clearInterval(liveAnalyticsInterval);
+                liveAnalyticsInterval = null;
+            }
+        }
+        
         // Initialize with general data
         loadGeneralData();
         
@@ -848,6 +1788,15 @@
         // Load today's time trend chart
         loadTodayTimeTrendChart();
         
+        // Load live sales trend
+        loadLiveSalesTrend();
+        
+        // Load live analytics immediately
+        loadLiveAnalytics('general');
+        
+        // Start live analytics updates
+        startLiveAnalytics();
+        
         // Add click handlers for admin actions
         document.querySelectorAll('button, a[href="#"]').forEach(element => {
             element.addEventListener('click', function(e) {
@@ -855,6 +1804,66 @@
                 console.log('Admin action clicked:', this.textContent.trim());
                 // Add your admin functionality here
             });
+        });
+        
+        // Compact animations and responsive features
+        function addCompactAnimations() {
+            const metricItems = document.querySelectorAll('.metric-item');
+            metricItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-10px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, index * 50);
+            });
+        }
+        
+        function addCompactHoverEffects() {
+            const items = document.querySelectorAll('.metric-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'var(--gray-50)';
+                    this.style.transform = 'translateX(4px)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+        }
+        
+        function animateNumber(element, targetValue, prefix = '', duration = 1000) {
+            const startValue = parseInt(element.textContent.replace(/[^0-9]/g, '')) || 0;
+            const startTime = performance.now();
+            
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                const currentValue = Math.round(startValue + (targetValue - startValue) * easeOutCubic);
+                
+                element.textContent = prefix + currentValue.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+            
+            requestAnimationFrame(updateNumber);
+        }
+        
+        // Initialize compact animations
+        setTimeout(() => {
+            addCompactAnimations();
+            addCompactHoverEffects();
+        }, 100);
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            stopLiveAnalytics();
         });
     });
 </script>

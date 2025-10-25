@@ -19,6 +19,9 @@ class WiFiPrinterManager {
         
         // Load persisted connections
         this.loadPersistedConnections();
+        
+        // Clean up any duplicates that may have been created
+        this.cleanupDuplicates();
     }
 
     // Load persisted connections from localStorage
@@ -64,8 +67,18 @@ class WiFiPrinterManager {
         }
     }
 
-    // Add a new printer
+    // Add a new printer with deduplication
     addPrinter(name, ip, port = 9100) {
+        // Check if printer already exists (by IP and port)
+        const existingPrinter = this.findPrinterByAddress(ip, port);
+        if (existingPrinter) {
+            console.log(`Printer already exists at ${ip}:${port}, updating name to: ${name}`);
+            existingPrinter.name = name;
+            existingPrinter.lastUsed = new Date().toISOString();
+            this.savePersistedConnections();
+            return existingPrinter.id;
+        }
+        
         const printerId = `wifi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const printer = {
             id: printerId,
@@ -79,7 +92,71 @@ class WiFiPrinterManager {
         this.connectedPrinters.set(printerId, printer);
         this.savePersistedConnections();
         
+        console.log(`Added new printer: ${name} at ${ip}:${port}`);
         return printerId;
+    }
+
+    // Find printer by IP and port
+    findPrinterByAddress(ip, port) {
+        for (const [printerId, printer] of this.connectedPrinters) {
+            if (printer.ip === ip && printer.port === port) {
+                return printer;
+            }
+        }
+        return null;
+    }
+
+    // Clean up duplicate printers
+    cleanupDuplicates() {
+        const seen = new Set();
+        const toRemove = [];
+        
+        for (const [printerId, printer] of this.connectedPrinters) {
+            const key = `${printer.ip}:${printer.port}`;
+            if (seen.has(key)) {
+                toRemove.push(printerId);
+                console.log(`Removing duplicate printer: ${printer.name} at ${printer.ip}:${printer.port}`);
+            } else {
+                seen.add(key);
+            }
+        }
+        
+        // Remove duplicates
+        toRemove.forEach(printerId => {
+            this.connectedPrinters.delete(printerId);
+        });
+        
+        if (toRemove.length > 0) {
+            console.log(`Cleaned up ${toRemove.length} duplicate printers`);
+            this.savePersistedConnections();
+        }
+    }
+
+    // Clear all disconnected printers
+    clearDisconnectedPrinters() {
+        const toRemove = [];
+        
+        for (const [printerId, printer] of this.connectedPrinters) {
+            if (printer.status === 'disconnected') {
+                toRemove.push(printerId);
+            }
+        }
+        
+        toRemove.forEach(printerId => {
+            this.connectedPrinters.delete(printerId);
+        });
+        
+        if (toRemove.length > 0) {
+            console.log(`Cleared ${toRemove.length} disconnected printers`);
+            this.savePersistedConnections();
+        }
+    }
+
+    // Clean up all printers and start fresh
+    resetAllPrinters() {
+        this.connectedPrinters.clear();
+        this.savePersistedConnections();
+        console.log('Reset all WiFi printers');
     }
 
     // Connect to a printer
@@ -244,24 +321,93 @@ class WiFiPrinterManager {
         }
     }
 
-    // Print to all connected printers
+    // Print to all connected printers with improved error handling
     async printToAllPrinters(content) {
         const connectedPrinters = this.getConnectedPrinters();
         if (connectedPrinters.length === 0) {
-            throw new Error('No WiFi printers connected');
+            console.warn('No WiFi printers connected, attempting to reconnect...');
+            await this.attemptReconnectAllPrinters();
+            const retryPrinters = this.getConnectedPrinters();
+            if (retryPrinters.length === 0) {
+                throw new Error('No WiFi printers available after reconnection attempt');
+            }
         }
 
         const printPromises = connectedPrinters.map(async (printer) => {
             try {
+                // Check if printer is actually reachable before attempting to print
+                if (printer.status !== 'connected') {
+                    console.log(`Printer ${printer.name} is not connected, skipping...`);
+                    return { printerId: printer.id, success: false, error: 'Printer not connected' };
+                }
+                
                 const success = await this.printToPrinter(printer.id, content);
                 return { printerId: printer.id, success };
             } catch (error) {
                 console.error(`Print failed for printer ${printer.id}:`, error);
+                // Mark printer as disconnected if connection fails
+                if (error.message.includes('Connection refused') || error.message.includes('timeout')) {
+                    printer.status = 'disconnected';
+                    this.savePersistedConnections();
+                }
                 return { printerId: printer.id, success: false, error: error.message };
             }
         });
 
         return await Promise.all(printPromises);
+    }
+
+    // Attempt to reconnect all disconnected printers
+    async attemptReconnectAllPrinters() {
+        const disconnectedPrinters = Array.from(this.connectedPrinters.values())
+            .filter(printer => printer.status === 'disconnected');
+        
+        if (disconnectedPrinters.length === 0) {
+            console.log('No disconnected printers to reconnect');
+            return;
+        }
+
+        console.log(`Attempting to reconnect ${disconnectedPrinters.length} disconnected printers...`);
+        
+        const reconnectPromises = disconnectedPrinters.map(async (printer) => {
+            try {
+                await this.connectPrinter(printer.id);
+                console.log(`Successfully reconnected printer: ${printer.name}`);
+            } catch (error) {
+                console.log(`Failed to reconnect printer ${printer.name}:`, error.message);
+            }
+        });
+
+        await Promise.all(reconnectPromises);
+    }
+
+    // Check printer connectivity
+    async checkPrinterConnectivity(printerId) {
+        const printer = this.connectedPrinters.get(printerId);
+        if (!printer) return false;
+
+        try {
+            // Try a simple connectivity test
+            const response = await fetch(`/api/test-wifi-printer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ip: printer.ip,
+                    port: printer.port
+                })
+            });
+
+            if (response.ok) {
+                printer.status = 'connected';
+                return true;
+            } else {
+                printer.status = 'disconnected';
+                return false;
+            }
+        } catch (error) {
+            printer.status = 'disconnected';
+            return false;
+        }
     }
 
     // Get connection status

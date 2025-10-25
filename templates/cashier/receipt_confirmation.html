@@ -1,0 +1,776 @@
+{% extends "role_base.html" %}
+
+{% block title %}Receipt Confirmation - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}cash-register{% endblock %}
+{% block sidebar_title %}Cashier Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Point of Sale -->
+<a href="/cashier/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process orders</p>
+    </div>
+</a>
+
+<!-- Cash Drawer Management -->
+<a href="/cashier/cash-drawer" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Cash Drawer Management</p>
+        <p class="text-xs text-white/70">Manage cash drawer</p>
+    </div>
+</a>
+
+<!-- Stock Management -->
+<a href="/cashier/stock-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Receipt Confirmation -->
+<a href="/cashier/receipt-confirmation" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group bg-white/20">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipt Confirmation</p>
+        <p class="text-xs text-white/70">Confirm receipts</p>
+    </div>
+</a>
+
+<!-- Payment Processing -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-credit-card text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Payments</p>
+        <p class="text-xs text-white/70">Process payments</p>
+    </div>
+</a>
+
+<!-- My Off Days -->
+<a href="/employee/off-days" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">My Off Days</p>
+        <p class="text-xs text-white/70">View time off</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Modern Receipt Confirmation Header -->
+<div class="mb-6 sm:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent mb-2">
+                Receipt Confirmation
+            </h1>
+            <p class="text-sm sm:text-base text-gray-600">Review and confirm receipt details from the database</p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                <i class="fas fa-clock"></i>
+                <span id="current-time"></span>
+            </div>
+            <div class="flex items-center space-x-3 role-badge text-white px-4 sm:px-6 py-2 sm:py-3 rounded-2xl">
+                <i class="fas fa-receipt text-lg sm:text-xl"></i>
+                <span class="font-bold text-sm sm:text-lg">Cashier</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Dashboard Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+    <!-- Total Receipts Card -->
+    <div class="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Receipts</p>
+                <p id="total-receipts" class="text-xl sm:text-2xl font-bold text-gray-900">Loading...</p>
+                <div class="mt-2 flex items-center text-xs text-blue-600">
+                    <i class="fas fa-receipt mr-1"></i>
+                    <span>All Time</span>
+                </div>
+            </div>
+            <div class="p-2 sm:p-3 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-receipt text-blue-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Amount Card -->
+    <div class="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Amount</p>
+                <p id="total-amount" class="text-xl sm:text-2xl font-bold text-gray-900">Loading...</p>
+                <div class="mt-2 flex items-center text-xs text-green-600">
+                    <i class="fas fa-dollar-sign mr-1"></i>
+                    <span>Revenue</span>
+                </div>
+            </div>
+            <div class="p-2 sm:p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-dollar-sign text-green-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Receipts Card -->
+    <div class="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 mb-1">Today's Receipts</p>
+                <p id="today-receipts" class="text-xl sm:text-2xl font-bold text-gray-900">Loading...</p>
+                <div class="mt-2 flex items-center text-xs text-purple-600">
+                    <i class="fas fa-calendar-day mr-1"></i>
+                    <span>Today</span>
+                </div>
+            </div>
+            <div class="p-2 sm:p-3 bg-gradient-to-br from-purple-100 to-violet-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-calendar-day text-purple-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Amount Card -->
+    <div class="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 sm:p-6 border border-white/20">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 mb-1">Average Amount</p>
+                <p id="average-amount" class="text-xl sm:text-2xl font-bold text-gray-900">Loading...</p>
+                <div class="mt-2 flex items-center text-xs text-orange-600">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    <span>Per Receipt</span>
+                </div>
+            </div>
+            <div class="p-2 sm:p-3 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-chart-line text-orange-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Receipts List -->
+<div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+    <div class="p-4 sm:p-6 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-800">All Receipts</h2>
+                <p class="text-sm text-gray-600 mt-1">Complete list of receipts from the database</p>
+            </div>
+            <div class="mt-4 sm:mt-0 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+                <!-- Date Filter -->
+                <div class="flex items-center space-x-3">
+                    <label for="date-filter" class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-calendar-alt mr-2 text-blue-600"></i>
+                        Filter by Date:
+                    </label>
+                    <input type="date" id="date-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                </div>
+                
+                <!-- Confirmation Status Filter -->
+                <div class="flex items-center space-x-3">
+                    <label for="status-filter" class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-check-circle mr-2 text-green-600"></i>
+                        Status:
+                    </label>
+                    <select id="status-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">All Receipts</option>
+                        <option value="confirmed">Confirmed Only</option>
+                        <option value="unconfirmed">Unconfirmed Only</option>
+                    </select>
+                </div>
+                
+                <!-- Clear Filters Button -->
+                <button id="clear-filters" class="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
+                    <i class="fas fa-times mr-1"></i>Clear All
+                </button>
+                
+                <button id="refresh-receipts" class="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors duration-200 text-sm font-medium">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <!-- Table Header -->
+        <div class="hidden sm:grid sm:grid-cols-6 gap-4 py-3 px-4 bg-gray-50 rounded-xl mb-4 text-sm font-medium text-gray-600">
+            <div>Receipt #</div>
+            <div>Employee</div>
+            <div>Amount</div>
+            <div>Status</div>
+            <div>Items</div>
+            <div>Confirm</div>
+        </div>
+        
+        <div id="receipts-container" class="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <!-- Loading state -->
+            <div id="loading-receipts" class="text-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p class="text-gray-500 mt-2 text-sm">Loading receipts...</p>
+            </div>
+            
+            <!-- Receipts will be loaded here -->
+            <div id="receipts-list" class="space-y-2 hidden">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Items Modal -->
+<div id="receipt-items-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white/95 backdrop-blur-xl rounded-3xl w-full max-w-3xl shadow-2xl border border-white/30 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+        <div id="receipt-items-content">
+            <!-- Dynamic content will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Modern gradient background */
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    /* Glass morphism effect */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Smooth animations */
+    .smooth-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Receipts scrollbar */
+    #receipts-container::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    #receipts-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 2px;
+    }
+    
+    #receipts-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+    }
+    
+    #receipts-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+        .mobile-padding {
+            padding: 1rem;
+        }
+        
+        .mobile-text {
+            font-size: 0.875rem;
+        }
+        
+        .mobile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Hover effects */
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Modal animations */
+    #receipt-items-modal {
+        backdrop-filter: blur(8px);
+    }
+
+    #modal-content {
+        transform-origin: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Custom scrollbar for modal */
+    #receipt-items-modal .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    }
+
+    #receipt-items-modal .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #receipt-items-modal .scrollbar-thin::-webkit-scrollbar-track {
+        background: rgba(156, 163, 175, 0.1);
+        border-radius: 3px;
+    }
+
+    #receipt-items-modal .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.5);
+        border-radius: 3px;
+    }
+
+    #receipt-items-modal .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: rgba(156, 163, 175, 0.7);
+    }
+
+    /* Hover effects for items */
+    #receipt-items-modal .hover\:scale-\[1\.02\]:hover {
+        transform: scale(1.02);
+    }
+
+    /* Close button hover effect */
+    #receipt-items-modal button:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update current time
+        function updateCurrentTime() {
+            const timeElement = document.getElementById('current-time');
+            if (timeElement) {
+                const now = new Date();
+                timeElement.textContent = now.toLocaleTimeString();
+            }
+        }
+
+        // Update time every second
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
+
+        // Load receipts data
+        function loadReceipts(selectedDate = null, statusFilter = null) {
+            let url = '/api/receipts';
+            const params = new URLSearchParams();
+            
+            if (selectedDate) {
+                params.append('date', selectedDate);
+            }
+            if (statusFilter) {
+                params.append('status', statusFilter);
+            }
+            
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateDashboard(data.receipts);
+                        updateReceiptsList(data.receipts);
+                    } else {
+                        showError('Failed to load receipts: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading receipts:', error);
+                    showError('Error loading receipts');
+                });
+        }
+
+        // Update dashboard with receipt statistics
+        function updateDashboard(receipts) {
+            const totalReceipts = receipts.length;
+            const totalAmount = receipts.reduce((sum, receipt) => {
+                const amount = parseFloat(receipt.total_amount) || 0;
+                return sum + amount;
+            }, 0);
+            const averageAmount = totalReceipts > 0 ? totalAmount / totalReceipts : 0;
+            
+            // Today's receipts
+            const today = new Date().toISOString().split('T')[0];
+            const todayReceipts = receipts.filter(receipt => 
+                receipt.sale_date && receipt.sale_date.startsWith(today)
+            ).length;
+
+            // Update dashboard cards
+            document.getElementById('total-receipts').textContent = totalReceipts;
+            document.getElementById('total-amount').textContent = `$${totalAmount.toFixed(2)}`;
+            document.getElementById('today-receipts').textContent = todayReceipts;
+            document.getElementById('average-amount').textContent = `$${averageAmount.toFixed(2)}`;
+        }
+
+        // Update receipts list
+        function updateReceiptsList(receipts) {
+            const loadingElement = document.getElementById('loading-receipts');
+            const receiptsList = document.getElementById('receipts-list');
+            
+            if (receipts.length === 0) {
+                receiptsList.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-receipt text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500">No receipts found</p>
+                    </div>
+                `;
+            } else {
+                receiptsList.innerHTML = receipts.map(receipt => `
+                    <div class="grid grid-cols-1 sm:grid-cols-6 gap-4 py-3 px-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+                        <!-- Receipt Number -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span class="text-blue-600 font-semibold text-xs">#${receipt.receipt_number}</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-800 sm:hidden">Receipt #${receipt.receipt_number}</span>
+                        </div>
+                        
+                        <!-- Employee Name -->
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-800 truncate">${receipt.employee_name}</span>
+                        </div>
+                        
+                        <!-- Amount -->
+                        <div class="flex items-center">
+                            <span class="text-sm font-semibold text-gray-800">$${(parseFloat(receipt.total_amount) || 0).toFixed(2)}</span>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                receipt.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
+                                receipt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                'bg-gray-100 text-gray-800'
+                            }">
+                                ${receipt.status || 'unknown'}
+                            </span>
+                        </div>
+                        
+                        <!-- Items Count - Clickable -->
+                        <div class="flex items-center">
+                            <button onclick="viewReceiptItems(${receipt.id})" class="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-colors duration-200">
+                                ${receipt.item_count || 0} items
+                            </button>
+                        </div>
+                        
+                        <!-- Cashier Confirmation -->
+                        <div class="flex items-center">
+                            <button onclick="toggleCashierConfirmation(${receipt.id})" 
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                                        receipt.cashier_confirmed ? 
+                                        'bg-green-100 text-green-800 hover:bg-green-200' : 
+                                        'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }">
+                                <i class="fas ${receipt.cashier_confirmed ? 'fa-check-circle' : 'fa-circle'} mr-1"></i>
+                                ${receipt.cashier_confirmed ? 'Confirmed' : 'Confirm'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            loadingElement.classList.add('hidden');
+            receiptsList.classList.remove('hidden');
+        }
+
+        // Show error message
+        function showError(message) {
+            const receiptsList = document.getElementById('receipts-list');
+            receiptsList.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-4"></i>
+                    <p class="text-red-500">${message}</p>
+                </div>
+            `;
+            receiptsList.classList.remove('hidden');
+        }
+
+        // Show success/error message
+        function showMessage(message, type = 'success') {
+            // Create message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            messageDiv.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            // Animate in
+            setTimeout(() => {
+                messageDiv.classList.remove('translate-x-full');
+            }, 10);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                messageDiv.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 300);
+            }, 3000);
+        }
+
+        // Refresh button handler
+        document.getElementById('refresh-receipts').addEventListener('click', function() {
+            const loadingElement = document.getElementById('loading-receipts');
+            const receiptsList = document.getElementById('receipts-list');
+            
+            loadingElement.classList.remove('hidden');
+            receiptsList.classList.add('hidden');
+            
+            const selectedDate = document.getElementById('date-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            loadReceipts(selectedDate || null, statusFilter || null);
+        });
+
+        // Date filter handler
+        document.getElementById('date-filter').addEventListener('change', function() {
+            const selectedDate = this.value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const loadingElement = document.getElementById('loading-receipts');
+            const receiptsList = document.getElementById('receipts-list');
+            
+            loadingElement.classList.remove('hidden');
+            receiptsList.classList.add('hidden');
+            
+            loadReceipts(selectedDate, statusFilter || null);
+        });
+
+        // Status filter handler
+        document.getElementById('status-filter').addEventListener('change', function() {
+            const statusFilter = this.value;
+            const selectedDate = document.getElementById('date-filter').value;
+            const loadingElement = document.getElementById('loading-receipts');
+            const receiptsList = document.getElementById('receipts-list');
+            
+            loadingElement.classList.remove('hidden');
+            receiptsList.classList.add('hidden');
+            
+            loadReceipts(selectedDate || null, statusFilter || null);
+        });
+
+        // Clear all filters handler
+        document.getElementById('clear-filters').addEventListener('click', function() {
+            document.getElementById('date-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            const loadingElement = document.getElementById('loading-receipts');
+            const receiptsList = document.getElementById('receipts-list');
+            
+            loadingElement.classList.remove('hidden');
+            receiptsList.classList.add('hidden');
+            
+            loadReceipts();
+        });
+
+        // View receipt items function
+        window.viewReceiptItems = function(receiptId) {
+            fetch(`/api/receipts/${receiptId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showReceiptItemsModal(data.receipt, data.items);
+                    } else {
+                        showError('Failed to load receipt items: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading receipt items:', error);
+                    showError('Error loading receipt items');
+                });
+        };
+
+        // Show receipt items modal
+        function showReceiptItemsModal(receipt, items) {
+            const modal = document.getElementById('receipt-items-modal');
+            const modalContent = document.getElementById('receipt-items-content');
+            const modalContainer = document.getElementById('modal-content');
+            
+            modalContent.innerHTML = `
+                <div class="relative">
+                    <!-- Header with gradient background -->
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-3xl p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-receipt text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold">Receipt #${receipt.receipt_number}</h3>
+                                    <p class="text-blue-100 text-sm">${receipt.employee_name}</p>
+                                </div>
+                            </div>
+                            <button onclick="closeReceiptItemsModal()" class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105">
+                                <i class="fas fa-times text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <!-- Items Section -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-list-ul text-blue-600 mr-2"></i>
+                                Items (${items.length})
+                            </h4>
+                            <div class="space-y-3 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                ${items.map((item, index) => `
+                                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
+                                        <div class="flex items-center space-x-4 flex-1">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <span class="text-blue-600 font-semibold text-sm">${index + 1}</span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800">${item.item_name}</p>
+                                                <p class="text-sm text-gray-600">Qty: ${item.quantity} × $${parseFloat(item.unit_price).toFixed(2)}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-gray-800 text-lg">$${parseFloat(item.total_price).toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <!-- Summary Section -->
+                        <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-calculator text-green-600 mr-2"></i>
+                                Receipt Summary
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-gray-600 font-medium">Subtotal:</span>
+                                    <span class="font-semibold text-gray-800">$${parseFloat(receipt.subtotal).toFixed(2)}</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2">
+                                    <span class="text-gray-600 font-medium">Tax:</span>
+                                    <span class="font-semibold text-gray-800">$${parseFloat(receipt.tax_amount).toFixed(2)}</span>
+                                </div>
+                                <div class="border-t border-gray-300 pt-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xl font-bold text-gray-800">Total:</span>
+                                        <span class="text-2xl font-bold text-green-600">$${parseFloat(receipt.total_amount).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Show modal with animation
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContainer.classList.remove('scale-95', 'opacity-0');
+                modalContainer.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Close receipt items modal
+        window.closeReceiptItemsModal = function() {
+            const modal = document.getElementById('receipt-items-modal');
+            const modalContainer = document.getElementById('modal-content');
+            
+            // Animate out
+            modalContainer.classList.remove('scale-100', 'opacity-100');
+            modalContainer.classList.add('scale-95', 'opacity-0');
+            
+            // Hide modal after animation
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        // Toggle cashier confirmation
+        window.toggleCashierConfirmation = function(receiptId) {
+            fetch(`/api/receipts/${receiptId}/confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the receipts to show updated confirmation status
+                    const selectedDate = document.getElementById('date-filter').value;
+                    const statusFilter = document.getElementById('status-filter').value;
+                    loadReceipts(selectedDate || null, statusFilter || null);
+                    
+                    // Show success message
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling confirmation:', error);
+                showMessage('Error updating confirmation', 'error');
+            });
+        };
+
+        // Click outside modal to close
+        document.getElementById('receipt-items-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReceiptItemsModal();
+            }
+        });
+
+        // Load data on page load
+        loadReceipts();
+    });
+</script>
+{% endblock %}

@@ -403,6 +403,72 @@
         }
     }
     
+    /* Professional list styling */
+    .professional-list {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .professional-list thead th {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .professional-list tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s ease;
+    }
+    
+    .professional-list tbody tr:hover {
+        background-color: #f9fafb;
+    }
+    
+    .professional-list tbody tr:last-child {
+        border-bottom: none;
+    }
+    
+    /* Mobile table responsiveness */
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    @media (max-width: 640px) {
+        .table-responsive table {
+            min-width: 600px;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .table-responsive .text-sm {
+            font-size: 12px;
+        }
+    }
+    
+    @media (min-width: 641px) and (max-width: 768px) {
+        .table-responsive th,
+        .table-responsive td {
+            padding: 12px 16px;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        .table-responsive th,
+        .table-responsive td {
+            padding: 16px 24px;
+        }
+    }
+    
     /* Loading Animation */
     .loading-shimmer {
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -443,135 +509,7 @@
         background: linear-gradient(135deg, #e55a2b 0%, #e8821a 100%);
     }
 </style>
-<!-- Modern Item Management Header -->
-<div class="mb-6 sm:mb-8 lg:mb-12">
-    <div class="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
-        <div class="relative z-10">
-            <div class="flex flex-col space-y-4 sm:space-y-6">
-                <!-- Top Row: Title and Role Badge -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                    <div class="flex-1">
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3">Item Management</h1>
-                        <p class="text-orange-100 text-sm sm:text-base lg:text-lg leading-relaxed">Manage your inventory, products, and menu items across all categories with modern tools</p>
-                    </div>
-                    <div class="flex items-center justify-center sm:justify-end">
-                        <div class="flex items-center space-x-2 sm:space-x-3 bg-white/20 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-3 rounded-xl sm:rounded-2xl">
-                            <i class="fas fa-user-tie text-sm sm:text-lg lg:text-xl"></i>
-                            <span class="font-bold text-xs sm:text-sm lg:text-lg">Manager</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Bottom Row: Action Button -->
-                <div class="flex justify-center sm:justify-start">
-                    <button onclick="showAddItemModal()" class="w-full sm:w-auto modern-btn modern-btn-primary px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold bg-white text-orange-600 hover:bg-orange-50 transition-all duration-200 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-plus mr-2"></i>
-                        <span>Add New Item</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Decorative Elements -->
-        <div class="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-white/10 rounded-full -translate-y-10 sm:-translate-y-16 translate-x-10 sm:translate-x-16"></div>
-        <div class="absolute bottom-0 left-0 w-16 h-16 sm:w-24 sm:h-24 bg-white/5 rounded-full translate-y-8 sm:translate-y-12 -translate-x-8 sm:-translate-x-12"></div>
-    </div>
-</div>
 
-<!-- Inventory Stats Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-8 mb-6 sm:mb-8 lg:mb-12">
-    <!-- Total Items -->
-    <div class="modern-card p-3 sm:p-4 lg:p-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full -translate-y-6 sm:-translate-y-8 lg:-translate-y-10 translate-x-6 sm:translate-x-8 lg:translate-x-10 opacity-20"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 bg-gradient-to-r from-primary-blue to-secondary-blue rounded-lg sm:rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-boxes text-white text-sm sm:text-lg lg:text-xl xl:text-2xl"></i>
-                </div>
-                <div class="text-right">
-                    <span class="inline-flex items-center px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        <i class="fas fa-chart-line mr-1 text-xs"></i>
-                        <span class="hidden sm:inline">Live</span>
-                    </span>
-                </div>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Total Items</p>
-                <p class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2" id="total-items-count">0</p>
-                <p class="text-primary-blue text-xs sm:text-sm font-medium">Active inventory</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Low Stock -->
-    <div class="modern-card p-3 sm:p-4 lg:p-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full -translate-y-6 sm:-translate-y-8 lg:-translate-y-10 translate-x-6 sm:translate-x-8 lg:translate-x-10 opacity-20"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 bg-gradient-to-r from-warning to-yellow-400 rounded-lg sm:rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-exclamation-triangle text-white text-sm sm:text-lg lg:text-xl xl:text-2xl"></i>
-                </div>
-                <div class="text-right">
-                    <span class="inline-flex items-center px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                        <i class="fas fa-warning mr-1 text-xs"></i>
-                        <span class="hidden sm:inline">Alert</span>
-                    </span>
-                </div>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Low Stock</p>
-                <p class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2" id="low-stock-count">0</p>
-                <p class="text-warning text-xs sm:text-sm font-medium">Need restocking</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Out of Stock -->
-    <div class="modern-card p-3 sm:p-4 lg:p-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full -translate-y-6 sm:-translate-y-8 lg:-translate-y-10 translate-x-6 sm:translate-x-8 lg:translate-x-10 opacity-20"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 bg-gradient-to-r from-error to-red-500 rounded-lg sm:rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-times-circle text-white text-sm sm:text-lg lg:text-xl xl:text-2xl"></i>
-                </div>
-                <div class="text-right">
-                    <span class="inline-flex items-center px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        <i class="fas fa-times mr-1 text-xs"></i>
-                        <span class="hidden sm:inline">Critical</span>
-                    </span>
-                </div>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Out of Stock</p>
-                <p class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2" id="out-of-stock-count">0</p>
-                <p class="text-error text-xs sm:text-sm font-medium">Urgent restock needed</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Categories -->
-    <div class="modern-card p-3 sm:p-4 lg:p-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full -translate-y-6 sm:-translate-y-8 lg:-translate-y-10 translate-x-6 sm:translate-x-8 lg:translate-x-10 opacity-20"></div>
-        <div class="relative z-10">
-            <div class="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg sm:rounded-xl lg:rounded-2xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-tags text-white text-sm sm:text-lg lg:text-xl xl:text-2xl"></i>
-                </div>
-                <div class="text-right">
-                    <span class="inline-flex items-center px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        <i class="fas fa-info mr-1 text-xs"></i>
-                        <span class="hidden sm:inline">Info</span>
-                    </span>
-                </div>
-            </div>
-            <div>
-                <p class="text-gray-500 text-xs sm:text-sm font-medium mb-1">Categories</p>
-                <p class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2" id="categories-count">0</p>
-                <p class="text-purple-600 text-xs sm:text-sm font-medium">Unique categories</p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -650,317 +588,401 @@
                         </div>
                     </div>
 
-    <!-- Item Management Actions -->
-    <div class="space-y-4 sm:space-y-6 lg:space-y-8">
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-xl lg:rounded-2xl xl:rounded-3xl shadow-lg lg:shadow-xl xl:shadow-2xl border border-gray-100">
-            <div class="p-4 sm:p-6 lg:p-8 border-b border-gray-200">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800">Quick Actions</h2>
-                            </div>
-            <div class="p-4 sm:p-6 lg:p-8">
-                <div class="space-y-3 sm:space-y-4">
-                    <button onclick="showAddItemModal()" class="w-full flex items-center p-3 sm:p-4 bg-primary-orange text-white rounded-xl lg:rounded-2xl hover:bg-secondary-orange transition-colors duration-200">
-                        <i class="fas fa-plus mr-3 sm:mr-4 text-lg sm:text-xl"></i>
-                        <div class="text-left">
-                            <p class="font-semibold text-sm sm:text-base">Add New Item</p>
-                            <p class="text-xs sm:text-sm text-orange-100">Create inventory item</p>
-                            </div>
+</div>
+
+<!-- Add Item Modal -->
+<div id="addItemModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+    <div class="relative top-4 sm:top-8 lg:top-12 mx-auto p-4 sm:p-6 lg:p-8 w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-4xl">
+        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 px-6 sm:px-8 py-6 sm:py-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-plus text-white text-xl sm:text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Add New Item</h3>
+                            <p class="text-orange-100 text-sm sm:text-base">Create a new inventory item</p>
+                        </div>
+                    </div>
+                    <button onclick="closeAddItemModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
                     </button>
-                    <button onclick="exportItems()" class="w-full flex items-center p-3 sm:p-4 bg-primary-blue text-white rounded-xl lg:rounded-2xl hover:bg-secondary-blue transition-colors duration-200">
-                        <i class="fas fa-download mr-3 sm:mr-4 text-lg sm:text-xl"></i>
-                        <div class="text-left">
-                            <p class="font-semibold text-sm sm:text-base">Export Data</p>
-                            <p class="text-xs sm:text-sm text-blue-100">Download CSV report</p>
-                        </div>
-                                </button>
-                    <button onclick="refreshItems()" class="w-full flex items-center p-3 sm:p-4 bg-green-500 text-white rounded-xl lg:rounded-2xl hover:bg-green-600 transition-colors duration-200">
-                        <i class="fas fa-sync mr-3 sm:mr-4 text-lg sm:text-xl"></i>
-                        <div class="text-left">
-                            <p class="font-semibold text-sm sm:text-base">Refresh Data</p>
-                            <p class="text-xs sm:text-sm text-green-100">Reload inventory</p>
-                        </div>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-        <!-- Category Overview -->
-        <div class="bg-white rounded-xl lg:rounded-2xl xl:rounded-3xl shadow-lg lg:shadow-xl xl:shadow-2xl border border-gray-100">
-            <div class="p-4 sm:p-6 lg:p-8 border-b border-gray-200">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800">Categories</h2>
-                            </div>
-            <div class="p-4 sm:p-6 lg:p-8">
-                <div id="categories-list" class="space-y-3 sm:space-y-4">
-                    <!-- Dynamic categories will be loaded here -->
-                    <div class="text-center py-4 text-gray-500">
-                        <i class="fas fa-tags text-2xl mb-2"></i>
-                        <p class="text-sm">Categories will appear here</p>
-                            </div>
-                        </div>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-xl lg:rounded-2xl xl:rounded-3xl shadow-lg lg:shadow-xl xl:shadow-2xl border border-gray-100">
-            <div class="p-4 sm:p-6 lg:p-8 border-b border-gray-200">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800">Recent Activity</h2>
-            </div>
-            <div class="p-4 sm:p-6 lg:p-8">
-                <div id="recent-activity" class="space-y-3">
-                    <!-- Dynamic activity will be loaded here -->
-                    <div class="text-center py-4 text-gray-500">
-                        <i class="fas fa-history text-2xl mb-2"></i>
-                        <p class="text-sm">Activity will appear here</p>
-                    </div>
                 </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 sm:p-8">
+                <form id="addItemForm" enctype="multipart/form-data">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                        <!-- Item Category -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-tags text-orange-500 mr-2"></i>
+                                ITEM CATEGORY
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="category" required placeholder="Enter item category" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base transition-all duration-200">
+                                <i class="fas fa-tag absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Item Name -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-box text-orange-500 mr-2"></i>
+                                ITEM NAME
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="name" required placeholder="Enter item name" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base transition-all duration-200">
+                                <i class="fas fa-box absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+
+                        <!-- Item Description -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-align-left text-orange-500 mr-2"></i>
+                                ITEM DESCRIPTION
+                            </label>
+                            <div class="relative">
+                                <textarea name="description" required placeholder="Enter item description" rows="4" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base resize-none transition-all duration-200"></textarea>
+                                <i class="fas fa-align-left absolute left-4 top-4 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Item Price -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-dollar-sign text-orange-500 mr-2"></i>
+                                ITEM PRICE
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base font-medium">KSh</span>
+                                <input type="number" name="price" required placeholder="0.00" step="0.01" min="0" class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base transition-all duration-200">
+                            </div>
+                        </div>
+                        
+                        <!-- Item Image -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-image text-orange-500 mr-2"></i>
+                                ITEM IMAGE (OPTIONAL)
+                            </label>
+                            <div class="relative">
+                                <input type="file" name="image" accept="image/*" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                                <div class="mt-2 text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Supported formats: JPG, PNG, GIF (Max 5MB)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8 sm:mt-10">
+                        <button type="button" onclick="closeAddItemModal()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-6 py-4 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Item
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add Item Modal -->
-<div id="addItemModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-2 sm:top-5 lg:top-10 mx-auto p-3 sm:p-4 lg:p-5 border w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 shadow-lg rounded-xl sm:rounded-2xl bg-white">
-        <div class="mt-2 sm:mt-3">
-            <div class="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
-                <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">Add New Item</h3>
-                <button onclick="closeAddItemModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fas fa-times text-base sm:text-lg lg:text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="addItemForm" enctype="multipart/form-data">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-                    <!-- Item Category -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">ITEM CATEGORY</label>
-                        <input type="text" name="category" required placeholder="Enter item category" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
-                    </div>
-                    
-                    <!-- Item Name -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">ITEM NAME</label>
-                        <input type="text" name="name" required placeholder="Enter item name" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
-                    </div>
-
-                    <!-- Item Description -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">ITEM DESCRIPTION</label>
-                        <textarea name="description" required placeholder="Enter item description" rows="3" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase resize-none"></textarea>
-                    </div>
-                    
-                    <!-- Item Price -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">ITEM PRICE</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base">KSh</span>
-                            <input type="number" name="price" required placeholder="0.00" step="0.01" min="0" class="w-full pl-8 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                        </div>
-                    </div>
-                    
-                    <!-- Item Image -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">ITEM IMAGE (OPTIONAL)</label>
-                        <div class="relative">
-                            <input type="file" name="image" accept="image/*" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                            <div class="mt-1 sm:mt-2 text-xs text-gray-500">Supported: JPG, PNG, GIF (Max 5MB)</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Form Actions -->
-                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-6 lg:mt-8">
-                    <button type="button" onclick="closeAddItemModal()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-gray-200 transition-colors duration-200 font-semibold text-sm sm:text-base">
-                        Cancel
-                    </button>
-                    <button type="submit" class="w-full sm:w-auto bg-primary-orange text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-secondary-orange transition-colors duration-200 font-semibold text-sm sm:text-base">
-                        <i class="fas fa-plus mr-2"></i>
-                        Add Item
-                    </button>
-                </div>
-            </form>
-                        </div>
-                    </div>
-                </div>
-
 <!-- Edit Item Modal -->
-<div id="editItemModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-2 sm:top-5 lg:top-10 mx-auto p-3 sm:p-4 lg:p-5 border w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 shadow-lg rounded-xl sm:rounded-2xl bg-white">
-        <div class="mt-2 sm:mt-3">
-            <div class="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
-                <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">Edit Item</h3>
-                <button onclick="closeEditItemModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fas fa-times text-base sm:text-lg lg:text-xl"></i>
-                </button>
+<div id="editItemModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+    <div class="relative top-4 sm:top-8 lg:top-12 mx-auto p-4 sm:p-6 lg:p-8 w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-4xl">
+        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="editModalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 sm:px-8 py-6 sm:py-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-edit text-white text-xl sm:text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Edit Item</h3>
+                            <p class="text-blue-100 text-sm sm:text-base">Update item information</p>
+                        </div>
+                    </div>
+                    <button onclick="closeEditItemModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
+                    </button>
+                </div>
             </div>
             
-            <form id="editItemForm" enctype="multipart/form-data">
-                <input type="hidden" name="item_id" id="edit_item_id">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    <!-- Item Category -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ITEM CATEGORY</label>
-                        <input type="text" name="category" required id="edit_category" placeholder="ENTER ITEM CATEGORY" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
-        </div>
-                    
-                    <!-- Item Name -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ITEM NAME</label>
-                        <input type="text" name="name" required id="edit_name" placeholder="ENTER ITEM NAME" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
-    </div>
+            <!-- Modal Body -->
+            <div class="p-6 sm:p-8">
+                <form id="editItemForm" enctype="multipart/form-data">
+                    <input type="hidden" name="item_id" id="edit_item_id">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                        <!-- Item Category -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-tags text-blue-500 mr-2"></i>
+                                ITEM CATEGORY
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="category" required id="edit_category" placeholder="Enter item category" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200">
+                                <i class="fas fa-tag absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Item Name -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-box text-blue-500 mr-2"></i>
+                                ITEM NAME
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="name" required id="edit_name" placeholder="Enter item name" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200">
+                                <i class="fas fa-box absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
 
-                    <!-- Item Description -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ITEM DESCRIPTION</label>
-                        <textarea name="description" required id="edit_description" placeholder="ENTER ITEM DESCRIPTION" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase resize-none"></textarea>
+                        <!-- Item Description -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-align-left text-blue-500 mr-2"></i>
+                                ITEM DESCRIPTION
+                            </label>
+                            <div class="relative">
+                                <textarea name="description" required id="edit_description" placeholder="Enter item description" rows="4" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base resize-none transition-all duration-200"></textarea>
+                                <i class="fas fa-align-left absolute left-4 top-4 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Item Price -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-dollar-sign text-blue-500 mr-2"></i>
+                                ITEM PRICE
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base font-medium">KSh</span>
+                                <input type="number" name="price" required id="edit_price" placeholder="0.00" step="0.01" min="0" class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200">
+                            </div>
+                        </div>
+                        
+                        <!-- Item Image -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-image text-blue-500 mr-2"></i>
+                                ITEM IMAGE (OPTIONAL)
+                            </label>
+                            <div class="relative">
+                                <input type="file" name="image" accept="image/*" class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <div class="mt-2 text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Supported formats: JPG, PNG, GIF (Max 5MB)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8 sm:mt-10">
+                        <button type="button" onclick="closeEditItemModal()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-6 py-4 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Item
+                        </button>
+                    </div>
+                </form>
             </div>
-                    
-                    <!-- Item Price -->
-                        <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ITEM PRICE</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base">KSh</span>
-                            <input type="number" name="price" required id="edit_price" placeholder="0.00" step="0.01" min="0" class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                        </div>
-                    </div>
-                    
-                    <!-- Item Image -->
-                        <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ITEM IMAGE (OPTIONAL)</label>
-                        <div class="relative">
-                            <input type="file" name="image" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                            <div class="mt-2 text-xs text-gray-500">Supported formats: JPG, PNG, GIF (Max 5MB)</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Form Actions -->
-                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6 lg:mt-8">
-                    <button type="button" onclick="closeEditItemModal()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors duration-200 font-semibold text-sm sm:text-base">
-                        Cancel
-                    </button>
-                    <button type="submit" class="w-full sm:w-auto bg-primary-orange text-white px-6 py-3 rounded-xl hover:bg-secondary-orange transition-colors duration-200 font-semibold text-sm sm:text-base">
-                        <i class="fas fa-save mr-2"></i>
-                        Update Item
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
 <!-- Stock Management Modal -->
-<div id="stockModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-2 sm:top-5 lg:top-10 mx-auto p-3 sm:p-4 lg:p-5 border w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 shadow-lg rounded-xl sm:rounded-2xl bg-white">
-        <div class="mt-2 sm:mt-3">
-            <div class="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
-                <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800" id="stock-modal-title">Stock Management</h3>
-                <button onclick="closeStockModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <i class="fas fa-times text-base sm:text-lg lg:text-xl"></i>
-                </button>
-            </div>
-            
-            <div id="stockItemInfo" class="mb-6 p-4 bg-gray-50 rounded-xl">
-                <!-- Item info will be populated here -->
-            </div>
-            
-            <form id="stockForm">
-                <input type="hidden" name="item_id" id="stock_item_id">
-                <input type="hidden" name="action" id="stock_action">
-                
-                <!-- Stock In Fields -->
-                <div id="stock-in-fields" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">QUANTITY</label>
-                            <input type="number" name="stock_in_quantity" min="1" placeholder="ENTER QUANTITY" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
+<div id="stockModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
+    <div class="relative top-4 sm:top-8 lg:top-12 mx-auto p-4 sm:p-6 lg:p-8 w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-4xl">
+        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="stockModalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-green-500 via-green-600 to-green-700 px-6 sm:px-8 py-6 sm:py-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-warehouse text-white text-xl sm:text-2xl"></i>
                         </div>
-                        
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">PRICE PER UNIT</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base">KSh</span>
-                                <input type="number" name="price_per_unit" step="0.01" min="0" placeholder="0.00" class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
+                            <h3 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white" id="stock-modal-title">Stock Management</h3>
+                            <p class="text-green-100 text-sm sm:text-base">Manage inventory levels</p>
+                        </div>
+                    </div>
+                    <button onclick="closeStockModal()" class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all duration-200">
+                        <i class="fas fa-times text-lg sm:text-xl"></i>
+                    </button>
                 </div>
             </div>
-        </div>
-
-                    <div class="mb-4 sm:mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">PLACE PURCHASED FROM</label>
-                        <input type="text" name="place_purchased_from" placeholder="ENTER PLACE PURCHASED FROM" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
-            </div>
-                        </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 sm:p-8">
+                <div id="stockItemInfo" class="mb-6 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                    <!-- Item info will be populated here -->
+                </div>
                 
-                <!-- Stock Out Fields -->
-                <div id="stock-out-fields" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">QUANTITY</label>
-                            <input type="number" name="stock_out_quantity" min="1" placeholder="ENTER QUANTITY" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                    </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">TRANSACTION TYPE</label>
-                            <select name="transaction_type" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                                <option value="">SELECT TYPE</option>
-                                <option value="sale">SALE</option>
-                                <option value="return">RETURN</option>
-                                <option value="waste">WASTE</option>
-                            </select>
-                        </div>
-                    </div>
+                <form id="stockForm">
+                    <input type="hidden" name="item_id" id="stock_item_id">
+                    <input type="hidden" name="action" id="stock_action">
                     
-                    <!-- Sale Fields -->
-                    <div id="sale-fields" class="hidden mb-4 sm:mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">SELLING PRICE</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base">KSh</span>
-                            <input type="number" name="selling_price" step="0.01" min="0" placeholder="0.00" class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                        </div>
-                    </div>
-                    
-                    <!-- Return Fields -->
-                    <div id="return-fields" class="hidden mb-4 sm:mb-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <!-- Stock In Fields -->
+                    <div id="stock-in-fields" class="hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">REFUND ISSUED</label>
-                                <div class="flex items-center space-x-4">
-                                    <label class="flex items-center">
-                                        <input type="radio" name="refund_issued" value="true" class="mr-2">
-                                        <span class="text-sm">YES</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" name="refund_issued" value="false" class="mr-2">
-                                        <span class="text-sm">NO</span>
-                                    </label>
-                        </div>
-                    </div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+                                    QUANTITY
+                                </label>
+                                <div class="relative">
+                                    <input type="number" name="stock_in_quantity" min="1" placeholder="Enter quantity" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base transition-all duration-200">
+                                    <i class="fas fa-hashtag absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">REASON FOR RETURN</label>
-                                <input type="text" name="reason" placeholder="ENTER REASON FOR RETURN" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-dollar-sign text-green-500 mr-2"></i>
+                                    PRICE PER UNIT
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base font-medium">KSh</span>
+                                    <input type="number" name="price_per_unit" step="0.01" min="0" placeholder="0.00" class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base transition-all duration-200">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-6 sm:mb-8">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-store text-green-500 mr-2"></i>
+                                PLACE PURCHASED FROM
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="place_purchased_from" placeholder="Enter place purchased from" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base transition-all duration-200">
+                                <i class="fas fa-map-marker-alt absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
                         </div>
                     </div>
-                        </div>
                     
-                    <!-- Waste Fields -->
-                    <div id="waste-fields" class="hidden mb-4 sm:mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">REASON FOR WASTE</label>
-                        <input type="text" name="reason" placeholder="ENTER REASON FOR WASTE" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base uppercase">
+                    <!-- Stock Out Fields -->
+                    <div id="stock-out-fields" class="hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-minus-circle text-red-500 mr-2"></i>
+                                    QUANTITY
+                                </label>
+                                <div class="relative">
+                                    <input type="number" name="stock_out_quantity" min="1" placeholder="Enter quantity" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base transition-all duration-200">
+                                    <i class="fas fa-hashtag absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-tags text-red-500 mr-2"></i>
+                                    TRANSACTION TYPE
+                                </label>
+                                <div class="relative">
+                                    <select name="transaction_type" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base transition-all duration-200 appearance-none bg-white">
+                                        <option value="">Select transaction type</option>
+                                        <option value="sale">Sale</option>
+                                        <option value="return">Return</option>
+                                        <option value="waste">Waste</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sale Fields -->
+                        <div id="sale-fields" class="hidden mb-6 sm:mb-8">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-dollar-sign text-blue-500 mr-2"></i>
+                                SELLING PRICE
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base font-medium">KSh</span>
+                                <input type="number" name="selling_price" step="0.01" min="0" placeholder="0.00" class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200">
+                            </div>
+                        </div>
+                        
+                        <!-- Return Fields -->
+                        <div id="return-fields" class="hidden mb-6 sm:mb-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                        <i class="fas fa-undo text-yellow-500 mr-2"></i>
+                                        REFUND ISSUED
+                                    </label>
+                                    <div class="flex items-center space-x-6">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="radio" name="refund_issued" value="true" class="mr-3 w-4 h-4 text-yellow-500 focus:ring-yellow-500">
+                                            <span class="text-sm font-medium">Yes</span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="radio" name="refund_issued" value="false" class="mr-3 w-4 h-4 text-yellow-500 focus:ring-yellow-500">
+                                            <span class="text-sm font-medium">No</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                        <i class="fas fa-comment text-yellow-500 mr-2"></i>
+                                        REASON FOR RETURN
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" name="reason" placeholder="Enter reason for return" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base transition-all duration-200">
+                                        <i class="fas fa-comment-dots absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Waste Fields -->
+                        <div id="waste-fields" class="hidden mb-6 sm:mb-8">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-trash text-red-500 mr-2"></i>
+                                REASON FOR WASTE
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="reason" placeholder="Enter reason for waste" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base transition-all duration-200">
+                                <i class="fas fa-exclamation-triangle absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Form Actions -->
-                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-6 lg:mt-8">
-                    <button type="button" onclick="closeStockModal()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors duration-200 font-semibold text-sm sm:text-base">
-                        Cancel
-                    </button>
-                    <button type="submit" id="stockSubmitBtn" class="w-full sm:w-auto bg-primary-orange text-white px-6 py-3 rounded-xl hover:bg-secondary-orange transition-colors duration-200 font-semibold text-sm sm:text-base">
-                        <i class="fas fa-save mr-2"></i>
-                        Update Stock
-                    </button>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8 sm:mt-10">
+                        <button type="button" onclick="closeStockModal()" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-6 py-4 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" id="stockSubmitBtn" class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Stock
+                        </button>
+                    </div>
+                </form>
             </div>
-            </form>
         </div>
     </div>
 </div>
@@ -975,14 +997,32 @@
 
     // Modal Functions
     function showAddItemModal() {
-        document.getElementById('addItemModal').classList.remove('hidden');
+        const modal = document.getElementById('addItemModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        
+        // Trigger animation
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
     }
 
     function closeAddItemModal() {
-        document.getElementById('addItemModal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        document.getElementById('addItemForm').reset();
+        const modal = document.getElementById('addItemModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        // Trigger close animation
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('addItemForm').reset();
+        }, 300);
     }
 
     function showEditItemModal(itemId) {
@@ -998,8 +1038,17 @@
                     document.getElementById('edit_description').value = item.description;
                     document.getElementById('edit_price').value = item.price;
                     
-                    document.getElementById('editItemModal').classList.remove('hidden');
+                    const modal = document.getElementById('editItemModal');
+                    const modalContent = document.getElementById('editModalContent');
+                    
+                    modal.classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                        modalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
                 } else {
                     showNotification(data.message || 'Failed to load item data', 'error');
                 }
@@ -1011,9 +1060,18 @@
     }
 
     function closeEditItemModal() {
-        document.getElementById('editItemModal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        document.getElementById('editItemForm').reset();
+        const modal = document.getElementById('editItemModal');
+        const modalContent = document.getElementById('editModalContent');
+        
+        // Trigger close animation
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('editItemForm').reset();
+        }, 300);
     }
 
     function showStockModal(itemId, action) {
@@ -1030,12 +1088,12 @@
                     const itemInfo = document.getElementById('stockItemInfo');
                     itemInfo.innerHTML = `
                         <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-gradient-to-r from-primary-orange to-primary-blue rounded-xl flex items-center justify-center">
+                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-box text-white text-lg"></i>
                             </div>
                             <div>
                                 <h4 class="font-semibold text-gray-800">${item.name}</h4>
-                                <p class="text-sm text-gray-600">Current Stock: <span class="font-semibold">${item.stock || 0}</span></p>
+                                <p class="text-sm text-gray-600">Current Stock: <span class="font-semibold text-green-600">${item.stock || 0}</span></p>
                                 <p class="text-sm text-gray-600">Category: ${item.category.replace('_', ' ')}</p>
                             </div>
                         </div>
@@ -1052,21 +1110,30 @@
                     if (action === 'stock_in') {
                         modalTitle.textContent = 'Stock In - Purchase Record';
                         submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Stock In';
-                        submitBtn.className = 'w-full sm:w-auto bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-colors duration-200 font-semibold text-sm sm:text-base';
+                        submitBtn.className = 'w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5';
                         
                         stockInFields.classList.remove('hidden');
                         stockOutFields.classList.add('hidden');
                     } else {
                         modalTitle.textContent = 'Stock Out - Transaction Record';
                         submitBtn.innerHTML = '<i class="fas fa-minus mr-2"></i>Stock Out';
-                        submitBtn.className = 'w-full sm:w-auto bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-colors duration-200 font-semibold text-sm sm:text-base';
+                        submitBtn.className = 'w-full sm:w-auto bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5';
                         
                         stockInFields.classList.add('hidden');
                         stockOutFields.classList.remove('hidden');
                     }
                     
-                    document.getElementById('stockModal').classList.remove('hidden');
+                    const modal = document.getElementById('stockModal');
+                    const modalContent = document.getElementById('stockModalContent');
+                    
+                    modal.classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                        modalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
                 } else {
                     showNotification('Failed to load item data', 'error');
                 }
@@ -1078,24 +1145,33 @@
     }
 
     function closeStockModal() {
-        document.getElementById('stockModal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        const modal = document.getElementById('stockModal');
+        const modalContent = document.getElementById('stockModalContent');
         
-        // Reset form
-        document.getElementById('stockForm').reset();
+        // Trigger close animation
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
         
-        // Hide all conditional fields
-        document.getElementById('stock-in-fields').classList.add('hidden');
-        document.getElementById('stock-out-fields').classList.add('hidden');
-        document.getElementById('sale-fields').classList.add('hidden');
-        document.getElementById('return-fields').classList.add('hidden');
-        document.getElementById('waste-fields').classList.add('hidden');
-        
-        // Clear any validation states
-        const inputs = document.querySelectorAll('#stockForm input, #stockForm select');
-        inputs.forEach(input => {
-            input.classList.remove('border-red-500');
-        });
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            // Reset form
+            document.getElementById('stockForm').reset();
+            
+            // Hide all conditional fields
+            document.getElementById('stock-in-fields').classList.add('hidden');
+            document.getElementById('stock-out-fields').classList.add('hidden');
+            document.getElementById('sale-fields').classList.add('hidden');
+            document.getElementById('return-fields').classList.add('hidden');
+            document.getElementById('waste-fields').classList.add('hidden');
+            
+            // Clear any validation states
+            const inputs = document.querySelectorAll('#stockForm input, #stockForm select');
+            inputs.forEach(input => {
+                input.classList.remove('border-red-500');
+            });
+        }, 300);
     }
 
     // Handle transaction type change for stock out
@@ -1370,8 +1446,7 @@
         let filteredItems = allItems.filter(item => {
             const matchesSearch = !searchTerm || 
                 item.name.toLowerCase().includes(searchTerm) ||
-                item.category.toLowerCase().includes(searchTerm) ||
-                (item.sku && item.sku.toLowerCase().includes(searchTerm));
+                item.category.toLowerCase().includes(searchTerm);
             
             const matchesCategory = !categoryFilter || item.category === categoryFilter;
             const matchesStatus = !statusFilter || item.status === statusFilter;
@@ -1466,15 +1541,14 @@
         }
 
         const csvContent = [
-            ['Name', 'Category', 'Description', 'Price', 'Stock', 'Status', 'SKU'].join(','),
+            ['Name', 'Category', 'Description', 'Price', 'Stock', 'Status'].join(','),
             ...items.map(item => [
                 `"${item.name}"`,
                 `"${item.category}"`,
                 `"${item.description}"`,
                 item.price,
                 item.stock,
-                item.status,
-                `"${item.sku}"`
+                item.status
             ].join(','))
         ].join('\n');
 
@@ -1616,89 +1690,90 @@
         // Group items by category
         const groupedItems = groupItemsByCategory(items);
         
-        // Render categories with horizontal scrolling
+        // Render items in professional list format
         itemsList.innerHTML = Object.keys(groupedItems).map(category => `
-            <div class="category-section mb-12">
+            <div class="category-section mb-8">
                 <div class="modern-category-header">
                     <div class="flex items-center justify-between">
                         <h3 class="modern-category-title capitalize">${category.replace('_', ' ')}</h3>
                         <span class="modern-category-count">${groupedItems[category].length} items</span>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="flex space-x-6 overflow-x-auto pb-6 modern-scrollbar" style="scrollbar-width: thin; -ms-overflow-style: auto;">
-                        ${groupedItems[category].map(item => `
-                            <div class="flex-shrink-0 modern-card w-72 sm:w-80 lg:w-96 ${!item.stock_update_enabled ? 'ring-2 ring-orange-200' : ''}">
-                                <div class="p-4 sm:p-5 lg:p-6">
-                                    <!-- Header Section -->
-                                    <div class="flex items-start justify-between mb-3 sm:mb-4">
-                                        <div class="flex items-start space-x-3 sm:space-x-4 flex-1 min-w-0">
-                                            <div class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 relative overflow-hidden">
-                                                ${item.image_url ? 
-                                                    `<img src="${item.image_url}" alt="${item.name}" class="w-full h-full object-cover rounded-xl sm:rounded-2xl">` :
-                                                    `<i class="fas fa-box text-white text-sm sm:text-lg lg:text-xl"></i>`
-                                                }
-                                                <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+                <div class="professional-list overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${groupedItems[category].map(item => `
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200 ${!item.stock_update_enabled ? 'bg-orange-50' : ''}">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-12 w-12">
+                                                    <div class="h-12 w-12 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm relative overflow-hidden">
+                                                        ${item.image_url ? 
+                                                            `<img src="${item.image_url}" alt="${item.name}" class="h-full w-full object-cover rounded-lg">` :
+                                                            `<i class="fas fa-box text-white text-lg"></i>`
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">${item.name}</div>
+                                                </div>
                                             </div>
-                                            <div class="min-w-0 flex-1">
-                                                <h3 class="font-bold text-gray-900 text-base sm:text-lg truncate mb-1">${item.name}</h3>
-                                                <p class="text-gray-600 text-xs sm:text-sm mb-2">${item.category.replace('_', ' ')} • <span class="font-semibold text-green-600">KSh ${item.price}</span></p>
-                                                <p class="text-xs text-gray-500 mb-1">SKU: ${item.sku || 'N/A'}</p>
-                                                <p class="text-xs text-gray-500 line-clamp-2">${item.description}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Status and Toggle Section -->
-                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 p-2 sm:p-3 bg-gray-50 rounded-lg sm:rounded-xl space-y-2 sm:space-y-0">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <span class="modern-badge ${getModernStockBadgeClass(item.stock)}">
-                                                <i class="fas ${getStockIcon(item.stock)} mr-1"></i>
-                                                <span class="hidden sm:inline">${getStockText(item.stock)}</span>
-                                                <span class="sm:hidden">${item.stock}</span>
-                                            </span>
-                                            ${!item.stock_update_enabled ? `
-                                                <span class="modern-badge modern-badge-warning">
-                                                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                                                    <span class="hidden sm:inline">Tracking Off</span>
-                                                    <span class="sm:hidden">Off</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900 capitalize">${item.category.replace('_', ' ')}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-semibold text-green-600">KSh ${item.price}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="modern-badge ${getModernStockBadgeClass(item.stock)}">
+                                                    <i class="fas ${getStockIcon(item.stock)} mr-1"></i>
+                                                    ${getStockText(item.stock)}
                                                 </span>
-                                            ` : ''}
-                                        </div>
-                                        <div class="flex items-center justify-between sm:justify-end space-x-2">
-                                            <span class="text-xs text-gray-500 font-medium hidden sm:inline">Auto Stock:</span>
-                                            <label class="modern-toggle">
-                                                <input type="checkbox" ${item.stock_update_enabled ? 'checked' : ''} 
-                                                       onchange="toggleStockUpdate(${item.id}, this.checked)">
-                                                <span class="modern-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Action Buttons -->
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <button onclick="showEditItemModal(${item.id})" class="modern-btn modern-btn-secondary px-2 sm:px-3 lg:px-4 py-2 sm:py-3 text-xs sm:text-sm">
-                                            <i class="fas fa-edit"></i>
-                                            <span class="hidden sm:inline">Edit</span>
-                                        </button>
-                                        <button onclick="showStockModal(${item.id}, 'stock_in')" class="modern-btn modern-btn-success px-2 sm:px-3 lg:px-4 py-2 sm:py-3 text-xs sm:text-sm">
-                                            <i class="fas fa-plus"></i>
-                                            <span class="hidden sm:inline">Stock In</span>
-                                            <span class="sm:hidden">In</span>
-                                        </button>
-                                        <button onclick="showStockModal(${item.id}, 'stock_out')" class="modern-btn modern-btn-danger px-2 sm:px-3 lg:px-4 py-2 sm:py-3 text-xs sm:text-sm">
-                                            <i class="fas fa-minus"></i>
-                                            <span class="hidden sm:inline">Stock Out</span>
-                                            <span class="sm:hidden">Out</span>
-                                        </button>
-                                        <button onclick="deleteItem(${item.id})" class="modern-btn modern-btn-danger px-2 sm:px-3 lg:px-4 py-2 sm:py-3 text-xs sm:text-sm">
-                                            <i class="fas fa-trash"></i>
-                                            <span class="hidden sm:inline">Delete</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-xs text-gray-500 font-medium">Auto Stock:</span>
+                                                <label class="modern-toggle">
+                                                    <input type="checkbox" ${item.stock_update_enabled ? 'checked' : ''} 
+                                                           onchange="toggleStockUpdate(${item.id}, this.checked)">
+                                                    <span class="modern-toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <button onclick="showEditItemModal(${item.id})" class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 p-2 rounded-lg hover:bg-indigo-50">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="showStockModal(${item.id}, 'stock_in')" class="text-green-600 hover:text-green-900 transition-colors duration-200 p-2 rounded-lg hover:bg-green-50">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                                <button onclick="showStockModal(${item.id}, 'stock_out')" class="text-yellow-600 hover:text-yellow-900 transition-colors duration-200 p-2 rounded-lg hover:bg-yellow-50">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <button onclick="deleteItem(${item.id})" class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 rounded-lg hover:bg-red-50">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
