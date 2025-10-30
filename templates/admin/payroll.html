@@ -1,0 +1,575 @@
+{% extends "role_base.html" %}
+
+{% block title %}Payroll Registration - Admin Panel{% endblock %}
+
+{% block sidebar_icon %}crown{% endblock %}
+{% block sidebar_title %}Admin Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Payroll -->
+<a href="/admin/payroll" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-money-check-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Payroll</p>
+        <p class="text-xs text-white/70">Salaries & payroll</p>
+    </div>
+</a>
+<!-- Register Payroll Modal Link -->
+<a href="#" id="open-payroll-modal" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-plus text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Register Payroll</p>
+        <p class="text-xs text-white/70">Add payroll profile</p>
+    </div>
+</a>
+<!-- Offdays -->
+<a href="/admin/off-days-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Offdays</p>
+        <p class="text-xs text-white/70">Leave & off days</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-3xl mb-8">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+    <div class="relative px-6 py-8 lg:px-8 lg:py-12">
+        <div class="flex items-center space-x-4 mb-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-money-check-alt text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent">
+                    Payroll Management
+                </h1>
+                <p class="text-gray-600 text-base lg:text-lg font-medium mt-1">Manage or register payroll details for employees.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Payroll Cards -->
+<div id="payrolls-section" class="mb-8">
+  <div id="payrolls-loading" class="text-center py-14 hidden animate-pulse">
+    <i class="fas fa-spinner fa-spin text-3xl text-blue-400"></i>
+    <p class="mt-2 text-gray-500">Loading payrolls...</p>
+  </div>
+  <div id="payrolls-empty" class="text-center py-14 text-gray-400 hidden">
+    <div class="flex flex-col items-center">
+      <i class="fas fa-users-slash text-6xl mb-4 text-blue-200"></i>
+      <p class="font-semibold text-lg">No active employee payrolls found.</p>
+      <p class="mt-2 text-base">All registered payrolls for currently active employees will show here.</p>
+    </div>
+  </div>
+  <div id="payrolls-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-2 md:p-4"></div>
+</div>
+
+<!-- Modern Payroll Detail Modal -->
+<div id="payroll-detail-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full mx-3 p-0 animate-fade-in-up relative overflow-hidden">
+    <button id="detail-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-blue-700 transition-colors text-2xl"><i class="fas fa-times"></i></button>
+    <div class="flex flex-col items-center justify-center py-10 px-4">
+      <img id="detail-profile-photo" alt="Profile Photo" class="w-24 h-24 rounded-2xl object-cover mb-5 border-4 border-blue-200 shadow-xl" onerror="this.style.display='none'" style="background:#f3f4f6;"/>
+      <h2 id="detail-name" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+      <div class="flex items-center gap-2"><span id="detail-role" class="text-blue-900 font-semibold"></span><span class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded">Active</span></div>
+      <div class="mt-4 w-full flex flex-col sm:flex-row sm:justify-between items-center mb-2 px-2">
+        <div class="font-semibold text-gray-700">Basic Salary:</div> 
+        <div id="detail-salary" class="text-2xl font-bold text-blue-700">KES 0</div>
+      </div>
+      <div class="w-full bg-gray-50 rounded-xl mt-3 mb-2 px-4 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-1">
+          <div><span class="font-medium">Email:</span> <span id="detail-email"></span></div>
+          <div><span class="font-medium">Employee Code:</span> <span id="detail-code"></span></div>
+          <div><span class="font-medium">Allowances:</span> <span id="detail-allowances"></span></div>
+          <div><span class="font-medium">Deductions:</span> <span id="detail-deductions"></span></div>
+          <div><span class="font-medium">Bank:</span> <span id="detail-bank"></span></div>
+          <div><span class="font-medium">Account/Mobile #:</span> <span id="detail-account"></span></div>
+          <div><span class="font-medium">Payment Freq:</span> <span id="detail-freq"></span></div>
+        </div>
+        <hr class="my-2">
+        <div class="font-semibold text-blue-800 mb-1">Compliance</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-1">
+          <div><span class="font-medium">KRA PIN:</span> <span id="detail-kra"></span></div>
+          <div><span class="font-medium">NSSF:</span> <span id="detail-nssf"></span></div>
+          <div><span class="font-medium">NHIF:</span> <span id="detail-nhif"></span></div>
+          <div><span class="font-medium">HELB:</span> <span id="detail-helb"></span></div>
+        </div>
+      </div>
+      <button id="detail-edit-btn" class="mt-4 inline-flex items-center gap-2 px-5 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring ring-blue-200 transition font-semibold"><i class="fas fa-pen"></i>Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Animated Payroll Edit Modal (placeholder for now) -->
+<div id="payroll-edit-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-3 p-0 animate-fade-in-up relative overflow-hidden">
+    <button id="edit-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-blue-700 transition-colors text-2xl"><i class="fas fa-times"></i></button>
+    <div class="bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-5 border-b border-blue-100 rounded-t-3xl">
+      <h2 class="text-xl font-bold text-blue-800">Edit Payroll Profile</h2>
+    </div>
+    <div class="p-6 lg:p-8">
+      <form id="payroll-edit-form" class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Employee</label>
+            <input id="edit-employee-name" type="text" readonly class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-700 font-bold">
+            <p class="text-xs text-gray-500 mt-1">Full name (not editable)</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+            <input id="edit-employee-role" type="text" readonly class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600">
+          </div>
+        </div>
+        <!-- Compensation -->
+        <div class="bg-gray-50 rounded-2xl p-6 space-y-6">
+          <h3 class="text-lg font-semibold text-gray-900">Compensation</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Basic Salary</label>
+              <input id="edit-basic-salary" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" required>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Allowances (total)</label>
+              <input id="edit-allowances" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="Transport, housing, overtime...">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Deductions (total)</label>
+              <input id="edit-deductions" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="Loans, SACCO, etc.">
+            </div>
+          </div>
+        </div>
+        <!-- Payment details -->
+        <div class="bg-gray-50 rounded-2xl p-6 space-y-6">
+          <h3 class="text-lg font-semibold text-gray-900">Payment Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Frequency</label>
+              <select id="edit-payment-frequency" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" required>
+                <option value="monthly">Monthly</option>
+                <option value="semi-monthly">Semi-monthly</option>
+                <option value="bi-weekly">Bi-weekly</option>
+                <option value="weekly">Weekly</option>
+                <option value="daily">Daily</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Bank Name</label>
+              <input id="edit-bank-name" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="e.g., KCB, Equity">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Bank A/C or Mobile Money No.</label>
+              <input id="edit-account-number" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="Account or M-Pesa number">
+            </div>
+          </div>
+        </div>
+        <!-- Statutory & Compliance (optional) -->
+        <div class="bg-gray-50 rounded-2xl p-6 space-y-6">
+          <h3 class="text-lg font-semibold text-gray-900">Statutory & Compliance (Optional)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">KRA PIN (PAYE)</label>
+              <input id="edit-kra-pin" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="A00XXXXX...">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">NSSF Number</label>
+              <input id="edit-nssf" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="NSSF ID">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">NHIF Number</label>
+              <input id="edit-nhif" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="NHIF ID">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">HELB Number</label>
+              <input id="edit-helb" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="If applicable">
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-4">
+          <button type="button" id="edit-cancel-btn" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold">Cancel</button>
+          <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="payroll-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-3xl shadow-xl border border-gray-100 w-full max-w-2xl mx-4 relative">
+    <button id="close-payroll-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors"><i class="fas fa-times text-xl"></i></button>
+    <div class="bg-gradient-to-r from-gray-50 to-blue-50 px-6 py-6 lg:px-8 lg:py-8 border-b border-gray-200 rounded-t-3xl">
+      <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Register Payroll Profile</h2>
+      <p class="text-gray-600 text-sm lg:text-base">Fill in all payroll and compliance details for the employee.</p>
+    </div>
+    <div class="p-6 lg:p-8">
+      <form id="payroll-form" class="space-y-8">
+        <!-- Employee selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Employee</label>
+            <select id="employee-id" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" required></select>
+            <p class="text-xs text-gray-500 mt-1">Full name and code</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+            <input id="employee-role" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600" readonly>
+          </div>
+        </div>
+        <!-- Compensation -->
+        <div class="bg-gray-50 rounded-2xl p-6 space-y-6">
+          <h3 class="text-lg font-semibold text-gray-900">Compensation</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Basic Salary</label>
+              <input id="basic-salary" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" required>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Allowances (total)</label>
+              <input id="allowances" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="Transport, housing, overtime...">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Deductions (total)</label>
+              <input id="deductions" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="Loans, SACCO, etc.">
+            </div>
+          </div>
+        </div>
+        <!-- Payment details -->
+        <div class="bg-gray-50 rounded-2xl p-6 space-y-6">
+          <h3 class="text-lg font-semibold text-gray-900">Payment Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Frequency</label>
+              <select id="payment-frequency" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" required>
+                <option value="monthly">Monthly</option>
+                <option value="semi-monthly">Semi-monthly</option>
+                <option value="bi-weekly">Bi-weekly</option>
+                <option value="weekly">Weekly</option>
+                <option value="daily">Daily</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Bank Name</label>
+              <input id="bank-name" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="e.g., KCB, Equity">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Bank A/C or Mobile Money No.</label>
+              <input id="account-number" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="Account or M-Pesa number">
+            </div>
+          </div>
+        </div>
+        <!-- Statutory & Compliance (optional) -->
+        <div class="bg-gray-50 rounded-2xl p-6 space-y-6">
+          <h3 class="text-lg font-semibold text-gray-900">Statutory & Compliance (Optional)</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">KRA PIN (PAYE)</label>
+              <input id="kra-pin" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="A00XXXXX...">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">NSSF Number</label>
+              <input id="nssf" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="NSSF ID">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">NHIF Number</label>
+              <input id="nhif" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="NHIF ID">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">HELB Number</label>
+              <input id="helb" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" placeholder="If applicable">
+            </div>
+          </div>
+        </div>
+        <!-- Actions -->
+        <div class="flex justify-end space-x-4">
+          <button type="button" id="cancel-payroll-modal" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold">Cancel</button>
+          <button type="submit" id="submit-payroll" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+            Save Payroll Profile
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let employees = [];
+    let lastPayrollClicked = null;
+    function openPayrollModal() {
+      document.getElementById('payroll-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closePayrollModal() {
+      document.getElementById('payroll-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+      document.getElementById('payroll-form').reset();
+    }
+    // --- FETCH PAYROLLS ---
+    async function loadPayrolls() {
+      document.getElementById('payrolls-loading').classList.remove('hidden');
+      document.getElementById('payrolls-empty').classList.add('hidden');
+      const grid = document.getElementById('payrolls-grid');
+      grid.innerHTML = '';
+      try {
+        const res = await fetch('/api/payroll/all');
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed to load payrolls');
+        if (!data.payrolls || data.payrolls.length === 0) {
+          document.getElementById('payrolls-empty').classList.remove('hidden');
+        } else {
+          data.payrolls.forEach(pay => {
+            const card = document.createElement('div');
+            card.className = `group bg-white rounded-2xl shadow-xl border border-blue-100 hover:shadow-2xl transition-transform duration-300 transform hover:-translate-y-2 hover:scale-105 flex flex-col items-center p-6 relative cursor-pointer animate-fade-in`;
+            // Card content
+            card.innerHTML = `
+              <div class="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-10 sm:opacity-100 sm:static">
+                <button aria-label="View Details" class="focus:outline-none bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl p-2 shadow-sm transition-all view-payroll-btn" data-payroll='${JSON.stringify(pay).replace(/'/g,"&#39;")}'><i class="fas fa-eye"></i></button>
+                <button aria-label="Edit Payroll" class="focus:outline-none bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl p-2 shadow-sm transition-all edit-payroll-btn" data-payroll='${JSON.stringify(pay).replace(/'/g,"&#39;")}'><i class="fas fa-pen"></i></button>
+              </div>
+              <img src="${pay.profile_photo ? '/static/uploads/' + pay.profile_photo : ''}" alt="${pay.full_name}" class="w-20 h-20 rounded-xl object-cover mb-5 border-2 border-blue-100 shadow-md" onerror="this.style.display='none'" style="background:#f3f4f6;"/>
+              <h3 class="text-lg font-bold text-gray-800 mb-1 text-center line-clamp-1 view-clickable">${pay.full_name}</h3>
+              <div class="text-xs font-medium text-gray-400 mb-3">${pay.role}</div>
+              <div class="flex items-center gap-1 text-blue-800 font-bold text-xl view-clickable">
+                <span>KES</span> <span>${Number(pay.basic_salary).toLocaleString()}</span>
+              </div>
+            `;
+            // Add click handlers (photo, name, salary, eye icon)
+            const openViewFn = e => {
+              e.stopPropagation();
+              showDetailsModal(pay);
+            };
+            card.querySelectorAll('.view-clickable, .view-payroll-btn').forEach(el => {
+              el.onclick = openViewFn;
+            });
+            // Edit button
+            card.querySelectorAll('.edit-payroll-btn').forEach(el => {
+              el.onclick = e => {
+                e.stopPropagation();
+                showEditModal(pay);
+              };
+            });
+            grid.appendChild(card);
+          });
+        }
+      } catch (err) {
+        showNotification('Error loading payrolls.','error');
+        document.getElementById('payrolls-empty').classList.remove('hidden');
+      } finally {
+        document.getElementById('payrolls-loading').classList.add('hidden');
+      }
+    }
+    // Refresh after registration
+    async function refreshPayrollsAfterSubmit() {
+      await loadPayrolls();
+    }
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadEmployees();
+      await loadPayrolls();
+      setupFormHandlers();
+      document.getElementById('open-payroll-modal').onclick = (e) => { e.preventDefault(); openPayrollModal(); };
+      document.getElementById('cancel-payroll-modal').onclick = closePayrollModal;
+      document.getElementById('close-payroll-modal').onclick = closePayrollModal;
+      document.getElementById('payroll-modal').addEventListener('click', function(e) {
+        if (e.target === this) closePayrollModal();
+      });
+    });
+
+    async function loadEmployees() {
+        try {
+            const res = await fetch('/api/hr/employees');
+            const data = await res.json();
+            if (!data.success) throw new Error('Failed to load employees');
+            employees = data.employees || [];
+            const select = document.getElementById('employee-id');
+            select.innerHTML = '<option value="" disabled selected>Select employee</option>';
+            employees.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.textContent = `${emp.full_name} (ID: ${emp.employee_code})`;
+                opt.dataset.role = emp.role;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            showNotification('Error loading employees', 'error');
+            console.error(e);
+        }
+    }
+
+    function setupFormHandlers() {
+        const employeeSelect = document.getElementById('employee-id');
+        const roleInput = document.getElementById('employee-role');
+        employeeSelect.addEventListener('change', () => {
+            const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
+            roleInput.value = selectedOption?.dataset?.role || '';
+        });
+
+        document.getElementById('payroll-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                employee_id: parseInt(document.getElementById('employee-id').value, 10),
+                basic_salary: parseFloat(document.getElementById('basic-salary').value || '0'),
+                allowances: parseFloat(document.getElementById('allowances').value || '0'),
+                deductions: parseFloat(document.getElementById('deductions').value || '0'),
+                payment_frequency: document.getElementById('payment-frequency').value,
+                bank_name: document.getElementById('bank-name').value.trim(),
+                account_number: document.getElementById('account-number').value.trim(),
+                kra_pin: document.getElementById('kra-pin').value.trim(),
+                nssf: document.getElementById('nssf').value.trim(),
+                nhif: document.getElementById('nhif').value.trim(),
+                helb: document.getElementById('helb').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/payroll/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotification('Payroll profile saved', 'success');
+                    closePayrollModal(); // Close modal on success
+                    await refreshPayrollsAfterSubmit(); // Refresh payrolls after successful registration
+                } else {
+                    showNotification(data.message || 'Failed to save payroll profile', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showNotification('Error saving payroll profile', 'error');
+            }
+        });
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-2xl transition-all duration-300 transform translate-x-full ${
+            type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
+            type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' :
+            'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info'} text-sm"></i>
+                </div>
+                <span class="font-semibold">${message}</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    function showDetailsModal(pay) {
+      lastPayrollClicked = pay;
+      // Fill details
+      document.getElementById('payroll-detail-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('detail-profile-photo').src = pay.profile_photo ? `/static/uploads/${pay.profile_photo}` : '';
+      document.getElementById('detail-profile-photo').style.display = pay.profile_photo ? '' : 'none';
+      document.getElementById('detail-name').textContent = pay.full_name;
+      document.getElementById('detail-role').textContent = pay.role;
+      document.getElementById('detail-salary').textContent = 'KES ' + Number(pay.basic_salary).toLocaleString();
+      document.getElementById('detail-email').textContent = pay.email;
+      document.getElementById('detail-code').textContent = pay.employee_code;
+      document.getElementById('detail-allowances').textContent = pay.allowances ? 'KES ' + Number(pay.allowances).toLocaleString() : '-';
+      document.getElementById('detail-deductions').textContent = pay.deductions ? 'KES ' + Number(pay.deductions).toLocaleString() : '-';
+      document.getElementById('detail-bank').textContent = pay.bank_name || '-';
+      document.getElementById('detail-account').textContent = pay.account_number || '-';
+      document.getElementById('detail-freq').textContent = pay.payment_frequency || '-';
+      document.getElementById('detail-kra').textContent = pay.kra_pin || '-';
+      document.getElementById('detail-nssf').textContent = pay.nssf || '-';
+      document.getElementById('detail-nhif').textContent = pay.nhif || '-';
+      document.getElementById('detail-helb').textContent = pay.helb || '-';
+    }
+    function closeDetailsModal() {
+      document.getElementById('payroll-detail-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('detail-modal-close').onclick = closeDetailsModal;
+    document.getElementById('payroll-detail-modal').onclick = function(e) { if (e.target === this) closeDetailsModal(); };
+    document.addEventListener('keyup', function(e) { if(!document.getElementById('payroll-detail-modal').classList.contains('hidden') && e.key === 'Escape') closeDetailsModal(); });
+    // Edit from inside detail modal
+    document.getElementById('detail-edit-btn').onclick = function(e) { closeDetailsModal(); showEditModal(lastPayrollClicked); };
+
+    // Edit modal logic
+    let currentlyEditingPayroll = null;
+    function showEditModal(pay) {
+      currentlyEditingPayroll = pay;
+      document.getElementById('payroll-edit-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      // Prefill fields
+      document.getElementById('edit-employee-name').value = pay.full_name || '';
+      document.getElementById('edit-employee-role').value = pay.role || '';
+      document.getElementById('edit-basic-salary').value = pay.basic_salary || '';
+      document.getElementById('edit-allowances').value = pay.allowances || '';
+      document.getElementById('edit-deductions').value = pay.deductions || '';
+      document.getElementById('edit-payment-frequency').value = pay.payment_frequency || 'monthly';
+      document.getElementById('edit-bank-name').value = pay.bank_name || '';
+      document.getElementById('edit-account-number').value = pay.account_number || '';
+      document.getElementById('edit-kra-pin').value = pay.kra_pin || '';
+      document.getElementById('edit-nssf').value = pay.nssf || '';
+      document.getElementById('edit-nhif').value = pay.nhif || '';
+      document.getElementById('edit-helb').value = pay.helb || '';
+    }
+    function closeEditModal() {
+      document.getElementById('payroll-edit-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+      currentlyEditingPayroll = null;
+      document.getElementById('payroll-edit-form').reset();
+    }
+    document.getElementById('edit-modal-close').onclick = closeEditModal;
+    document.getElementById('edit-cancel-btn').onclick = closeEditModal;
+    document.getElementById('payroll-edit-modal').onclick = function(e) { if (e.target === this) closeEditModal(); };
+    document.addEventListener('keyup', function(e) { if(!document.getElementById('payroll-edit-modal').classList.contains('hidden') && e.key === 'Escape') closeEditModal(); });
+    // Edit form submit
+    document.getElementById('payroll-edit-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (!currentlyEditingPayroll) return;
+      const payload = {
+        employee_id: currentlyEditingPayroll.employee_id,
+        basic_salary: parseFloat(document.getElementById('edit-basic-salary').value || '0'),
+        allowances: parseFloat(document.getElementById('edit-allowances').value || '0'),
+        deductions: parseFloat(document.getElementById('edit-deductions').value || '0'),
+        payment_frequency: document.getElementById('edit-payment-frequency').value,
+        bank_name: document.getElementById('edit-bank-name').value.trim(),
+        account_number: document.getElementById('edit-account-number').value.trim(),
+        kra_pin: document.getElementById('edit-kra-pin').value.trim(),
+        nssf: document.getElementById('edit-nssf').value.trim(),
+        nhif: document.getElementById('edit-nhif').value.trim(),
+        helb: document.getElementById('edit-helb').value.trim(),
+      };
+      try {
+        const res = await fetch('/api/payroll/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification('Payroll updated','success');
+          closeEditModal();
+          await refreshPayrollsAfterSubmit();
+        } else {
+          showNotification(data.message || 'Failed to save payroll','error');
+        }
+      } catch (err) {
+        console.error(err);
+        showNotification('Error saving payroll','error');
+      }
+    });
+</script>
+{% endblock %}
+
+

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 import pymysql
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
 import hashlib
@@ -50,6 +50,119 @@ def safe_encode_string(text):
         # Remove any problematic Unicode characters and ensure ASCII compatibility
         return text.encode('ascii', 'ignore').decode('ascii')
     return str(text)
+
+def log_cashier_activity(cashier_id, action_type, table_name=None, record_id=None, old_values=None, new_values=None, description=None, request=None):
+    """Log cashier activity for audit purposes"""
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return False
+            
+        cursor = connection.cursor()
+        
+        # Get IP address and user agent from request
+        ip_address = request.remote_addr if request else None
+        user_agent = request.headers.get('User-Agent') if request else None
+        
+        cursor.execute("""
+            INSERT INTO cashier_logs (cashier_id, action_type, table_name, record_id, old_values, new_values, description, ip_address, user_agent)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            cashier_id,
+            action_type,
+            table_name,
+            record_id,
+            old_values,
+            new_values,
+            description,
+            ip_address,
+            user_agent
+        ))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+    except Exception as e:
+        print(f"Error logging cashier activity: {e}")
+        return False
+
+def check_and_auto_close_sessions():
+    """Check for sessions that should be auto-closed at midnight"""
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return False
+            
+        cursor = connection.cursor()
+        
+        # Find active sessions from previous days
+        cursor.execute("""
+            SELECT id, cashier_id, starting_amount, session_date
+            FROM cash_drawer_sessions 
+            WHERE status = 'active' 
+            AND session_date < CURDATE()
+        """)
+        
+        old_sessions = cursor.fetchall()
+        
+        for session in old_sessions:
+            session_id, cashier_id, starting_amount, session_date = session
+            
+            # Calculate totals for the session
+            cursor.execute("""
+                SELECT 
+                    COALESCE(SUM(CASE WHEN transaction_type = 'cash_in' AND description != 'Starting cash amount' THEN amount ELSE 0 END), 0) as total_cash_in,
+                    COALESCE(SUM(CASE WHEN transaction_type = 'cash_out' AND description NOT LIKE 'Safe drop%' AND description NOT LIKE 'End shift%' THEN amount ELSE 0 END), 0) as total_cash_out,
+                    COALESCE(SUM(CASE WHEN description LIKE 'Safe drop%' THEN amount ELSE 0 END), 0) as safe_drops,
+                    COALESCE(SUM(CASE WHEN description LIKE 'End shift%' THEN amount ELSE 0 END), 0) as end_shift_amount
+                FROM cash_drawer_transactions 
+                WHERE employee_id = %s 
+                AND DATE(created_at) = %s
+            """, (cashier_id, session_date))
+            
+            totals = cursor.fetchone()
+            if totals:
+                total_cash_in, total_cash_out, safe_drops, end_shift_amount = totals
+                
+                # Get sales for the day
+                cursor.execute("""
+                    SELECT COALESCE(SUM(total_amount), 0) 
+                    FROM sales 
+                    WHERE employee_id = %s AND DATE(sale_date) = %s
+                """, (cashier_id, session_date))
+                
+                total_sales = cursor.fetchone()[0] or 0
+                
+                # Calculate expected balance
+                expected_balance = starting_amount + total_cash_in + total_sales - total_cash_out - safe_drops
+                
+                # Use end shift amount if available, otherwise use expected balance
+                ending_amount = end_shift_amount if end_shift_amount > 0 else expected_balance
+                variance = ending_amount - expected_balance
+                
+                # Update session
+                cursor.execute("""
+                    UPDATE cash_drawer_sessions 
+                    SET status = 'auto_closed',
+                        end_time = CONCAT(session_date, ' 23:59:59'),
+                        ending_amount = %s,
+                        total_cash_in = %s,
+                        total_cash_out = %s,
+                        total_sales = %s,
+                        variance = %s
+                    WHERE id = %s
+                """, (ending_amount, total_cash_in, total_cash_out, total_sales, variance, session_id))
+                
+                print(f"Auto-closed session {session_id} for cashier {cashier_id} on {session_date}")
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+    except Exception as e:
+        print(f"Error auto-closing sessions: {e}")
+        return False
 
 def create_database():
     """Create database if it doesn't exist"""
@@ -253,6 +366,13 @@ def init_database():
                     # Column might already exist, ignore error
                     pass
                 
+                # Add cashier_confirmed column to sales table if it doesn't exist
+                try:
+                    cursor.execute("ALTER TABLE sales ADD COLUMN cashier_confirmed TINYINT(1) DEFAULT 0")
+                except Exception as e:
+                    # Column might already exist, ignore error
+                    pass
+                
                 # Create sales_items table for tracking individual items in each sale
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS sales_items (
@@ -306,27 +426,61 @@ def init_database():
                 except Exception as e:
                     # Column might already exist, ignore error
                     pass
-                    
+                
                 try:
                     cursor.execute("ALTER TABLE hotel_settings ADD COLUMN show_till BOOLEAN DEFAULT TRUE")
                     print("Added show_till column to hotel_settings table")
                 except Exception as e:
                     # Column might already exist, ignore error
                     pass
-                    
+                
                 try:
                     cursor.execute("ALTER TABLE hotel_settings ADD COLUMN include_tax BOOLEAN DEFAULT TRUE")
                     print("Added include_tax column to hotel_settings table")
                 except Exception as e:
                     # Column might already exist, ignore error
                     pass
-                    
+                
                 try:
                     cursor.execute("ALTER TABLE hotel_settings ADD COLUMN show_images BOOLEAN DEFAULT TRUE")
                     print("Added show_images column to hotel_settings table")
                 except Exception as e:
                     # Column might already exist, ignore error
                     pass
+                
+                # Add receipt settings columns if they don't exist (migration)
+                receipt_columns = [
+                    ("receipt_width", "VARCHAR(20) DEFAULT '58mm'"),
+                    ("receipt_font_size", "VARCHAR(20) DEFAULT 'medium'"),
+                    ("receipt_bold_headers", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_number_format", "VARCHAR(20) DEFAULT 'sequential'"),
+                    ("receipt_number_prefix", "VARCHAR(10) DEFAULT 'POS'"),
+                    ("receipt_starting_number", "INT DEFAULT 1001"),
+                    ("receipt_header_title", "VARCHAR(255)"),
+                    ("receipt_header_subtitle", "VARCHAR(255)"),
+                    ("receipt_header_message", "TEXT"),
+                    ("receipt_show_logo", "BOOLEAN DEFAULT FALSE"),
+                    ("receipt_show_address", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_show_contact", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_footer_message", "TEXT"),
+                    ("receipt_show_datetime", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_show_cashier", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_show_payment", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_show_qr", "BOOLEAN DEFAULT FALSE"),
+                    ("enable_receipt_status_update", "BOOLEAN DEFAULT TRUE"),
+                    ("receipt_address", "TEXT"),
+                    ("receipt_phone", "VARCHAR(50)"),
+                    ("receipt_email", "VARCHAR(255)"),
+                    ("receipt_logo_url", "VARCHAR(500)")
+                ]
+                
+                for column_name, column_definition in receipt_columns:
+                    try:
+                        cursor.execute(f"ALTER TABLE hotel_settings ADD COLUMN {column_name} {column_definition}")
+                        print(f"Added {column_name} column to hotel_settings table")
+                    except Exception as e:
+                        # Column might already exist, ignore error
+                        pass
                 
                 # Create test admin user if it doesn't exist
                 cursor.execute("SELECT COUNT(*) FROM employees WHERE employee_code = '0001'")
@@ -369,7 +523,7 @@ def init_database():
                     admin_id = cursor.fetchone()[0]
                     
                     # Create sample sales for today
-                    from datetime import datetime, timedelta
+                    from datetime import datetime, timedelta, timedelta
                     today = datetime.now()
                     
                     sample_sales = [
@@ -420,6 +574,89 @@ def init_database():
                     )
                 """)
                 
+                # Create employee_payments table for tracking individual employee payments
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS employee_payments (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        employee_id INT NOT NULL,
+                        cashier_id INT NOT NULL,
+                        amount DECIMAL(10,2) NOT NULL,
+                        status ENUM('completed', 'pending', 'cancelled') DEFAULT 'completed',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+                        FOREIGN KEY (cashier_id) REFERENCES employees(id) ON DELETE CASCADE
+                    )
+                """)
+                print("Employee payments table created or already exists")
+                
+                # Create employee_balances table for tracking outstanding balances
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS employee_balances (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        employee_id INT NOT NULL UNIQUE,
+                        total_sales DECIMAL(10,2) DEFAULT 0,
+                        total_payments DECIMAL(10,2) DEFAULT 0,
+                        outstanding_balance DECIMAL(10,2) DEFAULT 0,
+                        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+                    )
+                """)
+                
+                # Initialize balances for existing employees
+                cursor.execute("""
+                    INSERT IGNORE INTO employee_balances (employee_id, total_sales, total_payments, outstanding_balance)
+                    SELECT 
+                        e.id,
+                        COALESCE(SUM(s.total_amount), 0) as total_sales,
+                        0 as total_payments,
+                        COALESCE(SUM(s.total_amount), 0) as outstanding_balance
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE e.status = 'active'
+                    GROUP BY e.id
+                """)
+                
+                # Create cashier_logs table for audit tracking
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS cashier_logs (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        cashier_id INT NOT NULL,
+                        action_type ENUM('create', 'edit', 'delete', 'view', 'open_drawer', 'close_drawer', 'count_cash', 'safe_drop') NOT NULL,
+                        table_name VARCHAR(100),
+                        record_id INT,
+                        old_values JSON,
+                        new_values JSON,
+                        description TEXT,
+                        ip_address VARCHAR(45),
+                        user_agent TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (cashier_id) REFERENCES employees(id) ON DELETE CASCADE
+                    )
+                """)
+                
+                # Create cash_drawer_sessions table for tracking sessions
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS cash_drawer_sessions (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        cashier_id INT NOT NULL,
+                        session_date DATE NOT NULL,
+                        start_time TIMESTAMP NOT NULL,
+                        end_time TIMESTAMP NULL,
+                        starting_amount DECIMAL(10,2) NOT NULL,
+                        ending_amount DECIMAL(10,2) NULL,
+                        status ENUM('active', 'closed', 'auto_closed') DEFAULT 'active',
+                        total_cash_in DECIMAL(10,2) DEFAULT 0,
+                        total_cash_out DECIMAL(10,2) DEFAULT 0,
+                        total_sales DECIMAL(10,2) DEFAULT 0,
+                        variance DECIMAL(10,2) DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (cashier_id) REFERENCES employees(id) ON DELETE CASCADE,
+                        UNIQUE KEY unique_active_session (cashier_id, status) USING BTREE
+                    )
+                """)
+                
                 connection.commit()
                 print("Database tables initialized successfully")
         except Exception as e:
@@ -430,6 +667,10 @@ def init_database():
 def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def verify_password(stored_password, provided_password):
+    """Verify a password against its hash"""
+    return stored_password == provided_password
 
 def hash_password(password):
     """Hash password using SHA-256"""
@@ -524,6 +765,75 @@ def get_employee_profile_photo(employee_id):
     except Exception as e:
         print(f"Error fetching employee profile photo: {e}")
         return None
+    finally:
+        connection.close()
+@app.route('/api/admin/cash-drawer/session/<int:session_id>/logs', methods=['GET'])
+def admin_session_logs(session_id: int):
+    """Return audit logs that happened within a session window for that cashier."""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Get session window and cashier
+            cursor.execute("""
+                SELECT cashier_id, session_date, start_time, COALESCE(end_time, NOW()) as end_time
+                FROM cash_drawer_sessions WHERE id = %s
+            """, (session_id,))
+            sess = cursor.fetchone()
+            if not sess:
+                return jsonify({'success': False, 'message': 'Session not found'}), 404
+
+            st = sess['start_time']
+            et = sess['end_time']
+            cashier_id = sess['cashier_id']
+
+            try:
+                cursor.execute(
+                    """
+                    SELECT action_type, table_name, record_id, old_values, new_values, description,
+                           ip_address, user_agent, created_at
+                    FROM cashier_logs
+                    WHERE cashier_id = %s AND created_at BETWEEN %s AND %s
+                    ORDER BY created_at ASC
+                    """,
+                    (cashier_id, st, et),
+                )
+                rows = cursor.fetchall() or []
+            except Exception as e:
+                # Backward compatibility for schemas missing some columns
+                if hasattr(e, 'args') and e.args and 'Unknown column' in str(e):
+                    cursor.execute(
+                        """
+                        SELECT action_type, table_name, record_id, description, created_at
+                        FROM cashier_logs
+                        WHERE cashier_id = %s AND created_at BETWEEN %s AND %s
+                        ORDER BY created_at ASC
+                        """,
+                        (cashier_id, st, et),
+                    )
+                    base_rows = cursor.fetchall() or []
+                    rows = []
+                    for r in base_rows:
+                        r = dict(r)
+                        # backfill missing optional fields as None
+                        r['old_values'] = None
+                        r['new_values'] = None
+                        r['ip_address'] = None
+                        r['user_agent'] = None
+                        rows.append(r)
+                else:
+                    raise
+            for r in rows:
+                if r.get('created_at'):
+                    r['created_at'] = r['created_at'].strftime('%Y-%m-%d %H:%M')
+            return jsonify({'success': True, 'logs': rows})
+    except Exception as e:
+        print(f"Error fetching session logs: {repr(e)}")
+        return jsonify({'success': False, 'message': 'An error occurred while fetching logs'}), 500
     finally:
         connection.close()
 
@@ -680,6 +990,453 @@ def cashier_stock_management():
                          employee_profile_photo=employee_profile_photo,
                          hotel_settings=hotel_settings)
 
+@app.route('/stock-audits')
+def stock_audits():
+    """Stock audits page - displays all stock transactions"""
+    if 'employee_id' not in session:
+        return redirect(url_for('index'))
+    # Allow access to admin, manager, and cashier roles
+    employee_role = session.get('employee_role')
+    if employee_role not in ['admin', 'manager', 'cashier']:
+        return redirect(url_for('index'))
+    
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('stock_audits.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=employee_role,
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
+@app.route('/api/cashier/stock-data', methods=['GET'])
+def get_cashier_stock_data():
+    """Get stock data for cashier stock management page"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'})
+    
+    try:
+        with connection.cursor() as cursor:
+            # Get all items with stock information
+            cursor.execute("""
+                SELECT 
+                    id, name, description, price, category, stock, status, 
+                    image_url, sku, stock_update_enabled, low_stock_threshold,
+                    CASE 
+                        WHEN stock_update_enabled = FALSE THEN 'No Tracking'
+                        WHEN stock = 0 OR stock IS NULL THEN 'Out of Stock'
+                        WHEN stock <= COALESCE(low_stock_threshold, 10) THEN 'Low Stock'
+                        ELSE 'Good Stock'
+                    END as stock_status
+                FROM items 
+                WHERE status = 'active'
+                ORDER BY 
+                    CASE 
+                        WHEN stock = 0 OR stock IS NULL THEN 1
+                        WHEN stock <= COALESCE(low_stock_threshold, 10) THEN 2
+                        ELSE 3
+                    END,
+                    name
+            """)
+            items = cursor.fetchall()
+            
+            # Get summary statistics
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as total_items,
+                    SUM(CASE WHEN stock_update_enabled = TRUE AND stock > COALESCE(low_stock_threshold, 10) THEN 1 ELSE 0 END) as good_stock_count,
+                    SUM(CASE WHEN stock_update_enabled = TRUE AND stock > 0 AND stock <= COALESCE(low_stock_threshold, 10) THEN 1 ELSE 0 END) as low_stock_count,
+                    SUM(CASE WHEN stock_update_enabled = TRUE AND (stock = 0 OR stock IS NULL) THEN 1 ELSE 0 END) as out_of_stock_count,
+                    SUM(CASE WHEN stock_update_enabled = FALSE THEN 1 ELSE 0 END) as no_tracking_count
+                FROM items 
+                WHERE status = 'active'
+            """)
+            stats = cursor.fetchone()
+            
+            # Get today's sales count for items sold
+            cursor.execute("""
+                SELECT COUNT(DISTINCT si.item_name) as items_sold_today
+                FROM sales_items si
+                JOIN sales s ON si.sale_id = s.id
+                WHERE DATE(s.sale_date) = CURDATE()
+                AND s.employee_id = %s
+            """, (session.get('employee_id'),))
+            sales_data = cursor.fetchone()
+            
+            items_list = []
+            for item in items:
+                items_list.append({
+                    'id': item[0],
+                    'name': item[1],
+                    'description': item[2],
+                    'price': float(item[3]) if item[3] else 0.0,
+                    'category': item[4],
+                    'stock': item[5] or 0,
+                    'status': item[6],
+                    'image_url': item[7],
+                    'sku': item[8],
+                    'stock_update_enabled': bool(item[9]) if item[9] is not None else True,
+                    'low_stock_threshold': item[10] or 10,
+                    'stock_status': item[11]
+                })
+            
+            return jsonify({
+                'success': True, 
+                'items': items_list,
+                'stats': {
+                    'total_items': stats[0] or 0,
+                    'good_stock_count': stats[1] or 0,
+                    'low_stock_count': stats[2] or 0,
+                    'out_of_stock_count': stats[3] or 0,
+                    'no_tracking_count': stats[4] or 0,
+                    'items_sold_today': sales_data[0] or 0
+                }
+            })
+            
+    except Exception as e:
+        print(f"Error fetching cashier stock data: {e}")
+        return jsonify({'success': False, 'message': 'Failed to fetch stock data'})
+    finally:
+        connection.close()
+
+@app.route('/api/stock-audits', methods=['GET'])
+def get_stock_audits():
+    """Get stock transactions with filters for stock audits page"""
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_role = session.get('employee_role')
+    if employee_role not in ['admin', 'manager', 'cashier']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'})
+    
+    try:
+        # Get filter parameters
+        date_filter = request.args.get('date_filter', 'all')  # 'all', 'day', 'range', 'month'
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+        month = request.args.get('month')  # Format: YYYY-MM
+        employee_id = request.args.get('employee_id')
+        item_id = request.args.get('item_id')
+        transaction_type = request.args.get('transaction_type')  # 'stock_in', 'stock_out', or 'all'
+        
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Build query
+            query = """
+                SELECT 
+                    st.id,
+                    st.item_id,
+                    i.name as item_name,
+                    st.action,
+                    st.quantity,
+                    st.reason,
+                    st.created_at,
+                    st.employee_id,
+                    st.employee_name,
+                    st.price_per_unit,
+                    st.total_amount,
+                    st.transaction_type,
+                    st.place_purchased_from
+                FROM stock_transactions st
+                LEFT JOIN items i ON st.item_id = i.id
+                WHERE 1=1
+            """
+            params = []
+            
+            # Filter by item (admin and manager only)
+            if employee_role in ['admin', 'manager'] and item_id:
+                query += " AND st.item_id = %s"
+                params.append(int(item_id))
+            
+            # Filter by employee
+            if employee_id:
+                query += " AND st.employee_id = %s"
+                params.append(int(employee_id))
+            elif employee_role == 'cashier':
+                # Cashiers can only see their own transactions
+                query += " AND st.employee_id = %s"
+                params.append(session.get('employee_id'))
+            
+            # Filter by transaction type (admin and manager only)
+            if employee_role in ['admin', 'manager'] and transaction_type and transaction_type != 'all':
+                query += " AND st.action = %s"
+                params.append(transaction_type)
+            
+            # Date filters
+            if date_filter == 'day' and date_from:
+                query += " AND DATE(st.created_at) = %s"
+                params.append(date_from)
+            elif date_filter == 'range':
+                if date_from:
+                    query += " AND DATE(st.created_at) >= %s"
+                    params.append(date_from)
+                if date_to:
+                    query += " AND DATE(st.created_at) <= %s"
+                    params.append(date_to)
+            elif date_filter == 'month' and month:
+                query += " AND DATE_FORMAT(st.created_at, '%%Y-%%m') = %s"
+                params.append(month)
+            
+            # Order by most recent first
+            query += " ORDER BY st.created_at DESC LIMIT 1000"
+            
+            cursor.execute(query, params)
+            transactions = cursor.fetchall()
+            
+            # Convert to list and format dates
+            transactions_list = []
+            for trans in transactions:
+                transactions_list.append({
+                    'id': trans['id'],
+                    'item_id': trans['item_id'],
+                    'item_name': trans['item_name'] or 'Unknown Item',
+                    'action': trans['action'],
+                    'action_label': 'Stock In' if trans['action'] == 'stock_in' else 'Stock Out',
+                    'quantity': trans['quantity'],
+                    'reason': trans['reason'] or '',
+                    'created_at': trans['created_at'].isoformat() if trans['created_at'] else '',
+                    'created_at_formatted': trans['created_at'].strftime('%Y-%m-%d %H:%M:%S') if trans['created_at'] else '',
+                    'employee_id': trans['employee_id'],
+                    'employee_name': trans['employee_name'] or 'Unknown',
+                    'price_per_unit': float(trans['price_per_unit']) if trans['price_per_unit'] else None,
+                    'total_amount': float(trans['total_amount']) if trans['total_amount'] else None,
+                    'transaction_type': trans['transaction_type'],
+                    'place_purchased_from': trans['place_purchased_from']
+                })
+            
+            return jsonify({
+                'success': True,
+                'transactions': transactions_list,
+                'count': len(transactions_list)
+            })
+            
+    except Exception as e:
+        print(f"Error fetching stock audits: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'Failed to fetch stock audits: {str(e)}'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/stock-audits/employees', methods=['GET'])
+def get_stock_audits_employees():
+    """Get list of employees for filter dropdown (admin/managers only)"""
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_role = session.get('employee_role')
+    if employee_role not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'})
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT DISTINCT 
+                    st.employee_id,
+                    st.employee_name
+                FROM stock_transactions st
+                WHERE st.employee_id IS NOT NULL
+                ORDER BY st.employee_name
+            """)
+            employees = cursor.fetchall()
+            
+            employees_list = []
+            for emp in employees:
+                employees_list.append({
+                    'id': emp['employee_id'],
+                    'name': emp['employee_name'] or 'Unknown'
+                })
+            
+            return jsonify({
+                'success': True,
+                'employees': employees_list
+            })
+            
+    except Exception as e:
+        print(f"Error fetching employees: {e}")
+        return jsonify({'success': False, 'message': 'Failed to fetch employees'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/stock-audits/items', methods=['GET'])
+def get_stock_audits_items():
+    """Get list of items for filter dropdown (admin/managers only)"""
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_role = session.get('employee_role')
+    if employee_role not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'})
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT DISTINCT 
+                    i.id,
+                    i.name
+                FROM stock_transactions st
+                JOIN items i ON st.item_id = i.id
+                ORDER BY i.name
+            """)
+            items = cursor.fetchall()
+            
+            items_list = []
+            for item in items:
+                items_list.append({
+                    'id': item['id'],
+                    'name': item['name']
+                })
+            
+            return jsonify({
+                'success': True,
+                'items': items_list
+            })
+            
+    except Exception as e:
+        print(f"Error fetching items: {e}")
+        return jsonify({'success': False, 'message': 'Failed to fetch items'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/cashier/item-stock-history/<int:item_id>', methods=['GET'])
+def get_item_stock_history(item_id):
+    """Get previous stock-in data for an item"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'})
+    
+    try:
+        with connection.cursor() as cursor:
+            # Get the most recent stock-in transaction for this item
+            cursor.execute("""
+                SELECT 
+                    price_per_unit, 
+                    place_purchased_from,
+                    created_at,
+                    quantity
+                FROM stock_transactions 
+                WHERE item_id = %s 
+                AND action = 'stock_in'
+                ORDER BY created_at DESC 
+                LIMIT 1
+            """, (item_id,))
+            
+            result = cursor.fetchone()
+            
+            if result:
+                return jsonify({
+                    'success': True,
+                    'last_price_per_unit': float(result[0]) if result[0] else 0.0,
+                    'last_place_purchased_from': result[1] or '',
+                    'last_stock_in_date': result[2].isoformat() if result[2] else None,
+                    'last_quantity': result[3] or 0
+                })
+            else:
+                return jsonify({
+                    'success': True,
+                    'last_price_per_unit': 0.0,
+                    'last_place_purchased_from': '',
+                    'last_stock_in_date': None,
+                    'last_quantity': 0
+                })
+            
+    except Exception as e:
+        print(f"Error fetching item stock history: {e}")
+        return jsonify({'success': False, 'message': 'Failed to fetch stock history'})
+    finally:
+        connection.close()
+
+@app.route('/api/cashier/stock-in', methods=['POST'])
+def cashier_stock_in():
+    """Allow cashiers to stock in items"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'})
+    
+    try:
+        # Get form data
+        item_id = int(request.form.get('item_id', 0))
+        quantity = int(request.form.get('quantity', 0))
+        price_per_unit = float(request.form.get('price_per_unit', 0))
+        place_purchased_from = request.form.get('place_purchased_from', '').strip().upper()
+        
+        # Get employee information from session
+        employee_id = session.get('employee_id')
+        employee_name = session.get('employee_name', 'Unknown')
+        
+        if item_id <= 0 or quantity <= 0:
+            return jsonify({'success': False, 'message': 'Invalid item ID or quantity'})
+        
+        with connection.cursor() as cursor:
+            # Get current stock and stock update setting
+            cursor.execute("SELECT stock, stock_update_enabled, name FROM items WHERE id = %s", (item_id,))
+            result = cursor.fetchone()
+            if not result:
+                return jsonify({'success': False, 'message': 'Item not found'})
+            
+            current_stock = result[0] or 0
+            stock_update_enabled = result[1] if result[1] is not None else True
+            item_name = result[2]
+            
+            # Calculate new stock only if stock update is enabled
+            new_stock = current_stock
+            if stock_update_enabled:
+                new_stock = current_stock + quantity
+                
+                # Update stock only if stock update is enabled
+                cursor.execute("""
+                    UPDATE items 
+                    SET stock = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (new_stock, item_id))
+            
+            # Log stock in transaction
+            cursor.execute("""
+                INSERT INTO stock_transactions 
+                (item_id, action, quantity, price_per_unit, selling_price, 
+                 reason, place_purchased_from, employee_id, employee_name, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            """, (
+                item_id, 'stock_in', quantity, price_per_unit, price_per_unit,
+                'CASHIER STOCK IN', place_purchased_from, employee_id, employee_name
+            ))
+            
+            connection.commit()
+            
+            return jsonify({
+                'success': True, 
+                'message': f'Successfully stocked in {quantity} units of {item_name}',
+                'new_stock': new_stock,
+                'stock_updated': stock_update_enabled
+            })
+            
+    except Exception as e:
+        print(f"Error processing cashier stock in: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to process stock in'})
+    finally:
+        connection.close()
+
 @app.route('/cashier/receipt-confirmation')
 def cashier_receipt_confirmation():
     """Cashier receipt confirmation"""
@@ -693,10 +1450,378 @@ def cashier_receipt_confirmation():
                          employee_profile_photo=employee_profile_photo,
                          hotel_settings=hotel_settings)
 
+@app.route('/cashier/payments')
+def cashier_payments():
+    """Cashier payments page showing all employees and their sales"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('cashier/payments.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+@app.route('/api/cashier/employee-sales', methods=['GET'])
+def get_employee_sales_data():
+    """Get employee sales data for payments page"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Ensure employee_balances table exists
+            try:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS employee_balances (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        employee_id INT NOT NULL UNIQUE,
+                        total_sales DECIMAL(10,2) DEFAULT 0,
+                        total_payments DECIMAL(10,2) DEFAULT 0,
+                        outstanding_balance DECIMAL(10,2) DEFAULT 0,
+                        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+                    )
+                """)
+                
+                # Initialize balances for existing employees who don't have balance records
+                cursor.execute("""
+                    INSERT IGNORE INTO employee_balances (employee_id, total_sales, total_payments, outstanding_balance)
+                    SELECT 
+                        e.id,
+                        COALESCE(SUM(s.total_amount), 0) as total_sales,
+                        0 as total_payments,
+                        COALESCE(SUM(s.total_amount), 0) as outstanding_balance
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE e.status = 'active'
+                    GROUP BY e.id
+                """)
+                
+                connection.commit()
+            except Exception as table_error:
+                print(f"Error creating/initializing employee_balances table: {table_error}")
+                # Continue with the query even if table creation fails
+            
+            # Get all employees with their sales and outstanding balance
+            try:
+                cursor.execute("""
+                SELECT 
+                    e.id,
+                    e.full_name,
+                    e.employee_code,
+                    e.status,
+                        COUNT(s.id) as total_sales,
+                        COALESCE(SUM(s.total_amount), 0) as total_revenue,
+                        COALESCE(eb.total_payments, 0) as total_payments,
+                        COALESCE(eb.outstanding_balance, SUM(s.total_amount)) as outstanding_balance
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    LEFT JOIN employee_balances eb ON e.id = eb.employee_id
+                    WHERE e.status = 'active'
+                    GROUP BY e.id, e.full_name, e.employee_code, e.status, eb.total_payments, eb.outstanding_balance
+                    ORDER BY outstanding_balance DESC, total_revenue DESC
+                """)
+            except Exception as query_error:
+                print(f"Error with employee_balances join, using fallback query: {query_error}")
+                # Fallback query without employee_balances table
+                cursor.execute("""
+                    SELECT 
+                        e.id,
+                        e.full_name,
+                        e.employee_code,
+                        e.status,
+                        COUNT(s.id) as total_sales,
+                        COALESCE(SUM(s.total_amount), 0) as total_revenue,
+                        0 as total_payments,
+                        COALESCE(SUM(s.total_amount), 0) as outstanding_balance
+                FROM employees e
+                LEFT JOIN sales s ON e.id = s.employee_id 
+                    AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                WHERE e.status = 'active'
+                GROUP BY e.id, e.full_name, e.employee_code, e.status
+                    ORDER BY outstanding_balance DESC, total_revenue DESC
+            """)
+            
+            employees = cursor.fetchall()
+            
+            # Get today's sales summary
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as today_sales,
+                    COALESCE(SUM(total_amount), 0) as today_revenue
+                FROM sales 
+                WHERE DATE(sale_date) = CURDATE()
+            """)
+            
+            today_summary = cursor.fetchone()
+            
+            # Get this week's sales summary
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as week_sales,
+                    COALESCE(SUM(total_amount), 0) as week_revenue
+                FROM sales 
+                WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+            """)
+            
+            week_summary = cursor.fetchone()
+            
+            # Get total outstanding balance
+            try:
+                cursor.execute("""
+                    SELECT 
+                        COALESCE(SUM(outstanding_balance), 0) as total_outstanding
+                    FROM employee_balances
+                """)
+                outstanding_summary = cursor.fetchone()
+            except Exception as balance_error:
+                print(f"Error getting outstanding balance, using fallback: {balance_error}")
+                # Fallback: calculate from sales data
+                cursor.execute("""
+                    SELECT 
+                        COALESCE(SUM(s.total_amount), 0) as total_outstanding
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE e.status = 'active'
+                """)
+                outstanding_summary = cursor.fetchone()
+            
+            # Format employee data
+            employees_data = []
+            for emp in employees:
+                employees_data.append({
+                    'id': emp[0],
+                    'name': emp[1],
+                    'code': emp[2],
+                    'status': emp[3],
+                    'total_sales': emp[4],
+                    'total_revenue': float(emp[5]),
+                    'total_payments': float(emp[6]),
+                    'outstanding_balance': float(emp[7])
+                })
+            
+            return jsonify({
+                'success': True,
+                'employees': employees_data,
+                'summary': {
+                    'today_sales': today_summary[0] if today_summary else 0,
+                    'today_revenue': float(today_summary[1]) if today_summary else 0.0,
+                    'week_sales': week_summary[0] if week_summary else 0,
+                    'week_revenue': float(week_summary[1]) if week_summary else 0.0,
+                    'total_outstanding': float(outstanding_summary[0]) if outstanding_summary else 0.0
+                }
+            })
+            
+    except Exception as e:
+        print(f"Error fetching employee sales data: {e}")
+        return jsonify({'success': False, 'message': 'Failed to fetch employee sales data'})
+    finally:
+        connection.close()
+
+@app.route('/api/cashier/process-payment', methods=['POST'])
+def process_employee_payment():
+    """Process payment for an individual employee"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+    
+    required_fields = ['employee_id', 'amount']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'success': False, 'message': f'Missing required field: {field}'}), 400
+    
+    employee_id = data['employee_id']
+    amount = data['amount']
+    cashier_id = session.get('employee_id')
+    
+    if amount <= 0:
+        return jsonify({'success': False, 'message': 'Payment amount must be greater than 0'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Ensure employee_payments table exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS employee_payments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL,
+                    cashier_id INT NOT NULL,
+                    amount DECIMAL(10,2) NOT NULL,
+                    status ENUM('completed', 'pending', 'cancelled') DEFAULT 'completed',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+                    FOREIGN KEY (cashier_id) REFERENCES employees(id) ON DELETE CASCADE
+                )
+            """)
+            
+            # Ensure employee_balances table exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS employee_balances (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL UNIQUE,
+                    total_sales DECIMAL(10,2) DEFAULT 0,
+                    total_payments DECIMAL(10,2) DEFAULT 0,
+                    outstanding_balance DECIMAL(10,2) DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+                )
+            """)
+            
+            # Verify employee exists and is active
+            cursor.execute("SELECT id, full_name, employee_code FROM employees WHERE id = %s AND status = 'active'", (employee_id,))
+            employee = cursor.fetchone()
+            if not employee:
+                return jsonify({'success': False, 'message': 'Employee not found or inactive'}), 404
+            
+            # Start transaction
+            connection.autocommit = False
+            
+            # Insert payment record
+            cursor.execute("""
+                INSERT INTO employee_payments (employee_id, cashier_id, amount, status)
+                VALUES (%s, %s, %s, 'completed')
+            """, (employee_id, cashier_id, amount))
+            
+            payment_id = cursor.lastrowid
+            
+            # Update or create employee balance record
+            print(f"Updating balance for employee {employee_id} with payment amount {amount}")
+            cursor.execute("""
+                INSERT INTO employee_balances (employee_id, total_sales, total_payments, outstanding_balance)
+                SELECT 
+                    %s,
+                    COALESCE(SUM(s.total_amount), 0),
+                    %s,
+                    COALESCE(SUM(s.total_amount), 0) - %s
+                FROM sales s
+                WHERE s.employee_id = %s 
+                AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                ON DUPLICATE KEY UPDATE
+                    total_payments = total_payments + %s,
+                    outstanding_balance = outstanding_balance - %s,
+                    last_updated = CURRENT_TIMESTAMP
+            """, (employee_id, amount, amount, employee_id, amount, amount))
+            print(f"Balance update query executed successfully")
+            
+            # Get updated balance
+            cursor.execute("""
+                SELECT outstanding_balance FROM employee_balances WHERE employee_id = %s
+            """, (employee_id,))
+            balance_result = cursor.fetchone()
+            new_balance = balance_result[0] if balance_result else 0
+            
+            # Log the payment action
+            cursor.execute("""
+                INSERT INTO cashier_logs (cashier_id, action_type, table_name, record_id, description)
+                VALUES (%s, 'create', 'employee_payments', %s, %s)
+            """, (cashier_id, payment_id, f"Processed payment of KES {amount} for employee {employee[1]} ({employee[2]}). New balance: KES {new_balance}"))
+            
+            # Commit transaction
+            connection.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Payment processed successfully',
+                'payment_id': payment_id,
+                'employee_name': employee[1],
+                'employee_code': employee[2],
+                'amount': amount,
+                'new_balance': float(new_balance)
+            })
+            
+    except Exception as e:
+        connection.rollback()
+        print(f"Error processing payment: {e}")
+        print(f"Payment data: employee_id={employee_id}, amount={amount}, cashier_id={cashier_id}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'Failed to process payment: {str(e)}'}), 500
+    finally:
+        # Restore autocommit
+        connection.autocommit = True
+        connection.close()
+
+@app.route('/api/init-employee-balances', methods=['POST'])
+def init_employee_balances():
+    """Initialize employee balances table and data"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Create employee_balances table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS employee_balances (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL UNIQUE,
+                    total_sales DECIMAL(10,2) DEFAULT 0,
+                    total_payments DECIMAL(10,2) DEFAULT 0,
+                    outstanding_balance DECIMAL(10,2) DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+                )
+            """)
+            
+            # Initialize balances for all active employees
+            cursor.execute("""
+                INSERT IGNORE INTO employee_balances (employee_id, total_sales, total_payments, outstanding_balance)
+                SELECT 
+                    e.id,
+                    COALESCE(SUM(s.total_amount), 0) as total_sales,
+                    0 as total_payments,
+                    COALESCE(SUM(s.total_amount), 0) as outstanding_balance
+                FROM employees e
+                LEFT JOIN sales s ON e.id = s.employee_id 
+                    AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                WHERE e.status = 'active'
+                GROUP BY e.id
+            """)
+            
+            connection.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Employee balances initialized successfully'
+            })
+            
+    except Exception as e:
+        print(f"Error initializing employee balances: {e}")
+        return jsonify({'success': False, 'message': 'Failed to initialize employee balances'}), 500
+    finally:
+        connection.close()
+
 # Cash Drawer API Endpoints
+
+# Text normalization to enforce uppercase and uniform spacing
+def normalize_text(value):
+    try:
+        if value is None:
+            return ''
+        # Collapse whitespace and uppercase
+        return ' '.join(str(value).split()).upper()
+    except Exception:
+        return str(value).upper() if value is not None else ''
 @app.route('/api/cash-drawer/status', methods=['GET'])
 def get_cash_drawer_status():
-    """Get current cash drawer status"""
+    """Get current cash drawer status. Defaults to active session date or today; accepts ?date=YYYY-MM-DD."""
     # For testing, allow access without session
     if 'employee_id' not in session:
         # Set a test session for development
@@ -708,24 +1833,53 @@ def get_cash_drawer_status():
         return jsonify({'success': False, 'message': 'Unauthorized - Cashier role required'}), 401
     
     try:
-        # Get current cash drawer status
+        # Decide which date to use
+        requested_date = request.args.get('date')
+        selected_date = None
+
         connection = get_db_connection()
         if not connection:
             return jsonify({'success': False, 'message': 'Database connection failed'}), 500
             
+        if not requested_date:
+            try:
+                with connection.cursor() as c2:
+                    c2.execute(
+                        """
+                        SELECT session_date FROM cash_drawer_sessions
+                        WHERE cashier_id = %s AND status = 'active' LIMIT 1
+                        """,
+                        (session.get('employee_id'),)
+                    )
+                    r = c2.fetchone()
+                    if r:
+                        # r[0] is date
+                        selected_date = r[0].strftime('%Y-%m-%d') if hasattr(r[0], 'strftime') else str(r[0])
+            except Exception:
+                pass
+
+        selected_date = requested_date or selected_date or datetime.now().strftime('%Y-%m-%d')
+
         cursor = connection.cursor()
         cursor.execute("""
             SELECT 
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND description = 'Starting cash amount') as opening_float,
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND transaction_type = 'cash_in' AND description != 'Starting cash amount') as cash_ins,
-                (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE DATE(sale_date) = CURDATE() AND employee_id = %s) as cash_sales,
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND transaction_type = 'cash_out' AND description NOT LIKE %s AND description NOT LIKE %s) as cash_outs,
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND description LIKE %s) as safe_drops,
-                COUNT(CASE WHEN DATE(created_at) = CURDATE() THEN 1 END) as today_transactions,
-                (SELECT COUNT(*) FROM cash_drawer_transactions WHERE DATE(created_at) = CURDATE() AND status = 'pending') as pending_count
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND description = 'Starting cash amount') as opening_float,
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_in' AND description != 'Starting cash amount') as cash_ins,
+                (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE DATE(sale_date) = %s AND employee_id = %s) as cash_sales,
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_out' AND description NOT LIKE %s AND description NOT LIKE %s) as cash_outs,
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND description LIKE %s) as safe_drops,
+                COUNT(CASE WHEN DATE(created_at) = %s THEN 1 END) as today_transactions,
+                (SELECT COUNT(*) FROM cash_drawer_transactions WHERE DATE(created_at) = %s AND status = 'pending') as pending_count
             FROM cash_drawer_transactions 
             WHERE employee_id = %s
-        """, (session.get('employee_id'), session.get('employee_id'), session.get('employee_id'), session.get('employee_id'), 'Safe drop%', 'End shift%', session.get('employee_id'), 'Safe drop%', session.get('employee_id')))
+        """, (
+            session.get('employee_id'), selected_date,
+            session.get('employee_id'), selected_date,
+            selected_date, session.get('employee_id'),
+            session.get('employee_id'), selected_date, 'Safe drop%', 'End shift%',
+            session.get('employee_id'), selected_date, 'Safe drop%',
+            selected_date, selected_date, session.get('employee_id')
+        ))
         
         result = cursor.fetchone()
         cursor.close()
@@ -756,32 +1910,87 @@ def get_cash_drawer_status():
 
 @app.route('/api/cash-drawer/open', methods=['POST'])
 def open_cash_drawer():
-    """Open cash drawer with starting amount"""
+    """Start new cash drawer session with starting amount"""
     if 'employee_id' not in session or session.get('employee_role') != 'cashier':
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
     try:
         data = request.get_json()
         starting_amount = float(data.get('amount', 0))
+        cashier_id = session.get('employee_id')
+        
+        # Check and auto-close any old sessions first
+        check_and_auto_close_sessions()
         
         connection = get_db_connection()
         if not connection:
             return jsonify({'success': False, 'message': 'Database connection failed'}), 500
             
         cursor = connection.cursor()
-        cursor.execute("""
-            INSERT INTO cash_drawer_transactions 
-            (employee_id, transaction_type, amount, description, status, created_at)
-            VALUES (%s, 'cash_in', %s, 'Starting cash amount', 'completed', NOW())
-        """, (session.get('employee_id'), starting_amount))
-        connection.commit()
-        cursor.close()
-        connection.close()
         
-        return jsonify({
-            'success': True,
-            'message': f'Cash drawer opened with starting amount: ${starting_amount:.2f}'
-        })
+        # Check if there's already an active session
+        cursor.execute("""
+            SELECT id FROM cash_drawer_sessions 
+            WHERE cashier_id = %s AND status = 'active'
+        """, (cashier_id,))
+        
+        existing_session = cursor.fetchone()
+        if existing_session:
+            return jsonify({
+                'success': False, 
+                'message': 'You already have an active cash drawer session. Please end your current session first.'
+            }), 400
+        
+        # Start transaction
+        connection.autocommit = False
+        
+        try:
+            # Create new session
+            cursor.execute("""
+                INSERT INTO cash_drawer_sessions 
+                (cashier_id, session_date, start_time, starting_amount, status)
+                VALUES (%s, CURDATE(), NOW(), %s, 'active')
+            """, (cashier_id, starting_amount))
+            
+            session_id = cursor.lastrowid
+            
+            # Create starting cash transaction
+            cursor.execute("""
+                INSERT INTO cash_drawer_transactions 
+                (employee_id, transaction_type, amount, description, status, created_at)
+                VALUES (%s, 'cash_in', %s, 'Starting cash amount', 'completed', NOW())
+            """, (cashier_id, starting_amount))
+            
+            transaction_id = cursor.lastrowid
+            
+            # Commit transaction
+            connection.commit()
+            
+            # Log the activity
+            log_cashier_activity(
+                cashier_id=cashier_id,
+                action_type='open_drawer',
+                table_name='cash_drawer_sessions',
+                record_id=session_id,
+                new_values={'starting_amount': starting_amount, 'session_date': datetime.now().strftime('%Y-%m-%d')},
+                description=f'Started new cash drawer session with starting amount: shs {starting_amount:.2f}',
+                request=request
+            )
+            
+            return jsonify({
+                'success': True,
+                'message': f'New cash drawer session started with shs {starting_amount:.2f}',
+                'session_id': session_id
+            })
+            
+        except Exception as e:
+            connection.rollback()
+            raise e
+        finally:
+            connection.autocommit = True
+            cursor.close()
+            connection.close()
+            
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -794,7 +2003,7 @@ def add_cash_out():
     try:
         data = request.get_json()
         amount = float(data.get('amount', 0))
-        reason = data.get('reason', '')
+        reason = normalize_text(data.get('reason', ''))
         requires_approval = data.get('requires_approval', 'no')
         
         connection = get_db_connection()
@@ -807,13 +2016,28 @@ def add_cash_out():
             (employee_id, transaction_type, amount, description, status, created_at)
             VALUES (%s, 'cash_out', %s, %s, %s, NOW())
         """, (session.get('employee_id'), amount, reason, 'pending' if requires_approval == 'yes' else 'completed'))
+        
+        # Get the transaction ID for logging
+        transaction_id = cursor.lastrowid
+        
         connection.commit()
         cursor.close()
         connection.close()
         
+        # Log the activity
+        log_cashier_activity(
+            cashier_id=session.get('employee_id'),
+            action_type='create',
+            table_name='cash_drawer_transactions',
+            record_id=transaction_id,
+            new_values={'amount': amount, 'description': reason, 'status': 'pending' if requires_approval == 'yes' else 'completed'},
+            description=f'Cash out of shs {amount:.2f} recorded: {reason}',
+            request=request
+        )
+        
         return jsonify({
             'success': True,
-            'message': f'Cash out of ${amount:.2f} recorded: {reason}'
+            'message': f'Cash out of shs {amount:.2f} recorded: {reason}'
         })
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -827,8 +2051,8 @@ def safe_drop():
     try:
         data = request.get_json()
         amount = float(data.get('amount', 0))
-        location = data.get('location', '')
-        received_by = data.get('received_by', '')
+        location = normalize_text(data.get('location', ''))
+        received_by = normalize_text(data.get('received_by', ''))
         
         connection = get_db_connection()
         if not connection:
@@ -840,13 +2064,28 @@ def safe_drop():
             (employee_id, transaction_type, amount, description, status, created_at)
             VALUES (%s, 'cash_out', %s, %s, 'completed', NOW())
         """, (session.get('employee_id'), amount, f'Safe drop to {location} received by {received_by}'))
+        
+        # Get the transaction ID for logging
+        transaction_id = cursor.lastrowid
+        
         connection.commit()
         cursor.close()
         connection.close()
         
+        # Log the activity
+        log_cashier_activity(
+            cashier_id=session.get('employee_id'),
+            action_type='safe_drop',
+            table_name='cash_drawer_transactions',
+            record_id=transaction_id,
+            new_values={'amount': amount, 'description': f'Safe drop to {location} received by {received_by}'},
+            description=f'Safe drop of shs {amount:.2f} to {location} received by {received_by}',
+            request=request
+        )
+        
         return jsonify({
             'success': True,
-            'message': f'Safe drop of ${amount:.2f} to {location} received by {received_by}'
+            'message': f'Safe drop of shs {amount:.2f} to {location} received by {received_by}'
         })
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -867,8 +2106,8 @@ def add_cash_in():
     try:
         data = request.get_json()
         amount = float(data.get('amount', 0))
-        reason = data.get('reason', '')
-        from_who = data.get('from_who', '')
+        reason = normalize_text(data.get('reason', ''))
+        from_who = normalize_text(data.get('from_who', ''))
         
         connection = get_db_connection()
         if not connection:
@@ -880,20 +2119,34 @@ def add_cash_in():
             (employee_id, transaction_type, amount, description, status, created_at)
             VALUES (%s, 'cash_in', %s, %s, 'completed', NOW())
         """, (session.get('employee_id'), amount, f'Cash in: {reason} from {from_who}'))
+        
+        # Get the transaction ID for logging
+        transaction_id = cursor.lastrowid
+        
         connection.commit()
         cursor.close()
         connection.close()
         
+        # Log the activity
+        log_cashier_activity(
+            cashier_id=session.get('employee_id'),
+            action_type='create',
+            table_name='cash_drawer_transactions',
+            record_id=transaction_id,
+            new_values={'amount': amount, 'description': f'Cash in: {reason} from {from_who}'},
+            description=f'Cash in of shs {amount:.2f} recorded: {reason} from {from_who}',
+            request=request
+        )
+        
         return jsonify({
             'success': True,
-            'message': f'Cash in of ${amount:.2f} recorded: {reason} from {from_who}'
+            'message': f'Cash in of shs {amount:.2f} recorded: {reason} from {from_who}'
         })
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
-
 @app.route('/api/cash-drawer/end-shift', methods=['POST'])
 def end_shift():
-    """End shift with cash count"""
+    """End current cash drawer session with cash count"""
     # For testing, allow access without session
     if 'employee_id' not in session:
         # Set a test session for development
@@ -907,6 +2160,7 @@ def end_shift():
     try:
         data = request.get_json()
         counted_amount = float(data.get('counted_amount', 0))
+        cashier_id = session.get('employee_id')
         
         connection = get_db_connection()
         if not connection:
@@ -914,15 +2168,30 @@ def end_shift():
             
         cursor = connection.cursor()
         
-        # Get current calculated balance
+        # Check if there's an active session
+        cursor.execute("""
+            SELECT id, starting_amount, session_date FROM cash_drawer_sessions 
+            WHERE cashier_id = %s AND status = 'active'
+        """, (cashier_id,))
+        
+        active_session = cursor.fetchone()
+        if not active_session:
+            return jsonify({
+                'success': False, 
+                'message': 'No active cash drawer session found. Please start a session first.'
+            }), 400
+        
+        session_id, starting_amount, session_date = active_session
+        
+        # Get current calculated balance for the session
         cursor.execute("""
             SELECT 
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND description = 'Starting cash amount') as opening_float,
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND transaction_type = 'cash_in' AND description != 'Starting cash amount') as cash_ins,
-                (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE DATE(sale_date) = CURDATE() AND employee_id = %s) as cash_sales,
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND transaction_type = 'cash_out' AND description NOT LIKE %s AND description NOT LIKE %s) as cash_outs,
-                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = CURDATE() AND description LIKE %s) as safe_drops
-        """, (session.get('employee_id'), session.get('employee_id'), session.get('employee_id'), session.get('employee_id'), 'Safe drop%', 'End shift%', session.get('employee_id'), 'Safe drop%'))
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND description = 'Starting cash amount') as opening_float,
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_in' AND description != 'Starting cash amount') as cash_ins,
+                (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE DATE(sale_date) = %s AND employee_id = %s) as cash_sales,
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_out' AND description NOT LIKE %s AND description NOT LIKE %s) as cash_outs,
+                (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND description LIKE %s) as safe_drops
+        """, (cashier_id, session_date, cashier_id, session_date, session_date, cashier_id, cashier_id, session_date, 'Safe drop%', 'End shift%', cashier_id, session_date, 'Safe drop%'))
         
         result = cursor.fetchone()
         
@@ -940,16 +2209,36 @@ def end_shift():
         variance_type = "excess" if variance > 0 else "deficit" if variance < 0 else "balanced"
         
         # Record the end shift transaction with variance info
-        description = f'End shift - Counted: ${counted_amount:.2f}, Expected: ${expected_balance:.2f}, Variance: ${variance:.2f} ({variance_type})'
+        description = f'End shift - Counted: shs {counted_amount:.2f}, Expected: shs {expected_balance:.2f}, Variance: shs {variance:.2f} ({variance_type})'
         
-        cursor.execute("""
+        # Start transaction
+        connection.autocommit = False
+        
+        try:
+            # Create end shift transaction
+            cursor.execute("""
             INSERT INTO cash_drawer_transactions 
             (employee_id, transaction_type, amount, description, status, created_at)
             VALUES (%s, 'cash_out', %s, %s, 'completed', NOW())
-        """, (session.get('employee_id'), counted_amount, description))
+            """, (cashier_id, counted_amount, description))
+            
+            transaction_id = cursor.lastrowid
+            
+            # Update session with end details
+            cursor.execute("""
+                UPDATE cash_drawer_sessions 
+                SET status = 'closed',
+                    end_time = NOW(),
+                    ending_amount = %s,
+                    total_cash_in = %s,
+                    total_cash_out = %s,
+                    total_sales = %s,
+                    variance = %s
+                WHERE id = %s
+            """, (counted_amount, cash_ins, cash_outs, cash_sales, variance, session_id))
         
-        # Create variance tracking table if it doesn't exist
-        cursor.execute("""
+            # Create variance tracking table if it doesn't exist
+            cursor.execute("""
             CREATE TABLE IF NOT EXISTS cash_drawer_variances (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 employee_id INT NOT NULL,
@@ -963,34 +2252,54 @@ def end_shift():
             )
         """)
         
-        # Save variance details for audit purposes
-        cursor.execute("""
+            # Save variance details for audit purposes
+            cursor.execute("""
             INSERT INTO cash_drawer_variances (employee_id, expected_balance, actual_counted, variance_amount, variance_type, shift_date)
-            VALUES (%s, %s, %s, %s, %s, CURDATE())
-        """, (session.get('employee_id'), expected_balance, counted_amount, variance, variance_type))
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (cashier_id, expected_balance, counted_amount, variance, variance_type, session_date))
         
-        connection.commit()
-        cursor.close()
-        connection.close()
+            # Commit transaction
+            connection.commit()
+            
+            # Log the activity
+            log_cashier_activity(
+                cashier_id=cashier_id,
+                action_type='close_drawer',
+                table_name='cash_drawer_sessions',
+                record_id=session_id,
+                new_values={'ending_amount': counted_amount, 'variance': variance, 'status': 'closed'},
+                description=f'Ended cash drawer session - Counted: shs {counted_amount:.2f}, Expected: shs {expected_balance:.2f}, Variance: shs {variance:.2f}',
+                request=request
+            )
         
-        # Prepare response message
-        if variance == 0:
-            message = f'Shift ended successfully. Cash count matches expected balance: ${counted_amount:.2f}'
-        elif variance > 0:
-            message = f'Shift ended with EXCESS of ${variance:.2f}. Counted: ${counted_amount:.2f}, Expected: ${expected_balance:.2f}'
-        else:
-            message = f'Shift ended with DEFICIT of ${abs(variance):.2f}. Counted: ${counted_amount:.2f}, Expected: ${expected_balance:.2f}'
-        
-        return jsonify({
-            'success': True,
-            'message': message,
-            'variance': {
-                'expected_balance': expected_balance,
-                'actual_counted': counted_amount,
-                'variance_amount': variance,
-                'variance_type': variance_type
-            }
-        })
+            # Prepare response message
+            if variance == 0:
+                message = f'Session ended successfully. Cash count matches expected balance: shs {counted_amount:.2f}'
+            elif variance > 0:
+                message = f'Session ended with EXCESS of shs {variance:.2f}. Counted: shs {counted_amount:.2f}, Expected: shs {expected_balance:.2f}'
+            else:
+                message = f'Session ended with DEFICIT of shs {abs(variance):.2f}. Counted: shs {counted_amount:.2f}, Expected: shs {expected_balance:.2f}'
+            
+            return jsonify({
+                'success': True,
+                'message': message,
+                'session_id': session_id,
+                'variance': {
+                    'expected_balance': expected_balance,
+                    'actual_counted': counted_amount,
+                    'variance_amount': variance,
+                    'variance_type': variance_type
+                }
+            })
+            
+        except Exception as e:
+            connection.rollback()
+            raise e
+        finally:
+            connection.autocommit = True
+            cursor.close()
+            connection.close()
+            
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -1001,27 +2310,73 @@ def get_cash_drawer_transactions():
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
     try:
+        # Resolve date to use: explicit ?date, else active session date, else today
+        requested_date = request.args.get('date')
+        selected_date = None
+
         connection = get_db_connection()
         if not connection:
             return jsonify({'success': False, 'message': 'Database connection failed'}), 500
             
+        if not requested_date:
+            try:
+                with connection.cursor() as c2:
+                    c2.execute(
+                        """
+                        SELECT session_date FROM cash_drawer_sessions
+                        WHERE cashier_id = %s AND status = 'active' LIMIT 1
+                        """,
+                        (session.get('employee_id'),)
+                    )
+                    r = c2.fetchone()
+                    if r:
+                        selected_date = r[0].strftime('%Y-%m-%d') if hasattr(r[0], 'strftime') else str(r[0])
+            except Exception:
+                pass
+
+        selected_date = requested_date or selected_date or datetime.now().strftime('%Y-%m-%d')
         cursor = connection.cursor()
-        cursor.execute("""
-            SELECT transaction_type, amount, description, status, created_at
-            FROM cash_drawer_transactions 
-            WHERE employee_id = %s
-            ORDER BY created_at DESC 
-            LIMIT 10
-        """, (session.get('employee_id'),))
+
+        # Find the cashier session window (start/end) for the requested date
+        cursor.execute(
+            """
+            SELECT id, start_time, COALESCE(end_time, NOW()) as end_time
+            FROM cash_drawer_sessions
+            WHERE cashier_id = %s AND session_date = %s
+            ORDER BY start_time DESC
+            LIMIT 1
+            """,
+            (session.get('employee_id'), selected_date)
+        )
+        session_row = cursor.fetchone()
+
+        if session_row:
+            # Filter transactions strictly within the session window
+            _, session_start, session_end = session_row
+            cursor.execute(
+                """
+                SELECT id, transaction_type, amount, description, status, created_at
+                FROM cash_drawer_transactions
+                WHERE employee_id = %s
+                  AND created_at BETWEEN %s AND %s
+                ORDER BY created_at DESC
+                LIMIT 50
+                """,
+                (session.get('employee_id'), session_start, session_end)
+            )
+        else:
+            # Fallback: no session found that day → return empty list
+            cursor.execute("SELECT 1 WHERE 1=0")
         
         transactions = []
         for row in cursor.fetchall():
             transactions.append({
-                'type': row[0],
-                'amount': float(row[1]),
-                'description': row[2],
-                'status': row[3],
-                'created_at': row[4].strftime('%I:%M %p') if row[4] else ''
+                'id': row[0],
+                'type': row[1],
+                'amount': float(row[2]),
+                'description': row[3],
+                'status': row[4],
+                'created_at': row[5].strftime('%I:%M %p') if row[5] else ''
             })
         
         cursor.close()
@@ -1031,6 +2386,360 @@ def get_cash_drawer_transactions():
             'success': True,
             'transactions': transactions
         })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/cash-drawer/transactions/<int:transaction_id>', methods=['PUT'])
+def edit_cash_drawer_transaction(transaction_id):
+    """Edit a cash drawer transaction"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        new_amount = float(data.get('amount', 0))
+        new_description = normalize_text(data.get('description', ''))
+        
+        connection = get_db_connection()
+        if not connection:
+            return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+            
+        cursor = connection.cursor()
+        
+        # Get the current transaction data for audit logging
+        cursor.execute("""
+            SELECT amount, description, transaction_type, status, DATE(created_at) as tx_date
+            FROM cash_drawer_transactions 
+            WHERE id = %s AND employee_id = %s
+        """, (transaction_id, session.get('employee_id')))
+        
+        old_transaction = cursor.fetchone()
+        if not old_transaction:
+            return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+        
+        old_values = {
+            'amount': float(old_transaction[0]),
+            'description': old_transaction[1],
+            'transaction_type': old_transaction[2],
+            'status': old_transaction[3]
+        }
+
+        # Enforce: cannot edit when session ended or transaction not in current active session date
+        cursor.execute("""
+            SELECT session_date FROM cash_drawer_sessions
+            WHERE cashier_id = %s AND status = 'active' LIMIT 1
+        """, (session.get('employee_id'),))
+        active = cursor.fetchone()
+        if not active:
+            cursor.close(); connection.close()
+            return jsonify({'success': False, 'message': 'Session ended. Editing transactions is not allowed.'}), 403
+        active_date = active[0]
+        tx_date = old_transaction[4]
+        if str(active_date) != str(tx_date):
+            cursor.close(); connection.close()
+            return jsonify({'success': False, 'message': 'Cannot edit transactions outside the current session date.'}), 403
+        
+        # Update the transaction
+        cursor.execute("""
+            UPDATE cash_drawer_transactions 
+            SET amount = %s, description = %s
+            WHERE id = %s AND employee_id = %s
+        """, (new_amount, new_description, transaction_id, session.get('employee_id')))
+        
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': 'Transaction not found or not updated'}), 404
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        # Log the activity
+        log_cashier_activity(
+            cashier_id=session.get('employee_id'),
+            action_type='edit',
+            table_name='cash_drawer_transactions',
+            record_id=transaction_id,
+            old_values=old_values,
+            new_values={'amount': new_amount, 'description': new_description, 'transaction_type': old_transaction[2], 'status': old_transaction[3]},
+            description=f'Edited transaction ID {transaction_id}: Amount shs {old_values["amount"]:.2f} → shs {new_amount:.2f}',
+            request=request
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'Transaction updated successfully'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/cash-drawer/suggestions', methods=['GET'])
+def cash_drawer_suggestions():
+    """Return unique suggestions for inputs based on previous entries.
+    Query params: field=[reason|from_who|location|received_by|description],
+                  type=[cash_in|cash_out|safe_drop|any], query=partial text
+    """
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    field = request.args.get('field', '').strip()
+    tx_type = request.args.get('type', 'any').strip()
+    q = normalize_text(request.args.get('query', ''))
+
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+
+        cursor = connection.cursor()
+        # Fetch recent descriptions for this cashier to keep it fast
+        if tx_type == 'any':
+            cursor.execute("""
+                SELECT transaction_type, description
+                FROM cash_drawer_transactions
+                WHERE employee_id = %s
+                ORDER BY id DESC
+                LIMIT 500
+            """, (session.get('employee_id'),))
+        else:
+            cursor.execute("""
+                SELECT transaction_type, description
+                FROM cash_drawer_transactions
+                WHERE employee_id = %s AND transaction_type = %s
+                ORDER BY id DESC
+                LIMIT 500
+            """, (session.get('employee_id'), tx_type))
+
+        rows = cursor.fetchall()
+        cursor.close(); connection.close()
+
+        def parse_parts(ttype, desc):
+            desc_n = normalize_text(desc)
+            if ttype == 'cash_in':
+                # Format: "Cash in: {REASON} from {FROM_WHO}" or variations
+                if 'CASH IN:' in desc_n and ' FROM ' in desc_n:
+                    try:
+                        after = desc_n.split('CASH IN:', 1)[1].strip()
+                        reason_part, from_part = after.split(' FROM ', 1)
+                        return {
+                            'reason': reason_part.strip(),
+                            'from_who': from_part.strip()
+                        }
+                    except Exception:
+                        return {'description': desc_n}
+            if ttype == 'cash_out':
+                if desc_n.startswith('SAFE DROP TO ') and ' RECEIVED BY ' in desc_n:
+                    try:
+                        tmp = desc_n[len('SAFE DROP TO '):]
+                        location_part, recv_part = tmp.split(' RECEIVED BY ', 1)
+                        return {
+                            'location': location_part.strip(),
+                            'received_by': recv_part.strip()
+                        }
+                    except Exception:
+                        return {'description': desc_n}
+                # Regular cash out reason
+                return {'reason': desc_n}
+            # Fallback
+            return {'description': desc_n}
+
+        bucket = set()
+        suggestions = []
+        for ttype, desc in rows:
+            parts = parse_parts(ttype, desc)
+            candidate = parts.get(field) if field else parts.get('description')
+            if not candidate:
+                continue
+            if q and not candidate.startswith(q):
+                continue
+            if candidate not in bucket:
+                bucket.add(candidate)
+                suggestions.append(candidate)
+            if len(suggestions) >= 15:
+                break
+
+        return jsonify({'success': True, 'suggestions': suggestions})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/cash-drawer/transactions/<int:transaction_id>', methods=['DELETE'])
+def delete_cash_drawer_transaction(transaction_id):
+    """Delete a cash drawer transaction"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+            
+        cursor = connection.cursor()
+        
+        # Get the current transaction data for audit logging
+        cursor.execute("""
+            SELECT amount, description, transaction_type, status, DATE(created_at) as tx_date
+            FROM cash_drawer_transactions 
+            WHERE id = %s AND employee_id = %s
+        """, (transaction_id, session.get('employee_id')))
+        
+        old_transaction = cursor.fetchone()
+        if not old_transaction:
+            return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+        
+        old_values = {
+            'amount': float(old_transaction[0]),
+            'description': old_transaction[1],
+            'transaction_type': old_transaction[2],
+            'status': old_transaction[3]
+        }
+
+        # Enforce: cannot delete when session ended or transaction not in current active session date
+        cursor.execute("""
+            SELECT session_date FROM cash_drawer_sessions
+            WHERE cashier_id = %s AND status = 'active' LIMIT 1
+        """, (session.get('employee_id'),))
+        active = cursor.fetchone()
+        if not active:
+            cursor.close(); connection.close()
+            return jsonify({'success': False, 'message': 'Session ended. Deleting transactions is not allowed.'}), 403
+        active_date = active[0]
+        tx_date = old_transaction[4]
+        if str(active_date) != str(tx_date):
+            cursor.close(); connection.close()
+            return jsonify({'success': False, 'message': 'Cannot delete transactions outside the current session date.'}), 403
+        
+        # Delete the transaction
+        cursor.execute("""
+            DELETE FROM cash_drawer_transactions 
+            WHERE id = %s AND employee_id = %s
+        """, (transaction_id, session.get('employee_id')))
+        
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': 'Transaction not found or not deleted'}), 404
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        # Log the activity
+        log_cashier_activity(
+            cashier_id=session.get('employee_id'),
+            action_type='delete',
+            table_name='cash_drawer_transactions',
+            record_id=transaction_id,
+            old_values=old_values,
+            description=f'Deleted transaction ID {transaction_id}: shs {old_values["amount"]:.2f} - {old_values["description"]}',
+            request=request
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'Transaction deleted successfully'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/cash-drawer/audit-logs', methods=['GET'])
+def get_cashier_audit_logs():
+    """Get cashier audit logs"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+            
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT 
+                cl.action_type,
+                cl.table_name,
+                cl.record_id,
+                cl.old_values,
+                cl.new_values,
+                cl.description,
+                cl.ip_address,
+                cl.created_at,
+                e.full_name as cashier_name
+            FROM cashier_logs cl
+            JOIN employees e ON cl.cashier_id = e.id
+            WHERE cl.cashier_id = %s
+            ORDER BY cl.created_at DESC 
+            LIMIT 50
+        """, (session.get('employee_id'),))
+        
+        logs = []
+        for row in cursor.fetchall():
+            logs.append({
+                'action_type': row[0],
+                'table_name': row[1],
+                'record_id': row[2],
+                'old_values': row[3],
+                'new_values': row[4],
+                'description': row[5],
+                'ip_address': row[6],
+                'created_at': row[7].strftime('%Y-%m-%d %I:%M %p') if row[7] else '',
+                'cashier_name': row[8]
+            })
+        
+        cursor.close()
+        connection.close()
+        
+        return jsonify({
+            'success': True,
+            'logs': logs
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/cash-drawer/session-status', methods=['GET'])
+def get_session_status():
+    """Get current cash drawer session status"""
+    if 'employee_id' not in session or session.get('employee_role') != 'cashier':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    try:
+        # Check and auto-close any old sessions first
+        check_and_auto_close_sessions()
+        
+        connection = get_db_connection()
+        if not connection:
+            return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+            
+        cursor = connection.cursor()
+        
+        # Get current active session
+        cursor.execute("""
+            SELECT id, session_date, start_time, starting_amount, status
+            FROM cash_drawer_sessions 
+            WHERE cashier_id = %s AND status = 'active'
+        """, (session.get('employee_id'),))
+        
+        active_session = cursor.fetchone()
+        
+        cursor.close()
+        connection.close()
+        
+        if active_session:
+            session_id, session_date, start_time, starting_amount, status = active_session
+            return jsonify({
+                'success': True,
+                'has_active_session': True,
+                'session': {
+                    'id': session_id,
+                    'date': session_date.strftime('%Y-%m-%d'),
+                    'start_time': start_time.strftime('%H:%M:%S'),
+                    'starting_amount': float(starting_amount),
+                    'status': status
+                }
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'has_active_session': False,
+                'message': 'No active session found'
+            })
+            
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -1065,6 +2774,63 @@ def employee_dashboard():
 def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+
+@app.route('/test-permissions-settings')
+def test_permissions_settings():
+    """Test endpoint to verify permissions settings functionality"""
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return "Database connection failed"
+        
+        cursor = connection.cursor()
+        
+        # Get current permissions setting
+        cursor.execute("""
+            SELECT enable_receipt_status_update
+            FROM hotel_settings 
+            ORDER BY id DESC 
+            LIMIT 1
+        """)
+        result = cursor.fetchone()
+        enable_status_update = result[0] if result else True
+        
+        # Get a sample receipt to test with
+        cursor.execute("""
+            SELECT id, receipt_number, status, cashier_confirmed
+            FROM sales 
+            ORDER BY id DESC 
+            LIMIT 1
+        """)
+        receipt = cursor.fetchone()
+        
+        connection.close()
+        
+        if receipt:
+            return f"""
+            <h2>Permissions Settings Test</h2>
+            <p><strong>Auto-Update Receipt Status:</strong> {enable_status_update}</p>
+            <p><strong>Sample Receipt:</strong></p>
+            <ul>
+                <li>ID: {receipt[0]}</li>
+                <li>Receipt Number: {receipt[1]}</li>
+                <li>Status: {receipt[2]}</li>
+                <li>Cashier Confirmed: {receipt[3]}</li>
+            </ul>
+            <p><strong>Test Instructions:</strong></p>
+            <ol>
+                <li>Go to Admin Settings > Permissions Settings</li>
+                <li>Toggle the "Auto-Update Receipt Status" setting</li>
+                <li>Go to Cashier Receipt Confirmation</li>
+                <li>Confirm/unconfirm the sample receipt</li>
+                <li>Check if the receipt status changes when toggle is ON</li>
+            </ol>
+            """
+        else:
+            return "No receipts found to test with. Create a sale first."
+            
+    except Exception as e:
+        return f"Error: {e}"
 
 @app.route('/test-hotel-settings')
 def test_hotel_settings():
@@ -1135,7 +2901,6 @@ def employee_login():
         return jsonify({'success': False, 'message': 'An error occurred during login'}), 500
     finally:
         connection.close()
-
 @app.route('/employee/register', methods=['POST'])
 def employee_register():
     """Employee registration endpoint"""
@@ -1312,6 +3077,19 @@ def admin_human_resources():
                          employee_profile_photo=employee_profile_photo,
                          hotel_settings=hotel_settings)
 
+@app.route('/admin/payroll')
+def admin_payroll():
+    """Admin payroll registration page"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('admin/payroll.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
 @app.route('/admin/item-management')
 def admin_item_management():
     """Admin item management"""
@@ -1361,6 +3139,45 @@ def admin_off_days_management():
                          employee_role=session.get('employee_role', 'guest'),
                          employee_profile_photo=employee_profile_photo,
                          hotel_settings=hotel_settings)
+
+@app.route('/admin/cashiers')
+def admin_cashiers():
+    """Admin cashiers management"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('admin/cashiers.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
+@app.route('/admin/cashier-transactions')
+def admin_cashier_transactions_page():
+    """Admin view - all transactions grouped by session"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('admin/cashier_transactions.html',
+                           employee_name=session.get('employee_name'),
+                           employee_role=session.get('employee_role'),
+                           employee_profile_photo=employee_profile_photo,
+                           hotel_settings=hotel_settings)
+
+@app.route('/admin/expenses-incurred')
+def admin_expenses_incurred_page():
+    """Admin view - all cash outs and safe drops"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('admin/expenses_incurred.html',
+                           employee_name=session.get('employee_name'),
+                           employee_role=session.get('employee_role'),
+                           employee_profile_photo=employee_profile_photo,
+                           hotel_settings=hotel_settings)
 
 @app.route('/api/get-network-info', methods=['GET'])
 def get_network_info():
@@ -1813,7 +3630,6 @@ def scan_wifi_printers():
             'error': str(e),
             'fallback_message': 'Advanced discovery failed. Please use manual setup.'
         }), 500
-
 @app.route('/api/scan-thermal-printers', methods=['POST'])
 def scan_thermal_printers():
     """Real thermal printer discovery - no dummy data"""
@@ -2488,6 +4304,92 @@ def get_all_employees():
     finally:
         connection.close()
 
+@app.route('/api/payroll/register', methods=['POST'])
+def register_payroll_profile():
+    """Create or update payroll profile for an employee"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+    required = ['employee_id', 'basic_salary', 'payment_frequency']
+    for field in required:
+        if field not in data or data[field] in [None, '']:
+            return jsonify({'success': False, 'message': f'Missing field: {field}'}), 400
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor() as cursor:
+            # Ensure table exists
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS payroll_profiles (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL,
+                    basic_salary DECIMAL(12,2) NOT NULL DEFAULT 0,
+                    allowances DECIMAL(12,2) NOT NULL DEFAULT 0,
+                    deductions DECIMAL(12,2) NOT NULL DEFAULT 0,
+                    payment_frequency VARCHAR(32) NOT NULL,
+                    bank_name VARCHAR(100),
+                    account_number VARCHAR(100),
+                    kra_pin VARCHAR(32),
+                    nssf VARCHAR(32),
+                    nhif VARCHAR(32),
+                    helb VARCHAR(32),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY uniq_employee (employee_id),
+                    CONSTRAINT fk_payroll_employee FOREIGN KEY (employee_id) REFERENCES employees(id)
+                        ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                """
+            )
+
+            # Upsert profile
+            cursor.execute(
+                """
+                INSERT INTO payroll_profiles (
+                    employee_id, basic_salary, allowances, deductions, payment_frequency,
+                    bank_name, account_number, kra_pin, nssf, nhif, helb
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    basic_salary = VALUES(basic_salary),
+                    allowances = VALUES(allowances),
+                    deductions = VALUES(deductions),
+                    payment_frequency = VALUES(payment_frequency),
+                    bank_name = VALUES(bank_name),
+                    account_number = VALUES(account_number),
+                    kra_pin = VALUES(kra_pin),
+                    nssf = VALUES(nssf),
+                    nhif = VALUES(nhif),
+                    helb = VALUES(helb)
+                """,
+                (
+                    int(data.get('employee_id')),
+                    float(data.get('basic_salary') or 0),
+                    float(data.get('allowances') or 0),
+                    float(data.get('deductions') or 0),
+                    str(data.get('payment_frequency') or 'monthly'),
+                    (data.get('bank_name') or '').strip() or None,
+                    (data.get('account_number') or '').strip() or None,
+                    (data.get('kra_pin') or '').strip() or None,
+                    (data.get('nssf') or '').strip() or None,
+                    (data.get('nhif') or '').strip() or None,
+                    (data.get('helb') or '').strip() or None,
+                )
+            )
+
+        connection.commit()
+        return jsonify({'success': True, 'message': 'Payroll profile saved'})
+    except Exception as e:
+        print(f"Error saving payroll profile: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Error saving payroll profile'}), 500
+    finally:
+        connection.close()
+
 @app.route('/api/hr/employees/<int:employee_id>', methods=['GET'])
 def get_employee_details(employee_id):
     """Get specific employee details"""
@@ -2524,7 +4426,6 @@ def get_employee_details(employee_id):
         return jsonify({'success': False, 'message': 'An error occurred while fetching employee details'}), 500
     finally:
         connection.close()
-
 @app.route('/api/hr/employees/<int:employee_id>', methods=['PUT'])
 def update_employee(employee_id):
     """Update employee details"""
@@ -2704,6 +4605,496 @@ def activate_employee(employee_id):
     finally:
         connection.close()
 
+@app.route('/api/admin/cashiers', methods=['GET'])
+def get_cashiers():
+    """Get all cashiers for admin cashiers management"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT id, full_name, email, phone_number, employee_code, 
+                       profile_photo, role, status, created_at, updated_at
+                FROM employees 
+                WHERE role = 'cashier'
+                ORDER BY created_at DESC
+            """)
+            cashiers = cursor.fetchall()
+            
+            # Convert datetime objects to strings for JSON serialization
+            for cashier in cashiers:
+                if cashier['created_at']:
+                    cashier['created_at'] = cashier['created_at'].isoformat()
+                if cashier['updated_at']:
+                    cashier['updated_at'] = cashier['updated_at'].isoformat()
+            
+            return jsonify({'success': True, 'cashiers': cashiers})
+            
+    except Exception as e:
+        print(f"Error fetching cashiers: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred while fetching cashiers'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/admin/cash-drawer/sessions/live', methods=['GET'])
+def admin_live_cash_drawer_sessions():
+    """Return active cash drawer sessions for all cashiers, including current balance snapshot."""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Get active sessions with cashier info
+            cursor.execute(
+                """
+                SELECT s.id as session_id, s.cashier_id, s.session_date, s.start_time, s.starting_amount,
+                       e.full_name, e.employee_code, e.profile_photo
+                FROM cash_drawer_sessions s
+                JOIN employees e ON e.id = s.cashier_id
+                WHERE s.status = 'active'
+                ORDER BY s.start_time DESC
+                """
+            )
+            sessions = cursor.fetchall()
+
+            results = []
+            active_cashier_ids = set()
+            for sess in sessions:
+                cashier_id = sess['cashier_id']
+                active_cashier_ids.add(cashier_id)
+                # Compute current balance similar to status endpoint but for session date
+                cursor.execute(
+                    """
+                    SELECT 
+                        (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                         WHERE employee_id = %s AND DATE(created_at) = %s AND description = 'Starting cash amount') AS opening_float,
+                        (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                         WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_in' AND description != 'Starting cash amount') AS cash_ins,
+                        (SELECT COALESCE(SUM(total_amount), 0) FROM sales
+                         WHERE employee_id = %s AND DATE(sale_date) = %s) AS cash_sales,
+                        (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                         WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_out' AND description NOT LIKE %s AND description NOT LIKE %s) AS cash_outs,
+                        (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                         WHERE employee_id = %s AND DATE(created_at) = %s AND description LIKE %s) AS safe_drops
+                    """,
+                    (
+                        cashier_id, sess['session_date'],
+                        cashier_id, sess['session_date'],
+                        cashier_id, sess['session_date'],
+                        cashier_id, sess['session_date'], 'Safe drop%', 'End shift%',
+                        cashier_id, sess['session_date'], 'Safe drop%'
+                    )
+                )
+                row = cursor.fetchone() or {}
+                opening_float = float(row.get('opening_float') or 0)
+                cash_ins = float(row.get('cash_ins') or 0)
+                cash_sales = float(row.get('cash_sales') or 0)
+                cash_outs = float(row.get('cash_outs') or 0)
+                safe_drops = float(row.get('safe_drops') or 0)
+                current_balance = opening_float + cash_ins + cash_sales - cash_outs - safe_drops
+
+                # Today's counts (for that date)
+                cursor.execute(
+                    """
+                    SELECT 
+                        COUNT(CASE WHEN DATE(created_at) = %s THEN 1 END) as today_transactions,
+                        (SELECT COUNT(*) FROM cash_drawer_transactions WHERE employee_id = %s AND DATE(created_at) = %s AND status = 'pending') as pending_count
+                    FROM cash_drawer_transactions WHERE employee_id = %s
+                    """,
+                    (sess['session_date'], cashier_id, sess['session_date'], cashier_id)
+                )
+                counts = cursor.fetchone() or {}
+                today_transactions = counts.get('today_transactions') or 0
+                pending_count = counts.get('pending_count') or 0
+
+                # Recent transactions within session window
+                cursor.execute(
+                    """
+                    SELECT transaction_type, amount, description, status, created_at
+                    FROM cash_drawer_transactions
+                    WHERE employee_id = %s AND created_at BETWEEN %s AND NOW()
+                    ORDER BY created_at DESC LIMIT 10
+                    """,
+                    (cashier_id, sess['start_time'])
+                )
+                tx_rows = cursor.fetchall() or []
+                recent_transactions = []
+                for r in tx_rows:
+                    t_type = r.get('transaction_type')
+                    t_amount = float(r.get('amount') or 0)
+                    t_desc = r.get('description')
+                    t_status = r.get('status')
+                    t_time = r.get('created_at')
+                    recent_transactions.append({
+                        'type': t_type,
+                        'amount': t_amount,
+                        'description': t_desc,
+                        'status': t_status,
+                        'created_at': t_time.strftime('%H:%M') if t_time else ''
+                    })
+
+                # Recent sales within session date (latest 10)
+                cursor.execute(
+                    """
+                    SELECT receipt_number, total_amount, sale_date
+                    FROM sales
+                    WHERE employee_id = %s AND DATE(sale_date) = %s
+                    ORDER BY sale_date DESC
+                    LIMIT 10
+                    """,
+                    (cashier_id, sess['session_date'])
+                )
+                sale_rows = cursor.fetchall() or []
+                recent_sales = []
+                for sr in sale_rows:
+                    receipt = sr.get('receipt_number')
+                    amount = float(sr.get('total_amount') or 0)
+                    sdt = sr.get('sale_date')
+                    recent_sales.append({
+                        'receipt': receipt,
+                        'amount': amount,
+                        'time': sdt.strftime('%H:%M') if sdt else ''
+                    })
+
+                results.append({
+                    'session_id': sess['session_id'],
+                    'cashier_id': cashier_id,
+                    'cashier_name': sess['full_name'],
+                    'employee_code': sess['employee_code'],
+                    'profile_photo': sess.get('profile_photo'),
+                    'session_date': sess['session_date'].isoformat() if hasattr(sess['session_date'], 'isoformat') else str(sess['session_date']),
+                    'start_time': sess['start_time'].isoformat() if hasattr(sess['start_time'], 'isoformat') else str(sess['start_time']),
+                    'starting_amount': float(sess['starting_amount']) if sess['starting_amount'] is not None else 0.0,
+                    'current_balance': current_balance,
+                    'opening_float': opening_float,
+                    'cash_ins': cash_ins,
+                    'cash_sales': cash_sales,
+                    'cash_outs': cash_outs,
+                    'safe_drops': safe_drops,
+                    'today_transactions': today_transactions,
+                    'pending_count': pending_count,
+                    'recent_transactions': recent_transactions,
+                    'recent_sales': recent_sales,
+                    'is_active': True
+                })
+
+            # If no active session for some cashiers, include the latest session today as a fallback snapshot
+            include_last = True
+            if include_last:
+                cursor.execute(
+                    """
+                    SELECT s.id as session_id, s.cashier_id, s.session_date, s.start_time, COALESCE(s.end_time, NOW()) as end_time,
+                           s.starting_amount, e.full_name, e.employee_code, e.profile_photo
+                    FROM cash_drawer_sessions s
+                    JOIN employees e ON e.id = s.cashier_id
+                    WHERE s.session_date = CURDATE() AND s.status <> 'active'
+                    ORDER BY s.end_time DESC
+                    """
+                )
+                fallback_rows = cursor.fetchall() or []
+                for sess in fallback_rows:
+                    cashier_id = sess['cashier_id']
+                    if cashier_id in active_cashier_ids:
+                        continue
+                    # summary for fallback session
+                    cursor.execute(
+                        """
+                        SELECT 
+                            (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                                 WHERE employee_id = %s AND DATE(created_at) = %s AND description = 'Starting cash amount') AS opening_float,
+                            (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                                 WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_in' AND description != 'Starting cash amount') AS cash_ins,
+                            (SELECT COALESCE(SUM(total_amount), 0) FROM sales
+                                 WHERE employee_id = %s AND DATE(sale_date) = %s) AS cash_sales,
+                            (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                                 WHERE employee_id = %s AND DATE(created_at) = %s AND transaction_type = 'cash_out' AND description NOT LIKE %s AND description NOT LIKE %s) AS cash_outs,
+                            (SELECT COALESCE(SUM(amount), 0) FROM cash_drawer_transactions
+                                 WHERE employee_id = %s AND DATE(created_at) = %s AND description LIKE %s) AS safe_drops
+                        """,
+                        (
+                            cashier_id, sess['session_date'],
+                            cashier_id, sess['session_date'],
+                            cashier_id, sess['session_date'],
+                            cashier_id, sess['session_date'], 'Safe drop%', 'End shift%',
+                            cashier_id, sess['session_date'], 'Safe drop%'
+                        )
+                    )
+                    row = cursor.fetchone() or {}
+                    opening_float = float(row.get('opening_float') or 0)
+                    cash_ins = float(row.get('cash_ins') or 0)
+                    cash_sales = float(row.get('cash_sales') or 0)
+                    cash_outs = float(row.get('cash_outs') or 0)
+                    safe_drops = float(row.get('safe_drops') or 0)
+                    current_balance = opening_float + cash_ins + cash_sales - cash_outs - safe_drops
+
+                    # recent tx in that session window
+                    cursor.execute(
+                        """
+                        SELECT transaction_type, amount, description, status, created_at
+                        FROM cash_drawer_transactions
+                        WHERE employee_id = %s AND created_at BETWEEN %s AND %s
+                        ORDER BY created_at DESC LIMIT 10
+                        """,
+                        (cashier_id, sess['start_time'], sess['end_time'])
+                    )
+                    tx_rows = cursor.fetchall() or []
+                    recent_transactions = []
+                    for r in tx_rows:
+                        t_type = r.get('transaction_type')
+                        t_amount = float(r.get('amount') or 0)
+                        t_desc = r.get('description')
+                        t_status = r.get('status')
+                        t_time = r.get('created_at')
+                        recent_transactions.append({
+                            'type': t_type,
+                            'amount': t_amount,
+                            'description': t_desc,
+                            'status': t_status,
+                            'created_at': t_time.strftime('%H:%M') if t_time else ''
+                        })
+
+                    # recent sales
+                    cursor.execute(
+                        """
+                        SELECT receipt_number, total_amount, sale_date
+                        FROM sales
+                        WHERE employee_id = %s AND DATE(sale_date) = %s
+                        ORDER BY sale_date DESC
+                        LIMIT 10
+                        """,
+                        (cashier_id, sess['session_date'])
+                    )
+                    sale_rows = cursor.fetchall() or []
+                    recent_sales = []
+                    for sr in sale_rows:
+                        receipt = sr.get('receipt_number')
+                        amount = float(sr.get('total_amount') or 0)
+                        sdt = sr.get('sale_date')
+                        recent_sales.append({
+                            'receipt': receipt,
+                            'amount': amount,
+                            'time': sdt.strftime('%H:%M') if sdt else ''
+                        })
+
+                    results.append({
+                        'session_id': sess['session_id'],
+                        'cashier_id': cashier_id,
+                        'cashier_name': sess['full_name'],
+                        'employee_code': sess['employee_code'],
+                        'profile_photo': sess.get('profile_photo'),
+                        'session_date': sess['session_date'].isoformat() if hasattr(sess['session_date'], 'isoformat') else str(sess['session_date']),
+                        'start_time': sess['start_time'].isoformat() if hasattr(sess['start_time'], 'isoformat') else str(sess['start_time']),
+                        'starting_amount': float(sess['starting_amount']) if sess['starting_amount'] is not None else 0.0,
+                        'current_balance': current_balance,
+                        'opening_float': opening_float,
+                        'cash_ins': cash_ins,
+                        'cash_sales': cash_sales,
+                        'cash_outs': cash_outs,
+                        'safe_drops': safe_drops,
+                        'today_transactions': 0,
+                        'pending_count': 0,
+                        'recent_transactions': recent_transactions,
+                        'recent_sales': recent_sales,
+                        'is_active': False
+                    })
+
+            return jsonify({'success': True, 'sessions': results})
+    except Exception as e:
+        print(f"Error fetching live sessions: {repr(e)}")
+        return jsonify({'success': False, 'message': 'An error occurred while fetching sessions'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/admin/cash-drawer/sessions/with-transactions', methods=['GET'])
+def admin_sessions_with_transactions():
+    """Return recent sessions with all their transactions (optionally filter by date or cashier)."""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    selected_date = request.args.get('date')  # YYYY-MM-DD
+    cashier_id = request.args.get('cashier_id')
+    session_id = request.args.get('session_id')
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Build sessions query
+            where = []
+            params = []
+            if selected_date:
+                where.append("s.session_date = %s")
+                params.append(selected_date)
+            if cashier_id:
+                where.append("s.cashier_id = %s")
+                params.append(int(cashier_id))
+            if session_id:
+                where.append("s.id = %s")
+                params.append(int(session_id))
+            where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+
+            cursor.execute(f"""
+                SELECT s.id as session_id, s.cashier_id, e.full_name, e.employee_code,
+                       s.session_date, s.start_time, s.end_time, s.status,
+                       s.starting_amount, s.ending_amount
+                FROM cash_drawer_sessions s
+                JOIN employees e ON e.id = s.cashier_id
+                {where_sql}
+                ORDER BY s.start_time DESC
+                LIMIT 50
+            """, tuple(params))
+            sessions = cursor.fetchall() or []
+
+            results = []
+            for sess in sessions:
+                st = sess['start_time']
+                et = sess['end_time'] or datetime.now()
+                cursor.execute("""
+                    SELECT id, transaction_type, amount, description, status, created_at
+                    FROM cash_drawer_transactions
+                    WHERE employee_id = %s AND created_at BETWEEN %s AND %s
+                    ORDER BY created_at ASC
+                """, (sess['cashier_id'], st, et))
+                txs = cursor.fetchall() or []
+                for t in txs:
+                    if t.get('created_at'):
+                        t['created_at'] = t['created_at'].strftime('%Y-%m-%d %H:%M')
+                    t['amount'] = float(t.get('amount') or 0)
+
+                results.append({
+                    'session_id': sess['session_id'],
+                    'cashier_id': sess['cashier_id'],
+                    'cashier_name': sess['full_name'],
+                    'employee_code': sess['employee_code'],
+                    'session_date': sess['session_date'].strftime('%Y-%m-%d') if hasattr(sess['session_date'], 'strftime') else str(sess['session_date']),
+                    'start_time': sess['start_time'].strftime('%Y-%m-%d %H:%M') if hasattr(sess['start_time'], 'strftime') else str(sess['start_time']),
+                    'end_time': sess['end_time'].strftime('%Y-%m-%d %H:%M') if (sess.get('end_time') and hasattr(sess['end_time'], 'strftime')) else (str(sess['end_time']) if sess.get('end_time') else None),
+                    'status': sess['status'],
+                    'starting_amount': float(sess.get('starting_amount') or 0),
+                    'ending_amount': float(sess.get('ending_amount') or 0),
+                    'transactions': txs
+                })
+
+            return jsonify({'success': True, 'sessions': results})
+    except Exception as e:
+        print(f"Error fetching sessions with transactions: {repr(e)}")
+        return jsonify({'success': False, 'message': 'An error occurred while fetching data'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/admin/expenses-incurred', methods=['GET'])
+def admin_expenses_incurred_api():
+    """Return cash outs and safe drops, filterable by date range and cashier."""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    start_date = request.args.get('start_date')  # YYYY-MM-DD
+    end_date = request.args.get('end_date')      # YYYY-MM-DD
+    cashier_id = request.args.get('cashier_id')
+    tx_type = (request.args.get('type') or '').lower()  # 'cash_out' | 'safe_drop' | 'end_shift' | '' (all)
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Base classification: safe drops are recorded as cash_out with description starting 'Safe drop'
+            # End shift are recorded as cash_out with description starting 'End shift'
+            # We allow filtering by type while keeping a single query where possible
+            params = []
+            if tx_type == 'cash_out':
+                where = ["t.transaction_type = 'cash_out' AND t.description NOT LIKE %s AND t.description NOT LIKE %s"]
+                params.append('Safe drop%')
+                params.append('End shift%')
+            elif tx_type == 'safe_drop':
+                where = ["t.description LIKE %s"]
+                params.append('Safe drop%')
+            elif tx_type == 'end_shift':
+                where = ["t.description LIKE %s"]
+                params.append('End shift%')
+            else:
+                where = ["(t.transaction_type = 'cash_out' OR t.description LIKE %s OR t.description LIKE %s)"]
+                params.append('Safe drop%')
+                params.append('End shift%')
+            if start_date:
+                where.append("DATE(t.created_at) >= %s")
+                params.append(start_date)
+            if end_date:
+                where.append("DATE(t.created_at) <= %s")
+                params.append(end_date)
+            if cashier_id:
+                where.append("t.employee_id = %s")
+                params.append(int(cashier_id))
+            where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+
+            cursor.execute(f"""
+                SELECT 
+                    t.id,
+                    t.employee_id,
+                    e.full_name AS cashier_name,
+                    e.employee_code,
+                    t.transaction_type,
+                    t.amount,
+                    t.description,
+                    t.status,
+                    t.created_at
+                FROM cash_drawer_transactions t
+                JOIN employees e ON e.id = t.employee_id
+                {where_sql}
+                ORDER BY t.created_at DESC
+                LIMIT 500
+            """, tuple(params))
+            rows = cursor.fetchall() or []
+
+            total_cash_out = 0.0
+            total_safe_drop = 0.0
+            total_end_shift = 0.0
+            for r in rows:
+                if r.get('created_at'):
+                    r['created_at'] = r['created_at'].strftime('%Y-%m-%d %H:%M') if hasattr(r['created_at'], 'strftime') else str(r['created_at'])
+                r['amount'] = float(r.get('amount') or 0)
+                desc_l = (r.get('description') or '').lower()
+                if desc_l.startswith('safe drop'):
+                    r['category'] = 'safe_drop'
+                elif desc_l.startswith('end shift'):
+                    r['category'] = 'end_shift'
+                else:
+                    r['category'] = 'cash_out'
+                if r['category'] == 'cash_out':
+                    total_cash_out += r['amount']
+                elif r['category'] == 'safe_drop':
+                    total_safe_drop += r['amount']
+                else:
+                    total_end_shift += r['amount']
+
+            return jsonify({
+                'success': True,
+                'items': rows,
+                'totals': {
+                    'cash_out': round(total_cash_out, 2),
+                    'safe_drop': round(total_safe_drop, 2),
+                    'end_shift': round(total_end_shift, 2),
+                    'overall': round(total_cash_out + total_safe_drop + total_end_shift, 2)
+                }
+            })
+    except Exception as e:
+        print(f"Error fetching expenses incurred: {repr(e)}")
+        return jsonify({'success': False, 'message': 'An error occurred while fetching data'}), 500
+    finally:
+        connection.close()
+
 @app.route('/api/hr/employees/<int:employee_id>', methods=['DELETE'])
 def delete_employee(employee_id):
     """Delete employee"""
@@ -2814,7 +5205,6 @@ def get_employee_off_days_stats(employee_id):
         return jsonify({'success': False, 'message': 'An error occurred while fetching employee stats'}), 500
     finally:
         connection.close()
-
 @app.route('/api/hr/stats', methods=['GET'])
 def get_hr_stats():
     """Get HR statistics"""
@@ -3608,7 +5998,6 @@ def get_item(item_id):
         return jsonify({'success': False, 'message': 'Failed to fetch item'})
     finally:
         connection.close()
-
 @app.route('/api/items/<int:item_id>', methods=['PUT'])
 def update_item(item_id):
     """Update an existing item"""
@@ -4187,6 +6576,82 @@ def get_receipt_details(receipt_id):
         if connection:
             connection.close()
 
+@app.route('/receipt/<int:receipt_id>')
+def view_receipt_qr(receipt_id):
+    """Public endpoint to view receipt details via QR code"""
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return render_template('receipt_view.html', error='Database connection failed')
+        
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        
+        # Get receipt details
+        cursor.execute("""
+            SELECT 
+                s.id,
+                s.receipt_number,
+                s.employee_name,
+                s.subtotal,
+                s.tax_amount,
+                s.total_amount,
+                s.sale_date,
+                s.tax_included
+            FROM sales s
+            WHERE s.id = %s
+        """, (receipt_id,))
+        
+        receipt = cursor.fetchone()
+        if not receipt:
+            return render_template('receipt_view.html', error='Receipt not found')
+        
+        # Get receipt items
+        cursor.execute("""
+            SELECT 
+                si.item_name,
+                si.quantity,
+                si.unit_price,
+                si.total_price
+            FROM sales_items si
+            WHERE si.sale_id = %s
+            ORDER BY si.id
+        """, (receipt_id,))
+        
+        items = cursor.fetchall()
+        
+        # Get hotel settings for display
+        cursor.execute("""
+            SELECT hotel_name, company_phone, company_email, hotel_address
+            FROM hotel_settings 
+            ORDER BY id DESC 
+            LIMIT 1
+        """)
+        hotel_settings = cursor.fetchone() or {}
+        
+        # Get receipt settings
+        cursor.execute("""
+            SELECT receipt_header_title, receipt_header_subtitle, receipt_footer_message,
+                   receipt_show_address, receipt_show_contact, receipt_address, 
+                   receipt_phone, receipt_email
+            FROM hotel_settings 
+            ORDER BY id DESC 
+            LIMIT 1
+        """)
+        receipt_settings = cursor.fetchone() or {}
+        
+        return render_template('receipt_view.html', 
+                             receipt=receipt, 
+                             items=items,
+                             hotel_settings=hotel_settings,
+                             receipt_settings=receipt_settings)
+        
+    except Exception as e:
+        print(f"Error fetching receipt for QR view: {e}")
+        return render_template('receipt_view.html', error='Error loading receipt')
+    finally:
+        if connection:
+            connection.close()
+
 @app.route('/api/receipts/<int:receipt_id>/reprint', methods=['POST'])
 def reprint_receipt(receipt_id):
     """Log a receipt reprint action"""
@@ -4262,7 +6727,7 @@ def toggle_cashier_confirmation(receipt_id):
         
         # First, check if the receipt exists and get current confirmation status
         cursor.execute("""
-            SELECT id, cashier_confirmed, receipt_number 
+            SELECT id, cashier_confirmed, receipt_number, status
             FROM sales 
             WHERE id = %s
         """, (receipt_id,))
@@ -4271,14 +6736,33 @@ def toggle_cashier_confirmation(receipt_id):
         if not receipt:
             return jsonify({'success': False, 'message': 'Receipt not found'}), 404
         
+        # Get permissions setting
+        cursor.execute("""
+            SELECT enable_receipt_status_update
+            FROM hotel_settings 
+            ORDER BY id DESC 
+            LIMIT 1
+        """)
+        settings_result = cursor.fetchone()
+        enable_status_update = settings_result[0] if settings_result else True
+        
         # Toggle the confirmation status
         new_status = 1 if receipt[1] == 0 else 0
         
+        # Update cashier confirmation
         cursor.execute("""
             UPDATE sales 
             SET cashier_confirmed = %s
             WHERE id = %s
         """, (new_status, receipt_id))
+        
+        # If enabled and confirming (new_status = 1), also update receipt status to 'confirmed'
+        if enable_status_update and new_status == 1:
+            cursor.execute("""
+                UPDATE sales 
+                SET status = 'confirmed'
+                WHERE id = %s
+            """, (receipt_id,))
         
         connection.commit()
         
@@ -4287,7 +6771,8 @@ def toggle_cashier_confirmation(receipt_id):
         return jsonify({
             'success': True,
             'message': f'Receipt #{receipt[2]} {status_text} by cashier',
-            'cashier_confirmed': new_status
+            'cashier_confirmed': new_status,
+            'status_updated': enable_status_update and new_status == 1
         })
         
     except Exception as e:
@@ -4296,10 +6781,9 @@ def toggle_cashier_confirmation(receipt_id):
     finally:
         if connection:
             connection.close()
-
 @app.route('/api/receipts/update-status', methods=['POST'])
 def update_receipt_status():
-    """Update status of multiple receipts"""
+    """Update status of multiple receipts and handle stock accordingly"""
     try:
         data = request.get_json()
         receipt_ids = data.get('receipt_ids', [])
@@ -4317,18 +6801,128 @@ def update_receipt_status():
         
         cursor = connection.cursor()
         
-        # Update status for all selected receipts
-        placeholders = ','.join(['%s'] * len(receipt_ids))
-        query = f"UPDATE sales SET status = %s WHERE id IN ({placeholders})"
-        cursor.execute(query, [status] + receipt_ids)
+        # Get employee information for logging
+        employee_id = session.get('employee_id')
+        employee_name = session.get('employee_name', 'Unknown')
+        
+        # Process each receipt individually to handle stock properly
+        processed_receipts = []
+        stock_updates_count = 0
+        
+        for receipt_id in receipt_ids:
+            try:
+                # Get current receipt status and items
+                cursor.execute("""
+                    SELECT s.id, s.receipt_number, s.status, s.employee_name
+                    FROM sales s 
+                    WHERE s.id = %s
+                """, (receipt_id,))
+                
+                receipt = cursor.fetchone()
+                if not receipt:
+                    continue
+                
+                current_status = receipt[2]
+                receipt_number = receipt[1]
+                
+                # Get receipt items
+                cursor.execute("""
+                    SELECT si.item_id, si.quantity, si.price, i.name, i.stock, i.stock_update_enabled
+                    FROM sales_items si
+                    JOIN items i ON si.item_id = i.id
+                    WHERE si.sale_id = %s
+                """, (receipt_id,))
+                
+                receipt_items = cursor.fetchall()
+                
+                # Handle stock updates based on status change
+                if status == 'cancelled' and current_status != 'cancelled':
+                    # Restore stock for cancelled receipts
+                    for item in receipt_items:
+                        item_id, quantity, price, item_name, current_stock, stock_enabled = item
+                        
+                        if stock_enabled is None or stock_enabled:  # Default to True if None
+                            # Restore stock
+                            new_stock = current_stock + quantity
+                            cursor.execute("""
+                                UPDATE items 
+                                SET stock = %s, updated_at = CURRENT_TIMESTAMP
+                                WHERE id = %s
+                            """, (new_stock, item_id))
+                            
+                            # Log stock in transaction for cancellation
+                            cursor.execute("""
+                                INSERT INTO stock_transactions 
+                                (item_id, action, quantity, price_per_unit, total_amount, 
+                                 employee_id, employee_name, transaction_type, selling_price, 
+                                 reason, created_at)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                            """, (
+                                item_id, 'stock_in', quantity, price, 
+                                price * quantity, employee_id, employee_name, 
+                                'cancellation', price, f'Receipt Cancellation - Receipt #{receipt_number}'
+                            ))
+                            
+                            stock_updates_count += 1
+                            print(f"[CANCELLATION] Restored stock for {item_name}: {current_stock} -> {new_stock} (+{quantity})")
+                
+                elif status == 'confirmed' and current_status != 'confirmed':
+                    # Only deduct stock if the receipt was previously cancelled
+                    # (because stock was already deducted during the original sale)
+                    if current_status == 'cancelled':
+                        # Deduct stock for previously cancelled receipts
+                        for item in receipt_items:
+                            item_id, quantity, price, item_name, current_stock, stock_enabled = item
+                            
+                            if stock_enabled is None or stock_enabled:  # Default to True if None
+                                # Deduct stock
+                                new_stock = current_stock - quantity
+                                cursor.execute("""
+                                    UPDATE items 
+                                    SET stock = %s, updated_at = CURRENT_TIMESTAMP
+                                    WHERE id = %s
+                                """, (new_stock, item_id))
+                                
+                                # Log stock out transaction for confirmation
+                                cursor.execute("""
+                                    INSERT INTO stock_transactions 
+                                    (item_id, action, quantity, price_per_unit, total_amount, 
+                                     employee_id, employee_name, transaction_type, selling_price, 
+                                     reason, created_at)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                                """, (
+                                    item_id, 'stock_out', quantity, price, 
+                                    price * quantity, employee_id, employee_name, 
+                                    'sale', price, f'Receipt Confirmation - Receipt #{receipt_number}'
+                                ))
+                                
+                                stock_updates_count += 1
+                                print(f"[CONFIRMATION] Deducted stock for {item_name}: {current_stock} -> {new_stock} (-{quantity})")
+                    else:
+                        # For pending receipts, stock was already deducted during sale
+                        print(f"[CONFIRMATION] Receipt #{receipt_number} confirmed - no stock changes needed (was {current_status})")
+                
+                # Update receipt status
+                cursor.execute("UPDATE sales SET status = %s WHERE id = %s", (status, receipt_id))
+                processed_receipts.append(receipt_id)
+                
+            except Exception as e:
+                print(f"Error processing receipt {receipt_id}: {e}")
+                continue
         
         connection.commit()
-        updated_count = cursor.rowcount
+        
+        # Prepare response message
+        status_text = status.title()
+        message = f'Successfully updated {len(processed_receipts)} receipt(s) status to {status_text}'
+        if stock_updates_count > 0:
+            message += f' and processed {stock_updates_count} stock updates'
         
         return jsonify({
             'success': True, 
-            'message': f'Successfully updated {updated_count} receipt(s) status to {status}',
-            'updated_count': updated_count
+            'message': message,
+            'updated_count': len(processed_receipts),
+            'stock_updates': stock_updates_count
         })
         
     except Exception as e:
@@ -4380,12 +6974,64 @@ def analytics_items():
 
 @app.route('/analytics/stock')
 def analytics_stock():
-    """Stock analytics page"""
+    """Stock analytics overview page"""
     if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
         return redirect(url_for('index'))
     hotel_settings = get_hotel_settings()
     employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
     return render_template('analytics_stock.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
+@app.route('/analytics/stock/inventory')
+def analytics_stock_inventory():
+    """Stock inventory management page"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('analytics_stock_inventory.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
+@app.route('/analytics/stock/charts')
+def analytics_stock_charts():
+    """Stock charts analytics page"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('analytics_stock_charts.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
+@app.route('/analytics/stock/reports')
+def analytics_stock_reports():
+    """Stock reports analytics page"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('analytics_stock_reports.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings)
+
+@app.route('/analytics/stock/recommendations')
+def analytics_stock_recommendations():
+    """Stock recommendations analytics page"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    return render_template('analytics_stock_recommendations.html',
                          employee_name=session.get('employee_name'),
                          employee_role=session.get('employee_role'),
                          employee_profile_photo=employee_profile_photo,
@@ -4660,7 +7306,6 @@ def api_analytics_items():
     except Exception as e:
         print(f"Error in item analytics API: {e}")
         return jsonify({'success': False, 'message': 'Error processing analytics data'}), 500
-
 @app.route('/api/analytics/stock', methods=['POST'])
 def api_analytics_stock():
     """API endpoint for stock analytics data"""
@@ -4673,11 +7318,95 @@ def api_analytics_stock():
         filter_type = data.get('filterType', 'single')
         date_range = data.get('dateRange', 30)  # Extract dateRange parameter
         
+        # Handle new date filter parameters
+        date_filter_type = data.get('filterType', 'single')  # 'day', 'range', 'month', 'preset'
+        date_filter_data = data.get('date', None)  # For single day
+        start_date = data.get('startDate', None)  # For date range
+        end_date = data.get('endDate', None)  # For date range
+        month = data.get('month', None)  # For month filter (YYYY-MM format)
+        period = data.get('period', None)  # For preset periods
+        
+        print(f"Date filter debug - Type: {date_filter_type}, Month: {month}, Period: {period}")
+        
         connection = get_db_connection()
         if not connection:
             return jsonify({'success': False, 'message': 'Database connection failed'})
         
         cursor = connection.cursor()
+        
+        # Build date filter conditions
+        def build_date_filter_conditions():
+            """Build SQL date filter conditions based on filter type"""
+            conditions = []
+            
+            if date_filter_type == 'day' and date_filter_data:
+                conditions.append(f"s.sale_date = '{date_filter_data}'")
+                conditions.append(f"st.created_at >= '{date_filter_data} 00:00:00' AND st.created_at <= '{date_filter_data} 23:59:59'")
+            elif date_filter_type == 'range' and start_date and end_date:
+                conditions.append(f"s.sale_date BETWEEN '{start_date}' AND '{end_date}'")
+                conditions.append(f"st.created_at >= '{start_date} 00:00:00' AND st.created_at <= '{end_date} 23:59:59'")
+            elif date_filter_type == 'month' and month:
+                year, month_num = month.split('-')
+                conditions.append(f"YEAR(s.sale_date) = {year} AND MONTH(s.sale_date) = {month_num}")
+                conditions.append(f"YEAR(st.created_at) = {year} AND MONTH(st.created_at) = {month_num}")
+            elif date_filter_type == 'preset' and period:
+                today = datetime.now().date()
+                if period == 'today':
+                    conditions.append(f"s.sale_date = '{today}'")
+                    conditions.append(f"DATE(st.created_at) = '{today}'")
+                elif period == 'yesterday':
+                    yesterday = today - timedelta(days=1)
+                    conditions.append(f"s.sale_date = '{yesterday}'")
+                    conditions.append(f"DATE(st.created_at) = '{yesterday}'")
+                elif period == 'last7days':
+                    week_ago = today - timedelta(days=7)
+                    conditions.append(f"s.sale_date >= '{week_ago}'")
+                    conditions.append(f"DATE(st.created_at) >= '{week_ago}'")
+                elif period == 'last30days':
+                    month_ago = today - timedelta(days=30)
+                    conditions.append(f"s.sale_date >= '{month_ago}'")
+                    conditions.append(f"DATE(st.created_at) >= '{month_ago}'")
+                elif period == 'last90days':
+                    quarter_ago = today - timedelta(days=90)
+                    conditions.append(f"s.sale_date >= '{quarter_ago}'")
+                    conditions.append(f"DATE(st.created_at) >= '{quarter_ago}'")
+                elif period == 'thisMonth':
+                    first_of_month = today.replace(day=1)
+                    conditions.append(f"s.sale_date >= '{first_of_month}'")
+                    conditions.append(f"DATE(st.created_at) >= '{first_of_month}'")
+                elif period == 'lastMonth':
+                    first_of_last_month = (today.replace(day=1) - timedelta(days=1)).replace(day=1)
+                    last_day_of_last_month = today.replace(day=1) - timedelta(days=1)
+                    conditions.append(f"s.sale_date BETWEEN '{first_of_last_month}' AND '{last_day_of_last_month}'")
+                    conditions.append(f"DATE(st.created_at) BETWEEN '{first_of_last_month}' AND '{last_day_of_last_month}'")
+                elif period == 'thisYear':
+                    first_of_year = today.replace(month=1, day=1)
+                    conditions.append(f"s.sale_date >= '{first_of_year}'")
+                    conditions.append(f"DATE(st.created_at) >= '{first_of_year}'")
+                elif period == 'lastYear':
+                    last_year = today.year - 1
+                    conditions.append(f"YEAR(s.sale_date) = {last_year}")
+                    conditions.append(f"YEAR(st.created_at) = {last_year}")
+            
+            return conditions
+        
+        # Get date filter conditions
+        date_conditions = build_date_filter_conditions()
+        print(f"Date conditions generated: {date_conditions}")
+        
+        # Default to current month if no filter is provided
+        if len(date_conditions) == 0:
+            current_month = datetime.now().strftime('%Y-%m')
+            year, month_num = current_month.split('-')
+            sales_date_condition = f"YEAR(s.sale_date) = {year} AND MONTH(s.sale_date) = {month_num}"
+            stock_date_condition = f"YEAR(st.created_at) = {year} AND MONTH(st.created_at) = {month_num}"
+            print(f"Using default current month: {current_month}")
+        else:
+            sales_date_condition = date_conditions[0]
+            stock_date_condition = date_conditions[1] if len(date_conditions) > 1 else date_conditions[0]
+        
+        print(f"Sales date condition: {sales_date_condition}")
+        print(f"Stock date condition: {stock_date_condition}")
         
         # Get summary statistics using actual thresholds
         summary_query = """
@@ -4702,7 +7431,7 @@ def api_analytics_stock():
         }
         
         # Get comprehensive item profitability data with real sales and buying prices
-        stock_levels_query = """
+        stock_levels_query = f"""
             SELECT 
                 i.id,
                 i.name,
@@ -4733,7 +7462,7 @@ def api_analytics_stock():
                     COUNT(DISTINCT s.id) as sale_frequency
                 FROM sales_items si
                 JOIN sales s ON si.sale_id = s.id
-                WHERE s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                WHERE {sales_date_condition}
                 GROUP BY si.item_name
             ) avg_sales ON i.name = avg_sales.item_name
             LEFT JOIN (
@@ -4744,7 +7473,7 @@ def api_analytics_stock():
                 WHERE st.action = 'stock_in' 
                 AND st.price_per_unit IS NOT NULL 
                 AND st.price_per_unit > 0
-                AND st.created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+                AND {stock_date_condition}
                 GROUP BY st.item_id
             ) avg_purchases ON i.id = avg_purchases.item_id
             WHERE i.status = 'active'
@@ -4876,7 +7605,7 @@ def api_analytics_stock():
                 SUM(si.quantity) as total_usage
             FROM sales s
             JOIN sales_items si ON s.id = si.sale_id
-            WHERE s.sale_date >= DATE_SUB(CURDATE(), INTERVAL {date_range} DAY)
+            WHERE {sales_date_condition}
             GROUP BY DATE(s.sale_date)
             ORDER BY date ASC
         """
@@ -4957,7 +7686,7 @@ def api_analytics_stock():
                 COUNT(DISTINCT si.item_name) as items_sold
             FROM sales s
             JOIN sales_items si ON s.id = si.sale_id
-            WHERE s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            WHERE {sales_date_condition}
             GROUP BY DATE(s.sale_date)
             ORDER BY date ASC
         """
@@ -5102,7 +7831,6 @@ def auto_reorder_stock():
         
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
-
 @app.route('/api/analytics/periods', methods=['POST'])
 def api_analytics_periods():
     """API endpoint for period analytics data"""
@@ -5883,10 +8611,12 @@ def api_analytics_sales():
     finally:
         if connection:
             connection.close()
-
 @app.route('/receipts')
 def receipts():
     """Receipts management page"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    
     try:
         connection = get_db_connection()
         if not connection:
@@ -5942,11 +8672,20 @@ def receipts():
                 today_receipts_count += 1
         
         connection.close()
+        
+        # Get employee information for the template
+        hotel_settings = get_hotel_settings()
+        employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+        
         return render_template('receipts.html', 
                              receipts=receipts_list, 
                              total_receipts=len(receipts_list),
                              total_revenue=total_revenue,
-                             today_receipts=today_receipts_count)
+                             today_receipts=today_receipts_count,
+                             hotel_settings=hotel_settings,
+                             employee_name=session.get('employee_name'),
+                             employee_role=session.get('employee_role'),
+                             employee_profile_photo=employee_profile_photo)
         
     except Exception as e:
         print(f"Error fetching receipts: {e}")
@@ -6422,7 +9161,7 @@ def api_manager_monthly_trend():
                     best_quantity = best_month_row[1]
                     
                     # Convert month key to readable format
-                    from datetime import datetime
+                    from datetime import datetime, timedelta
                     month_date = datetime.strptime(best_month_key, '%Y-%m')
                     best_month_name = month_date.strftime('%B %Y')  # e.g., 'September 2025'
                     best_month_data = (best_month_name, best_quantity)
@@ -6440,7 +9179,7 @@ def api_manager_monthly_trend():
             }
             
             # Create a complete 12-month dataset
-            from datetime import datetime, timedelta
+            from datetime import datetime, timedelta, timedelta
             import calendar
             
             current_date = datetime.now()
@@ -6669,6 +9408,215 @@ def save_printing_settings():
         return jsonify({'success': False, 'message': 'Failed to save printing settings'}), 500
     finally:
         connection.close()
+# Permissions Settings API Endpoints
+@app.route('/api/permissions-settings', methods=['GET'])
+def get_permissions_settings():
+    """Get permissions settings from hotel_settings table"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT enable_receipt_status_update
+                FROM hotel_settings 
+                ORDER BY id DESC 
+                LIMIT 1
+            """)
+            result = cursor.fetchone()
+            
+            settings = {
+                'enable_receipt_status_update': result[0] if result else True
+            }
+            
+            return jsonify({'success': True, 'settings': settings})
+    except Exception as e:
+        print(f"Error getting permissions settings: {e}")
+        return jsonify({'success': False, 'message': 'Failed to get permissions settings'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/permissions-settings', methods=['POST'])
+def save_permissions_settings():
+    """Save permissions settings"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Check if hotel_settings record exists
+            cursor.execute("SELECT id FROM hotel_settings ORDER BY id DESC LIMIT 1")
+            result = cursor.fetchone()
+            
+            if result:
+                # Update existing record
+                cursor.execute("""
+                    UPDATE hotel_settings 
+                    SET enable_receipt_status_update = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (
+                    bool(data.get('enable_receipt_status_update', True)),
+                    result[0]
+                ))
+            else:
+                # Insert new record with default values
+                cursor.execute("""
+                    INSERT INTO hotel_settings (
+                        hotel_name, company_email, company_phone, hotel_address,
+                        enable_receipt_status_update
+                    ) VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    'Hotel POS', '', '', '',
+                    bool(data.get('enable_receipt_status_update', True))
+                ))
+            
+            connection.commit()
+            return jsonify({'success': True, 'message': 'Permissions settings saved successfully'})
+            
+    except Exception as e:
+        print(f"Error saving permissions settings: {e}")
+        return jsonify({'success': False, 'message': 'Failed to save permissions settings'}), 500
+    finally:
+        connection.close()
+
+# Receipt Reset by Date API Endpoints
+@app.route('/api/receipts/count-by-date', methods=['GET'])
+def count_receipts_by_date():
+    """Get count of receipts for a specific date"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    selected_date = request.args.get('date')
+    if not selected_date:
+        return jsonify({'success': False, 'message': 'Date is required'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Get total count and status breakdown for the selected date
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as total_count,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+                    SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed_count,
+                    SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_count
+                FROM sales 
+                WHERE DATE(sale_date) = %s
+            """, (selected_date,))
+            
+            result = cursor.fetchone()
+            total_count = result[0] if result else 0
+            pending_count = result[1] if result and result[1] else 0
+            confirmed_count = result[2] if result and result[2] else 0
+            cancelled_count = result[3] if result and result[3] else 0
+            
+            return jsonify({
+                'success': True,
+                'total_count': total_count,
+                'pending_count': int(pending_count),
+                'confirmed_count': int(confirmed_count),
+                'cancelled_count': int(cancelled_count)
+            })
+    except Exception as e:
+        print(f"Error counting receipts by date: {e}")
+        return jsonify({'success': False, 'message': 'Failed to count receipts'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/receipts/reset-status-by-date', methods=['POST'])
+def reset_receipt_status_by_date():
+    """Reset receipt status to 'pending' for all receipts on a specific date"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    if not data or 'date' not in data:
+        return jsonify({'success': False, 'message': 'Date is required'}), 400
+    
+    selected_date = data.get('date')
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Update all receipts for the selected date to 'pending' status
+            cursor.execute("""
+                UPDATE sales 
+                SET status = 'pending'
+                WHERE DATE(sale_date) = %s
+            """, (selected_date,))
+            
+            updated_count = cursor.rowcount
+            connection.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': f'Successfully reset {updated_count} receipt(s) status to "Pending" for {selected_date}',
+                'updated_count': updated_count
+            })
+    except Exception as e:
+        print(f"Error resetting receipt status by date: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to reset receipt status'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/receipts/reset-cashier-confirmation-by-date', methods=['POST'])
+def reset_cashier_confirmation_by_date():
+    """Reset cashier_confirmed to 0 for all receipts on a specific date"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    if not data or 'date' not in data:
+        return jsonify({'success': False, 'message': 'Date is required'}), 400
+    
+    selected_date = data.get('date')
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Update all receipts for the selected date to reset cashier_confirmed to 0
+            cursor.execute("""
+                UPDATE sales 
+                SET cashier_confirmed = 0
+                WHERE DATE(sale_date) = %s
+            """, (selected_date,))
+            
+            updated_count = cursor.rowcount
+            connection.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': f'Successfully reset cashier confirmation for {updated_count} receipt(s) for {selected_date}',
+                'updated_count': updated_count
+            })
+    except Exception as e:
+        print(f"Error resetting cashier confirmation by date: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Failed to reset cashier confirmation'}), 500
+    finally:
+        connection.close()
 
 # Display Settings API Endpoints
 @app.route('/api/display-settings', methods=['GET'])
@@ -6769,6 +9717,331 @@ def save_display_settings():
     except Exception as e:
         print(f"Error saving display settings: {e}")
         return jsonify({'success': False, 'message': 'Failed to save display settings'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/receipt-settings', methods=['GET'])
+def get_receipt_settings():
+    """Get receipt settings from hotel_settings table"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT receipt_width, receipt_font_size, receipt_bold_headers, receipt_number_format,
+                       receipt_number_prefix, receipt_starting_number, receipt_header_title,
+                       receipt_header_subtitle, receipt_header_message, receipt_show_logo,
+                       receipt_show_address, receipt_show_contact, receipt_footer_message,
+                       receipt_show_datetime, receipt_show_cashier, 
+                       receipt_show_qr, receipt_address, receipt_phone, receipt_email, receipt_logo_url
+                FROM hotel_settings 
+                ORDER BY id DESC 
+                LIMIT 1
+            """)
+            result = cursor.fetchone()
+            
+            if result:
+                settings = {
+                    'receipt_width': result[0] or '58mm',
+                    'receipt_font_size': result[1] or 'medium',
+                    'receipt_bold_headers': bool(result[2]),
+                    'receipt_number_format': result[3] or 'sequential',
+                    'receipt_number_prefix': result[4] or 'POS',
+                    'receipt_starting_number': result[5] or 1001,
+                    'receipt_header_title': result[6] or '',
+                    'receipt_header_subtitle': result[7] or '',
+                    'receipt_header_message': result[8] or '',
+                    'receipt_show_logo': bool(result[9]),
+                    'receipt_show_address': bool(result[10]),
+                    'receipt_show_contact': bool(result[11]),
+                    'receipt_footer_message': result[12] or '',
+                    'receipt_show_datetime': bool(result[13]),
+                    'receipt_show_cashier': bool(result[14]),
+                    'receipt_show_qr': bool(result[15]) if len(result) > 15 else False,
+                    'receipt_address': result[16] or '' if len(result) > 16 else '',
+                    'receipt_phone': result[17] or '' if len(result) > 17 else '',
+                    'receipt_email': result[18] or '' if len(result) > 18 else '',
+                    'receipt_logo_url': result[19] or '' if len(result) > 19 else ''
+                }
+            else:
+                # Default values if no settings found
+                settings = {
+                    'receipt_width': '58mm',
+                    'receipt_font_size': 'medium',
+                    'receipt_bold_headers': True,
+                    'receipt_number_format': 'sequential',
+                    'receipt_number_prefix': 'POS',
+                    'receipt_starting_number': 1001,
+                    'receipt_header_title': '',
+                    'receipt_header_subtitle': '',
+                    'receipt_header_message': '',
+                    'receipt_show_logo': False,
+                    'receipt_show_address': True,
+                    'receipt_show_contact': True,
+                    'receipt_footer_message': '',
+                    'receipt_show_datetime': True,
+                    'receipt_show_cashier': True,
+                    'receipt_qr_text': '',
+                    'receipt_show_qr': False,
+                    'receipt_address': '',
+                    'receipt_phone': '',
+                    'receipt_email': '',
+                    'receipt_logo_url': ''
+                }
+            
+            return jsonify({'success': True, 'settings': settings})
+            
+    except Exception as e:
+        print(f"Error getting receipt settings: {e}")
+        return jsonify({'success': False, 'message': 'Failed to get receipt settings'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/receipt-settings', methods=['POST'])
+def save_receipt_settings():
+    """Save receipt settings"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Check if hotel_settings record exists
+            cursor.execute("SELECT id FROM hotel_settings ORDER BY id DESC LIMIT 1")
+            result = cursor.fetchone()
+            
+            if result:
+                # Update existing record
+                cursor.execute("""
+                    UPDATE hotel_settings 
+                    SET receipt_width = %s, receipt_font_size = %s, receipt_bold_headers = %s,
+                        receipt_number_format = %s, receipt_number_prefix = %s, receipt_starting_number = %s,
+                        receipt_header_title = %s, receipt_header_subtitle = %s, receipt_header_message = %s,
+                        receipt_show_logo = %s, receipt_show_address = %s, receipt_show_contact = %s,
+                        receipt_footer_message = %s, receipt_show_datetime = %s, receipt_show_cashier = %s,
+                        receipt_qr_text = %s, receipt_show_qr = %s, receipt_address = %s,
+                        receipt_phone = %s, receipt_email = %s, receipt_logo_url = %s,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (
+                    data.get('receipt_width', '58mm'),
+                    data.get('receipt_font_size', 'medium'),
+                    bool(data.get('receipt_bold_headers', True)),
+                    data.get('receipt_number_format', 'sequential'),
+                    data.get('receipt_number_prefix', 'POS'),
+                    int(data.get('receipt_starting_number', 1001)),
+                    data.get('receipt_header_title', ''),
+                    data.get('receipt_header_subtitle', ''),
+                    data.get('receipt_header_message', ''),
+                    bool(data.get('receipt_show_logo', False)),
+                    bool(data.get('receipt_show_address', True)),
+                    bool(data.get('receipt_show_contact', True)),
+                    data.get('receipt_footer_message', ''),
+                    bool(data.get('receipt_show_datetime', True)),
+                    bool(data.get('receipt_show_cashier', True)),
+                    data.get('receipt_qr_text', ''),
+                    bool(data.get('receipt_show_qr', False)),
+                    data.get('receipt_address', ''),
+                    data.get('receipt_phone', ''),
+                    data.get('receipt_email', ''),
+                    data.get('receipt_logo_url', ''),
+                    result[0]
+                ))
+            else:
+                # Insert new record with default values
+                cursor.execute("""
+                    INSERT INTO hotel_settings (
+                        hotel_name, company_email, company_phone, hotel_address,
+                        receipt_width, receipt_font_size, receipt_bold_headers, receipt_number_format,
+                        receipt_number_prefix, receipt_starting_number, receipt_header_title,
+                        receipt_header_subtitle, receipt_header_message, receipt_show_logo,
+                        receipt_show_address, receipt_show_contact, receipt_footer_message,
+                        receipt_show_datetime, receipt_show_cashier, receipt_qr_text, 
+                        receipt_show_qr, receipt_address, receipt_phone, receipt_email, receipt_logo_url
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    'Hotel POS', '', '', '',
+                    data.get('receipt_width', '58mm'),
+                    data.get('receipt_font_size', 'medium'),
+                    bool(data.get('receipt_bold_headers', True)),
+                    data.get('receipt_number_format', 'sequential'),
+                    data.get('receipt_number_prefix', 'POS'),
+                    int(data.get('receipt_starting_number', 1001)),
+                    data.get('receipt_header_title', ''),
+                    data.get('receipt_header_subtitle', ''),
+                    data.get('receipt_header_message', ''),
+                    bool(data.get('receipt_show_logo', False)),
+                    bool(data.get('receipt_show_address', True)),
+                    bool(data.get('receipt_show_contact', True)),
+                    data.get('receipt_footer_message', ''),
+                    bool(data.get('receipt_show_datetime', True)),
+                    bool(data.get('receipt_show_cashier', True)),
+                    data.get('receipt_qr_text', ''),
+                    bool(data.get('receipt_show_qr', False)),
+                    data.get('receipt_address', ''),
+                    data.get('receipt_phone', ''),
+                    data.get('receipt_email', ''),
+                    data.get('receipt_logo_url', '')
+                ))
+            
+            connection.commit()
+            return jsonify({'success': True, 'message': 'Receipt settings saved successfully'})
+            
+    except Exception as e:
+        print(f"Error saving receipt settings: {e}")
+        return jsonify({'success': False, 'message': 'Failed to save receipt settings'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/receipt-logo/upload', methods=['POST'])
+def upload_receipt_logo():
+    """Upload receipt logo"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    if 'logo' not in request.files:
+        return jsonify({'success': False, 'message': 'No logo file provided'}), 400
+    
+    file = request.files['logo']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No file selected'}), 400
+    
+    if file and allowed_file(file.filename):
+        try:
+            # Generate unique filename
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            filename = secure_filename(f"receipt_logo_{timestamp}{file.filename}")
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            
+            # Return the URL path
+            logo_url = f'/static/uploads/{filename}'
+            return jsonify({'success': True, 'logo_url': logo_url})
+            
+        except Exception as e:
+            print(f"Error uploading logo: {e}")
+            return jsonify({'success': False, 'message': 'Failed to upload logo'}), 500
+    else:
+        return jsonify({'success': False, 'message': 'Invalid file type. Please upload an image file.'}), 400
+
+@app.route('/api/receipt-logo/remove', methods=['POST'])
+def remove_receipt_logo():
+    """Remove receipt logo"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    if not data or not data.get('remove'):
+        return jsonify({'success': False, 'message': 'Invalid request'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Clear logo URL from database
+            cursor.execute("""
+                UPDATE hotel_settings 
+                SET receipt_logo_url = NULL 
+                WHERE id = (SELECT id FROM hotel_settings ORDER BY id DESC LIMIT 1)
+            """)
+            connection.commit()
+            return jsonify({'success': True, 'message': 'Logo removed successfully'})
+    except Exception as e:
+        print(f"Error removing logo: {e}")
+        return jsonify({'success': False, 'message': 'Failed to remove logo'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/pos/receipt-settings', methods=['GET'])
+def get_pos_receipt_settings():
+    """Get receipt settings for POS (public endpoint)"""
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection failed'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT receipt_width, receipt_font_size, receipt_bold_headers, receipt_number_format,
+                       receipt_number_prefix, receipt_starting_number, receipt_header_title,
+                       receipt_header_subtitle, receipt_header_message, receipt_show_logo,
+                       receipt_show_address, receipt_show_contact, receipt_footer_message,
+                       receipt_show_datetime, receipt_show_cashier, 
+                       receipt_show_qr, receipt_address, receipt_phone, receipt_email, receipt_logo_url
+                FROM hotel_settings 
+                ORDER BY id DESC 
+                LIMIT 1
+            """)
+            result = cursor.fetchone()
+            
+            if result:
+                settings = {
+                    'receipt_width': result[0] or '58mm',
+                    'receipt_font_size': result[1] or 'medium',
+                    'receipt_bold_headers': bool(result[2]),
+                    'receipt_number_format': result[3] or 'sequential',
+                    'receipt_number_prefix': result[4] or 'POS',
+                    'receipt_starting_number': result[5] or 1001,
+                    'receipt_header_title': result[6] or '',
+                    'receipt_header_subtitle': result[7] or '',
+                    'receipt_header_message': result[8] or '',
+                    'receipt_show_logo': bool(result[9]),
+                    'receipt_show_address': bool(result[10]),
+                    'receipt_show_contact': bool(result[11]),
+                    'receipt_footer_message': result[12] or '',
+                    'receipt_show_datetime': bool(result[13]),
+                    'receipt_show_cashier': bool(result[14]),
+                    'receipt_show_qr': bool(result[15]) if len(result) > 15 else False,
+                    'receipt_address': result[16] or '' if len(result) > 16 else '',
+                    'receipt_phone': result[17] or '' if len(result) > 17 else '',
+                    'receipt_email': result[18] or '' if len(result) > 18 else '',
+                    'receipt_logo_url': result[19] or '' if len(result) > 19 else ''
+                }
+            else:
+                # Default values if no settings found
+                settings = {
+                    'receipt_width': '58mm',
+                    'receipt_font_size': 'medium',
+                    'receipt_bold_headers': True,
+                    'receipt_number_format': 'sequential',
+                    'receipt_number_prefix': 'POS',
+                    'receipt_starting_number': 1001,
+                    'receipt_header_title': '',
+                    'receipt_header_subtitle': '',
+                    'receipt_header_message': '',
+                    'receipt_show_logo': False,
+                    'receipt_show_address': True,
+                    'receipt_show_contact': True,
+                    'receipt_footer_message': '',
+                    'receipt_show_datetime': True,
+                    'receipt_show_cashier': True,
+                    'receipt_qr_text': '',
+                    'receipt_show_qr': False,
+                    'receipt_address': '',
+                    'receipt_phone': '',
+                    'receipt_email': '',
+                    'receipt_logo_url': ''
+                }
+            
+            return jsonify({'success': True, 'settings': settings})
+            
+    except Exception as e:
+        print(f"Error getting POS receipt settings: {e}")
+        return jsonify({'success': False, 'message': 'Failed to get receipt settings'}), 500
     finally:
         connection.close()
 
@@ -6931,7 +10204,6 @@ def api_admin_live_analytics():
     finally:
         if connection:
             connection.close()
-
 @app.route('/api/admin/live-sales-trend', methods=['GET'])
 def api_admin_live_sales_trend():
     """API endpoint for live sales trend data"""
@@ -7701,8 +10973,6 @@ def scan_wifi_printers_new():
             'success': False,
             'error': str(e)
         }), 500
-
-@app.route('/api/wifi/connect', methods=['POST'])
 def connect_wifi_printer():
     """Connect to a WiFi printer"""
     try:
@@ -7888,6 +11158,33 @@ def separate_printer_management():
 def wifi_thermal_printer_management():
     """WiFi thermal printer management page - dedicated WiFi only"""
     return render_template('wifi_thermal_printer_management.html')
+
+@app.route('/api/payroll/all', methods=['GET'])
+def get_all_payrolls():
+    """Fetch all payroll profiles with employee details (active only, admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute('''
+                SELECT p.*, e.full_name, e.employee_code, e.role, e.email, e.status, e.profile_photo
+                FROM payroll_profiles p
+                JOIN employees e ON p.employee_id = e.id
+                WHERE e.status = 'active'
+                ORDER BY p.created_at DESC
+            ''')
+            rows = cursor.fetchall()
+        return jsonify({'success': True, 'payrolls': rows})
+    except Exception as e:
+        print(f"Error fetching payrolls: {e}")
+        return jsonify({'success': False, 'message': 'Error fetching payrolls'}), 500
+    finally:
+        connection.close()
 
 if __name__ == '__main__':
     init_database()
