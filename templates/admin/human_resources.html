@@ -6,58 +6,25 @@
 {% block sidebar_title %}Admin Panel{% endblock %}
 
 {% block sidebar_nav %}
-<!-- Role Page View -->
-<a href="/admin/role-page-view" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+<!-- Payroll -->
+<a href="/admin/payroll" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
     <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-eye text-white text-lg"></i>
+        <i class="fas fa-money-check-alt text-white text-lg"></i>
     </div>
     <div>
-        <p class="font-semibold">Role Page View</p>
-        <p class="text-xs text-white/70">View all roles</p>
+        <p class="font-semibold">Payroll</p>
+        <p class="text-xs text-white/70">Salaries & payroll</p>
     </div>
 </a>
 
-<!-- Human Resource Management -->
-<a href="/admin/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
-    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
-        <i class="fas fa-users text-white text-lg"></i>
-    </div>
-    <div>
-        <p class="font-semibold">Human Resources</p>
-        <p class="text-xs text-white/70">Manage employees</p>
-    </div>
-</a>
-
-<!-- Item Management -->
-<a href="/admin/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+<!-- Offdays -->
+<a href="/admin/off-days-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
     <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-boxes text-white text-lg"></i>
+        <i class="fas fa-calendar-times text-white text-lg"></i>
     </div>
     <div>
-        <p class="font-semibold">Item Management</p>
-        <p class="text-xs text-white/70">Manage inventory</p>
-    </div>
-</a>
-
-<!-- Analytics -->
-<a href="/admin/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
-    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-chart-line text-white text-lg"></i>
-    </div>
-    <div>
-        <p class="font-semibold">Analytics</p>
-        <p class="text-xs text-white/70">Reports & insights</p>
-    </div>
-</a>
-
-<!-- Settings -->
-<a href="/admin/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
-    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-cog text-white text-lg"></i>
-    </div>
-    <div>
-        <p class="font-semibold">Settings</p>
-        <p class="text-xs text-white/70">System configuration</p>
+        <p class="font-semibold">Offdays</p>
+        <p class="text-xs text-white/70">Leave & off days</p>
     </div>
 </a>
 {% endblock %}
@@ -373,7 +340,7 @@
         employeesListDiv.innerHTML = '';
         
         employeesList.forEach(employee => {
-            const employeeDiv = createEmployeeCard(employee);
+            const employeeDiv = createEmployeeRow(employee);
             employeesListDiv.appendChild(employeeDiv);
         });
         
@@ -381,12 +348,13 @@
         hideLoadingState();
     }
 
-    // Create Modern Employee Card
-    function createEmployeeCard(employee) {
+    // Create compact list row for employee
+    function createEmployeeRow(employee) {
         const div = document.createElement('div');
         
-        // Get initials for avatar
+        // Prepare avatar data
         const initials = employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+        const photoUrl = employee.profile_photo ? `/static/uploads/${employee.profile_photo}` : null;
         
         // Status styling
         let statusClass, statusIcon, statusText, bgClass, statusColor;
@@ -445,52 +413,42 @@
         
         const role = roleConfig[employee.role] || roleConfig['employee'];
         
-        div.className = `group relative overflow-hidden ${bgClass} rounded-2xl transition-all duration-300 hover:shadow-lg`;
+        div.className = `group relative overflow-hidden ${bgClass} rounded-xl transition-all duration-200 hover:shadow`;
         div.innerHTML = `
-            <div class="p-6">
-                <div class="flex items-start space-x-4">
+            <div class="p-3">
+                <div class="flex items-center space-x-3">
                     <!-- Avatar -->
                     <div class="relative">
-                        <div class="w-16 h-16 bg-gradient-to-br ${role.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                            <span class="text-white font-bold text-lg">${initials}</span>
-                        </div>
-                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                            <i class="${role.icon} text-xs ${statusColor}"></i>
+                        ${photoUrl ? `
+                            <img src="${photoUrl}" alt="${employee.full_name}" class="w-12 h-12 rounded-xl object-cover shadow" onerror="this.style.display='none'">
+                        ` : `
+                            <div class="w-12 h-12 bg-gradient-to-br ${role.gradient} rounded-xl flex items-center justify-center shadow">
+                                <span class="text-white font-bold text-sm">${initials}</span>
+                            </div>
+                        `}
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow">
+                            <i class="${role.icon} text-[10px] ${statusColor}"></i>
                         </div>
                     </div>
-                    
+
                     <!-- Employee Info -->
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-lg font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">
-                                    ${employee.full_name}
-                                </h3>
-                                <p class="text-sm text-gray-600 mb-1">
-                                    <i class="${role.icon} mr-2"></i>
-                                    ${role.label} • ID: ${employee.employee_code}
-                                </p>
-                                <p class="text-sm text-gray-500 truncate">
-                                    <i class="fas fa-envelope mr-2"></i>
-                                    ${employee.email}
-                                </p>
-                                <p class="text-sm text-gray-500 truncate">
-                                    <i class="fas fa-phone mr-2"></i>
-                                    ${employee.phone_number}
-                                </p>
-                            </div>
-                            
-                            <!-- Status Badge -->
-                            <div class="ml-4 flex flex-col items-end space-y-3">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusClass} border">
-                                    <i class="${statusIcon} mr-1"></i>
-                                    ${statusText}
-                                </span>
-                                
-                                <!-- Action Buttons -->
-                                <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    ${getActionButtons(employee)}
+                        <div class="flex items-center justify-between">
+                            <div class="min-w-0">
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600">${employee.full_name}</h3>
+                                    <span class="hidden sm:inline text-xs text-gray-500 truncate">ID: ${employee.employee_code}</span>
                                 </div>
+                                <div class="mt-0.5 flex items-center text-xs text-gray-500 space-x-4">
+                                    <span class="truncate"><i class="fas fa-envelope mr-1"></i>${employee.email}</span>
+                                    <span class="truncate hidden md:inline"><i class="fas fa-phone mr-1"></i>${employee.phone_number}</span>
+                                </div>
+                            </div>
+                            <div class="ml-3 flex items-center space-x-3">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusClass} border">
+                                    <i class="${statusIcon} mr-1"></i>${statusText}
+                                </span>
+                                <div class="flex space-x-1">${getActionButtons(employee)}</div>
                             </div>
                         </div>
                     </div>

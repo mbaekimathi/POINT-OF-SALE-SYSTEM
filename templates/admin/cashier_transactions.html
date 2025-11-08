@@ -1,0 +1,226 @@
+{% extends "role_base.html" %}
+
+{% block title %}Cashier Transactions{% endblock %}
+
+{% block sidebar_icon %}crown{% endblock %}
+{% block sidebar_title %}Admin Panel{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/admin/cashiers" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+  <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+    <i class="fas fa-cash-register text-white text-lg"></i>
+  </div>
+  <div>
+    <p class="font-semibold">Cashiers</p>
+    <p class="text-xs text-white/70">Manage & monitor</p>
+  </div>
+</a>
+<a href="/admin/cashier-transactions" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+  <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+    <i class="fas fa-exchange-alt text-white text-lg"></i>
+  </div>
+  <div>
+    <p class="font-semibold">Cashier Transactions</p>
+    <p class="text-xs text-white/70">All drawer movements</p>
+  </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <div class="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Cashier Transactions</h1>
+      <p class="text-gray-600 mt-1">Browse sessions and view all transactions per session.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <input id="filter-date" type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+      <select id="filter-cashier" class="border border-gray-300 rounded-lg px-3 py-2 text-sm min-w-[220px]">
+        <option value="">All Cashiers</option>
+      </select>
+      <button id="apply-filter" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"><i class="fas fa-filter mr-1"></i> Filter</button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex items-center gap-4 text-xs text-gray-600 mb-3">
+    <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-sm bg-green-500"></span> Active</div>
+    <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-sm bg-yellow-400"></span> Closed</div>
+    <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-sm bg-red-500"></span> Not Closed</div>
+  </div>
+  <!-- Sessions Calendar Tiles -->
+  <div id="sessions-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3"></div>
+  <div id="sessions-empty" class="hidden text-center text-gray-500 py-10">No sessions found.</div>
+
+  <!-- Animated Session Modal -->
+  <div id="session-modal" class="fixed inset-0 z-50 hidden">
+    <div id="session-modal-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-200"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-2 sm:p-4 md:p-8">
+      <div id="session-modal-card" class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-200">
+        <div class="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
+          <div class="font-semibold" id="session-modal-title">Session</div>
+          <button onclick="closeSessionModal()" class="bg-white/15 hover:bg-white/25 rounded-lg px-3 py-1 text-sm"><i class="fas fa-times"></i> Close</button>
+        </div>
+        <div id="session-modal-body" class="p-3 sm:p-5 overflow-y-auto scrollbar-thin">
+          <!-- dynamic content -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  populateCashiers();
+  loadSessions();
+  document.getElementById('apply-filter').addEventListener('click', loadSessions);
+});
+
+async function populateCashiers(){
+  try{
+    const res = await fetch('/api/admin/cashiers');
+    const data = await res.json();
+    if(!data.success) return;
+    const sel = document.getElementById('filter-cashier');
+    (data.cashiers||[]).forEach(c=>{
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.full_name} (${c.employee_code})`;
+      sel.appendChild(opt);
+    });
+  }catch(e){ console.error('Failed to load cashiers', e); }
+}
+
+async function loadSessions(){
+  const date = document.getElementById('filter-date').value || '';
+  const cashier = document.getElementById('filter-cashier').value || '';
+  const qs = new URLSearchParams();
+  if(date) qs.append('date', date);
+  if(cashier) qs.append('cashier_id', cashier);
+  const url = '/api/admin/cash-drawer/sessions/with-transactions' + (qs.toString() ? ('?'+qs.toString()) : '');
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+    if(!data.success) return renderSessions([]);
+    renderSessions(data.sessions||[]);
+  }catch(e){ console.error(e); renderSessions([]); }
+}
+
+function renderSessions(sessions){
+  const list = document.getElementById('sessions-list');
+  const empty = document.getElementById('sessions-empty');
+  list.innerHTML = '';
+  if(!sessions.length){ empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  sessions.forEach(sess=>{
+    const colorClass = sess.status==='active' ? 'bg-green-500 text-white' : ((sess.status==='closed'||sess.status==='auto_closed') ? 'bg-yellow-400 text-white' : 'bg-red-500 text-white');
+    const tile = document.createElement('button');
+    tile.className = `relative rounded-xl ${colorClass} shadow hover:shadow-lg p-3 sm:p-4 transition-all duration-200 focus:outline-none`;
+    const parts = formatDateParts(sess.session_date);
+    tile.innerHTML = `
+      <div class="text-center leading-none">
+        <div class="text-2xl sm:text-3xl font-extrabold">${parts.day}</div>
+        <div class="text-[10px] sm:text-xs opacity-90 tracking-wide uppercase">${parts.mon}</div>
+      </div>
+      <div class="absolute bottom-1 left-1 right-1 flex items-center justify-between text-[10px] opacity-90">
+        <span>#${sess.session_id}</span>
+        <span class="capitalize">${(sess.status||'').replace('_',' ')}</span>
+      </div>`;
+    tile.addEventListener('click', ()=> openSessionModal(sess.session_id, sess.session_date, sess.status));
+    list.appendChild(tile);
+  });
+}
+
+function formatDateParts(iso){
+  // iso expected YYYY-MM-DD
+  const [y,m,d] = (iso||'').split('-');
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mon = monthNames[parseInt(m||'1',10)-1] || '';
+  return { day: parseInt(d||'1',10), mon };
+}
+
+async function loadSessionDetails(sessionId){
+  const qs = new URLSearchParams({ session_id: sessionId });
+  const [sessRes, logsRes] = await Promise.all([
+    fetch('/api/admin/cash-drawer/sessions/with-transactions?'+qs.toString()),
+    fetch(`/api/admin/cash-drawer/session/${sessionId}/logs`)
+  ]);
+  const sessData = await sessRes.json();
+  const logsData = await logsRes.json();
+  if(!sessData.success || !(sessData.sessions||[]).length){
+    document.getElementById('session-modal-title').textContent = 'Session';
+    document.getElementById('session-modal-body').innerHTML = '<div class="text-gray-500">No data for this session.</div>';
+    showSessionModal();
+    return;
+  }
+  const sess = sessData.sessions[0];
+  // Build modal content
+  document.getElementById('session-modal-title').textContent = `${sess.session_date} • Session #${sess.session_id}`;
+  const logs = (logsData.success && logsData.logs) ? logsData.logs : [];
+  document.getElementById('session-modal-body').innerHTML = `
+    <div class="mb-4 flex items-center justify-between">
+      <span class="text-xs px-2 py-1 rounded-full ${sess.status==='active'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-700'}">${sess.status}</span>
+      <span class="text-xs text-gray-500">${sess.start_time}${sess.end_time ? ' - '+sess.end_time : ''}</span>
+    </div>
+    <div class="mb-5 overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50"><tr>
+          <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Time</th>
+          <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Type</th>
+          <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Description</th>
+          <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600">Amount</th>
+          <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Status</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-100">${renderRows(sess.transactions)}</tbody>
+      </table>
+    </div>
+    <div class="bg-gray-50 rounded-xl border border-gray-200">
+      <div class="px-4 py-2 text-gray-700 font-medium">Edit & Activity Logs</div>
+      <div class="p-3 space-y-2 text-sm">
+        ${logs.length? logs.map(l=>`<div class=\"flex items-start justify-between\"><div class=\"min-w-0\"><div class=\"font-medium text-gray-800\">${(l.action_type||'').toUpperCase()} • ${l.table_name||''} #${l.record_id||''}</div><div class=\"text-gray-600\">${l.description||''}</div></div><div class=\"text-xs text-gray-500\">${l.created_at||''}</div></div>`).join('') : '<div class="text-gray-400">No logs for this session</div>'}
+      </div>
+    </div>`;
+  showSessionModal();
+}
+
+function openSessionModal(id, date, status){
+  loadSessionDetails(id);
+}
+function showSessionModal(){
+  const overlay=document.getElementById('session-modal-overlay');
+  const card=document.getElementById('session-modal-card');
+  const modal=document.getElementById('session-modal');
+  modal.classList.remove('hidden');
+  requestAnimationFrame(()=>{
+    overlay.classList.remove('opacity-0');
+    card.classList.remove('opacity-0','scale-95');
+  });
+}
+function closeSessionModal(){
+  const overlay=document.getElementById('session-modal-overlay');
+  const card=document.getElementById('session-modal-card');
+  overlay.classList.add('opacity-0');
+  card.classList.add('opacity-0','scale-95');
+  setTimeout(()=>document.getElementById('session-modal').classList.add('hidden'),200);
+}
+
+function renderRows(rows){
+  if(!rows || !rows.length) return `<tr><td colspan="5" class="px-4 py-4 text-center text-gray-400 text-sm">No transactions</td></tr>`;
+  return rows.map(r=>{
+    const color = r.transaction_type==='cash_in' ? 'text-green-600' : (r.transaction_type==='cash_out' ? 'text-red-600' : 'text-gray-700');
+    const icon = r.transaction_type==='cash_in' ? 'fa-arrow-down' : (r.transaction_type==='cash_out' ? 'fa-arrow-up' : 'fa-dot-circle');
+    return `
+      <tr>
+        <td class="px-4 py-2 text-sm text-gray-700 whitespace-nowrap">${r.created_at||''}</td>
+        <td class="px-4 py-2 text-sm whitespace-nowrap ${color}"><i class="fas ${icon} mr-1"></i>${r.transaction_type}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">${r.description||''}</td>
+        <td class="px-4 py-2 text-sm text-right font-semibold ${color}">shs ${Number(r.amount||0).toFixed(2)}</td>
+        <td class="px-4 py-2 text-sm text-gray-600">${r.status||''}</td>
+      </tr>`;
+  }).join('');
+}
+</script>
+{% endblock %}
+
+

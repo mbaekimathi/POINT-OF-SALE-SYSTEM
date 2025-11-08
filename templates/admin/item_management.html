@@ -327,46 +327,630 @@
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     
-    /* Responsive Design */
+    /* Enhanced Responsive Design - Full Screen Optimization */
+    
+    /* Full Screen Container */
+    .fullscreen-container {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Mobile First Approach - Base styles for mobile */
+    .modern-category-title {
+        font-size: 18px;
+    }
+    
+    /* Mobile table responsiveness */
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    
+    .table-responsive table {
+        min-width: 100%;
+        width: max-content;
+    }
+    
+    .table-responsive th,
+    .table-responsive td {
+        padding: 8px 6px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    .table-responsive .text-sm {
+        font-size: 11px;
+    }
+    
+    /* Full screen item cards */
+    .fullscreen-item-card {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    /* Responsive category sections */
+    .category-section {
+        margin-bottom: 2rem;
+    }
+    
+    .category-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(226, 232, 240, 0.5);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .category-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-count {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    /* Mobile-specific improvements */
     @media (max-width: 640px) {
         .modern-category-title {
-            font-size: 20px;
+            font-size: 16px;
         }
         
-        /* Mobile table responsiveness */
-        .table-responsive {
-            display: block;
+        .modern-category-header {
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+        
+        .modern-category-count {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        /* Better mobile button layout */
+        .mobile-button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
         }
         
-        .table-responsive table {
-            min-width: 600px;
-        }
-        
-        .table-responsive th,
-        .table-responsive td {
-            padding: 8px 12px;
+        .mobile-button-group button {
+            width: 100%;
+            padding: 12px 16px;
             font-size: 14px;
         }
         
-        .table-responsive .text-sm {
-            font-size: 12px;
+        /* Mobile modal improvements */
+        .mobile-modal {
+            margin: 8px;
+            width: calc(100% - 16px);
+            max-height: calc(100vh - 16px);
         }
-    }
-    
-    @media (min-width: 641px) and (max-width: 768px) {
-        .table-responsive th,
-        .table-responsive td {
+        
+        /* Mobile form improvements */
+        .mobile-form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* Mobile table cell improvements */
+        .table-responsive th:nth-child(3),
+        .table-responsive td:nth-child(3),
+        .table-responsive th:nth-child(4),
+        .table-responsive td:nth-child(4),
+        .table-responsive th:nth-child(5),
+        .table-responsive td:nth-child(5) {
+            display: none;
+        }
+        
+        /* Show only essential columns on mobile */
+        .table-responsive th:nth-child(1),
+        .table-responsive td:nth-child(1),
+        .table-responsive th:nth-child(2),
+        .table-responsive td:nth-child(2),
+        .table-responsive th:nth-child(6),
+        .table-responsive td:nth-child(6) {
+            display: table-cell;
+        }
+        
+        /* Mobile action buttons */
+        .mobile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 80px;
+        }
+        
+        .mobile-actions button {
+            padding: 6px 8px;
+            font-size: 12px;
+            min-height: 32px;
+        }
+        
+        /* Mobile search and filter improvements */
+        .mobile-search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .mobile-search-container .flex-1 {
+            width: 100%;
+        }
+        
+        .mobile-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .mobile-filter-group select {
+            width: 100%;
             padding: 12px 16px;
         }
     }
     
-    @media (min-width: 769px) {
+    /* Small tablets */
+    @media (min-width: 641px) and (max-width: 768px) {
+        .modern-category-title {
+            font-size: 20px;
+        }
+        
         .table-responsive th,
         .table-responsive td {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+        
+        .table-responsive th:nth-child(5),
+        .table-responsive td:nth-child(5) {
+            display: none;
+        }
+        
+        /* Show more columns on small tablets */
+        .table-responsive th:nth-child(1),
+        .table-responsive td:nth-child(1),
+        .table-responsive th:nth-child(2),
+        .table-responsive td:nth-child(2),
+        .table-responsive th:nth-child(3),
+        .table-responsive td:nth-child(3),
+        .table-responsive th:nth-child(4),
+        .table-responsive td:nth-child(4),
+        .table-responsive th:nth-child(6),
+        .table-responsive td:nth-child(6) {
+            display: table-cell;
+        }
+    }
+    
+    /* Large tablets and small desktops */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .modern-category-title {
+            font-size: 22px;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+        
+        /* Show all columns on larger screens */
+        .table-responsive th,
+        .table-responsive td {
+            display: table-cell;
+        }
+    }
+    
+    /* Desktop and large screens - Full Screen Optimization */
+    @media (min-width: 1025px) {
+        .modern-category-title {
+            font-size: 24px;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 16px 20px;
+            font-size: 15px;
+        }
+        
+        /* Full screen desktop layout */
+        .desktop-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            height: calc(100vh - 200px);
+        }
+        
+        .desktop-full-width {
+            grid-column: 1 / -1;
+        }
+        
+        /* Full viewport content area */
+        .fullscreen-content {
+            height: calc(100vh - 120px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .fullscreen-header {
+            flex-shrink: 0;
             padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+        
+        .fullscreen-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        /* Desktop-specific improvements */
+        .desktop-button-group {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+        }
+        
+        .desktop-search-container {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .desktop-filter-group {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+        }
+        
+        /* Full screen table improvements */
+        .desktop-table-container {
+            height: calc(100vh - 300px);
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Desktop modal improvements */
+        .desktop-modal {
+            max-width: 90vw;
+            max-height: 90vh;
+            margin: 2rem auto;
+        }
+        
+        /* Desktop form improvements */
+        .desktop-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .desktop-form-full-width {
+            grid-column: 1 / -1;
+        }
+        
+        /* Full width main container */
+        .fullscreen-main-container {
+            width: 100%;
+            height: calc(100vh - 80px);
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Optimize main grid for full screen */
+        .fullscreen-main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            height: 100%;
+            gap: 0;
+        }
+        
+        /* Full screen item list */
+        .fullscreen-item-list {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Compact header for full screen */
+        .fullscreen-compact-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+            flex-shrink: 0;
+        }
+        
+        /* Full screen search area */
+        .fullscreen-search-area {
+            padding: 16px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        
+        /* Full screen items container */
+        .fullscreen-items-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        /* Remove default margins and padding for full screen */
+        .fullscreen-main-container .p-4,
+        .fullscreen-main-container .p-6,
+        .fullscreen-main-container .p-8 {
+            padding: 0 !important;
+        }
+        
+        .fullscreen-main-container .mb-6 {
+            margin-bottom: 0 !important;
+        }
+        
+        /* Full screen category sections */
+        .fullscreen-category-section {
+            margin-bottom: 16px;
+        }
+        
+        .fullscreen-category-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Optimize table for full screen */
+        .fullscreen-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        .fullscreen-table th:nth-child(1),
+        .fullscreen-table td:nth-child(1) {
+            width: 25%;
+        }
+        
+        .fullscreen-table th:nth-child(2),
+        .fullscreen-table td:nth-child(2) {
+            width: 15%;
+        }
+        
+        .fullscreen-table th:nth-child(3),
+        .fullscreen-table td:nth-child(3) {
+            width: 12%;
+        }
+        
+        .fullscreen-table th:nth-child(4),
+        .fullscreen-table td:nth-child(4) {
+            width: 15%;
+        }
+        
+        .fullscreen-table th:nth-child(5),
+        .fullscreen-table td:nth-child(5) {
+            width: 15%;
+        }
+        
+        .fullscreen-table th:nth-child(6),
+        .fullscreen-table td:nth-child(6) {
+            width: 18%;
+        }
+    }
+    
+    /* Extra large screens */
+    @media (min-width: 1280px) {
+        .table-responsive th,
+        .table-responsive td {
+            padding: 18px 24px;
+            font-size: 16px;
+        }
+        
+        .modern-category-title {
+            font-size: 26px;
+        }
+        
+        /* Ultra-wide layout for very large screens */
+        .ultra-wide-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+        
+        /* Enhanced full screen for ultra-wide */
+        .fullscreen-content {
+            height: calc(100vh - 100px);
+        }
+        
+        .desktop-table-container {
+            height: calc(100vh - 280px);
+        }
+        
+        .fullscreen-items-container {
+            padding: 24px;
+        }
+    }
+    
+    /* Ultra-wide screens (1440px+) */
+    @media (min-width: 1440px) {
+        .fullscreen-content {
+            height: calc(100vh - 80px);
+        }
+        
+        .desktop-table-container {
+            height: calc(100vh - 260px);
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 20px 28px;
+            font-size: 17px;
+        }
+        
+        .modern-category-title {
+            font-size: 28px;
+        }
+    }
+    
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+        .modern-btn,
+        button {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .modern-toggle {
+            width: 80px;
+            height: 40px;
+        }
+        
+        .modern-toggle-slider:before {
+            height: 32px;
+            width: 32px;
+            left: 4px;
+            bottom: 4px;
+        }
+        
+        .modern-toggle input:checked + .modern-toggle-slider:before {
+            transform: translateX(40px);
+        }
+    }
+    
+    /* High DPI displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .modern-card {
+            border-width: 0.5px;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            border-width: 0.5px;
+        }
+    }
+    
+    /* Extra small screens (phones in portrait) */
+    @media (max-width: 475px) {
+        .modern-category-title {
+            font-size: 14px;
+        }
+        
+        .modern-category-header {
+            padding: 8px 12px;
+            margin-bottom: 12px;
+        }
+        
+        .modern-category-count {
+            padding: 2px 6px;
+            font-size: 10px;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 4px 4px;
+            font-size: 10px;
+        }
+        
+        .mobile-actions {
+            min-width: 60px;
+        }
+        
+        .mobile-actions button {
+            padding: 4px 6px;
+            font-size: 10px;
+            min-height: 28px;
+        }
+        
+        /* Hide even more columns on very small screens */
+        .table-responsive th:nth-child(2),
+        .table-responsive td:nth-child(2) {
+            display: none;
+        }
+        
+        /* Show only item name and actions */
+        .table-responsive th:nth-child(1),
+        .table-responsive td:nth-child(1),
+        .table-responsive th:nth-child(6),
+        .table-responsive td:nth-child(6) {
+            display: table-cell;
+        }
+    }
+    
+    /* Landscape orientation improvements */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .mobile-modal {
+            margin: 4px;
+            max-height: calc(100vh - 8px);
+        }
+        
+        .modern-category-header {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            padding: 6px 8px;
+        }
+    }
+    
+    /* Print styles */
+    @media print {
+        .mobile-button-group,
+        .mobile-actions,
+        .modern-toggle {
+            display: none !important;
+        }
+        
+        .table-responsive {
+            overflow: visible;
+        }
+        
+        .table-responsive table {
+            width: 100%;
+        }
+        
+        .modern-card {
+            box-shadow: none;
+            border: 1px solid #000;
+        }
+    }
+    
+    /* Full viewport height for desktop */
+    @media (min-width: 1025px) {
+        body {
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .min-h-screen {
+            height: 100vh;
+        }
+        
+        /* Ensure main content uses full height */
+        main {
+            height: calc(100vh - 80px);
+        }
+        
+        /* Full height for the main content area */
+        .p-4.sm\\:p-6.lg\\:p-8 {
+            height: 100%;
+            padding: 0 !important;
         }
     }
     
@@ -414,6 +998,815 @@
         }
     }
     
+    /* Enhanced Full Screen Responsive Styles - Horizontal List Layout */
+    
+    /* Full screen container optimization */
+    .fullscreen-container {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Clean List Layout with Category Separation */
+    .items-list-container {
+        height: 100%;
+        overflow-y: auto;
+        padding: 0;
+    }
+    
+    .items-list-container::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .items-list-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    
+    .items-list-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        border-radius: 4px;
+    }
+    
+    .items-list-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #e55a2b 0%, #e8821a 100%);
+    }
+    
+    /* Clean Professional Design */
+    .category-section {
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        background: white;
+    }
+    
+    .category-section:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .category-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Simple Category Colors */
+    .category-section[data-category="food"] {
+        border-left: 4px solid #ef4444;
+    }
+    
+    .category-section[data-category="beverages"] {
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .category-section[data-category="snacks"] {
+        border-left: 4px solid #f59e0b;
+    }
+    
+    .category-section[data-category="desserts"] {
+        border-left: 4px solid #ec4899;
+    }
+    
+    .category-section[data-category="alcohol"] {
+        border-left: 4px solid #8b5cf6;
+    }
+    
+    .category-section[data-category="cleaning"] {
+        border-left: 4px solid #10b981;
+    }
+    
+    .category-section[data-category="toiletries"] {
+        border-left: 4px solid #06b6d4;
+    }
+    
+    .category-section[data-category="electronics"] {
+        border-left: 4px solid #6366f1;
+    }
+    
+    .category-section[data-category="furniture"] {
+        border-left: 4px solid #f97316;
+    }
+    
+    .category-section[data-category="clothing"] {
+        border-left: 4px solid #8b5cf6;
+    }
+    
+    .category-section[data-category="uncategorized"] {
+        border-left: 4px solid #6b7280;
+    }
+    
+    /* Clean Category Header */
+    .category-header {
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    .category-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .category-count {
+        background: #e5e7eb;
+        color: #374151;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    /* Clean Items Container */
+    .category-items {
+        background: white;
+    }
+    
+    /* Simple Item Row */
+    .item-row {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s ease;
+        cursor: pointer;
+        background: white;
+    }
+    
+    .item-row:hover {
+        background: #f9fafb;
+    }
+    
+    .item-row:last-child {
+        border-bottom: none;
+    }
+    
+    /* Clean Item Image */
+    .item-image {
+        width: 48px;
+        height: 48px;
+        border-radius: 6px;
+        object-fit: cover;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .item-image-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 6px;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .item-image-placeholder i {
+        font-size: 1.25rem;
+        color: #9ca3af;
+    }
+    
+    /* Clean Item Details */
+    .item-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .item-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .item-description {
+        font-size: 0.75rem;
+        color: #6b7280;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .item-category {
+        font-size: 0.75rem;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        font-weight: 500;
+    }
+    
+    .item-price {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #059669;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    /* Clean Action Buttons */
+    .item-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .item-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        background: white;
+    }
+    
+    .item-action-btn.edit {
+        color: #2563eb;
+        border-color: #dbeafe;
+    }
+    
+    .item-action-btn.edit:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+    }
+    
+    .item-action-btn.delete {
+        color: #dc2626;
+        border-color: #fee2e2;
+    }
+    
+    .item-action-btn.delete:hover {
+        background: #fee2e2;
+        border-color: #fecaca;
+    }
+    
+    .item-action-btn.toggle {
+        color: #6b7280;
+        border-color: #e5e7eb;
+    }
+    
+    .item-action-btn.toggle:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+    }
+    
+    .item-action-btn.active {
+        color: #059669;
+        border-color: #dcfce7;
+        background: #dcfce7;
+    }
+    
+    .item-action-btn.active:hover {
+        background: #bbf7d0;
+        border-color: #86efac;
+    }
+    
+    .item-action-btn.inactive {
+        color: #d97706;
+        border-color: #fef3c7;
+        background: #fef3c7;
+    }
+    
+    .item-action-btn.inactive:hover {
+        background: #fde68a;
+        border-color: #fcd34d;
+    }
+    
+    /* Uppercase input styling */
+    .uppercase-input {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Suggestion dropdown styling */
+    .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s ease;
+        font-size: 0.875rem;
+        color: #374151;
+    }
+    
+    .suggestion-item:hover {
+        background-color: #f9fafb;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-item.highlighted {
+        background-color: #dbeafe;
+        color: #1d4ed8;
+    }
+    
+    .suggestion-item .suggestion-text {
+        font-weight: 500;
+    }
+    
+    .suggestion-item .suggestion-count {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-left: 0.5rem;
+    }
+    
+    .item-action-btn.stock-in {
+        color: #059669;
+        border-color: #dcfce7;
+        background: #dcfce7;
+    }
+    
+    .item-action-btn.stock-in:hover {
+        background: #bbf7d0;
+        border-color: #86efac;
+    }
+    
+    .item-action-btn.stock-out {
+        color: #dc2626;
+        border-color: #fee2e2;
+        background: #fee2e2;
+    }
+    
+    .item-action-btn.stock-out:hover {
+        background: #fecaca;
+        border-color: #fca5a5;
+    }
+    
+    /* Extra Small Mobile Devices (320px - 480px) */
+    @media (max-width: 480px) {
+        .main-container {
+            padding: 0.5rem;
+        }
+        
+        .page-header {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.25rem;
+        }
+        
+        .search-controls {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-bar {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .category-section {
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .category-header {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .category-title {
+            font-size: 0.875rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+        
+        .category-count {
+            font-size: 0.625rem;
+            padding: 0.125rem 0.5rem;
+            align-self: flex-end;
+        }
+        
+        .item-row {
+            padding: 0.5rem 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .item-image,
+        .item-image-placeholder {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.5rem;
+        }
+        
+        .item-details {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .item-name {
+            font-size: 0.75rem;
+            margin-bottom: 0.125rem;
+        }
+        
+        .item-description {
+            font-size: 0.625rem;
+        }
+        
+        .item-category {
+            font-size: 0.625rem;
+            padding: 0.125rem 0.375rem;
+            margin-right: 0.5rem;
+        }
+        
+        .item-price {
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        
+        .item-actions {
+            gap: 0.25rem;
+            margin-left: auto;
+        }
+        
+        .item-action-btn {
+            width: 24px;
+            height: 24px;
+            font-size: 0.625rem;
+        }
+    }
+    
+    /* Small Mobile Devices (481px - 768px) */
+    @media (min-width: 481px) and (max-width: 768px) {
+        .main-container {
+            padding: 0.75rem;
+        }
+        
+        .page-header {
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .search-controls {
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .search-bar {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .category-section {
+            margin-bottom: 1rem;
+            border-radius: 6px;
+        }
+        
+        .category-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .category-title {
+            font-size: 1rem;
+        }
+        
+        .category-count {
+            font-size: 0.6875rem;
+            padding: 0.2rem 0.5rem;
+        }
+        
+        .item-row {
+            padding: 0.75rem 1rem;
+        }
+        
+        .item-image,
+        .item-image-placeholder {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .item-name {
+            font-size: 0.8125rem;
+        }
+        
+        .item-description {
+            font-size: 0.6875rem;
+        }
+        
+        .item-category {
+            font-size: 0.6875rem;
+            padding: 0.2rem 0.4rem;
+        }
+        
+        .item-price {
+            font-size: 0.8125rem;
+        }
+        
+        .item-action-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 0.6875rem;
+        }
+    }
+    
+    /* Tablet Devices (769px - 1024px) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .main-container {
+            padding: 1rem;
+        }
+        
+        .page-header {
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+        }
+        
+        .search-controls {
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-bar {
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+        }
+        
+        .filter-select {
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+        }
+        
+        .category-section {
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .category-header {
+            padding: 1rem 1.5rem;
+        }
+        
+        .category-title {
+            font-size: 1.125rem;
+        }
+        
+        .category-count {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+        }
+        
+        .item-row {
+            padding: 1rem 1.5rem;
+        }
+        
+        .item-image,
+        .item-image-placeholder {
+            width: 48px;
+            height: 48px;
+        }
+        
+        .item-name {
+            font-size: 0.875rem;
+        }
+        
+        .item-description {
+            font-size: 0.75rem;
+        }
+        
+        .item-category {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .item-price {
+            font-size: 0.875rem;
+        }
+        
+        .item-action-btn {
+            width: 32px;
+            height: 32px;
+            font-size: 0.75rem;
+        }
+    }
+    
+    /* Desktop Devices (1025px - 1440px) */
+    @media (min-width: 1025px) and (max-width: 1440px) {
+        .main-container {
+            padding: 1.5rem;
+        }
+        
+        .page-header {
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .search-controls {
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-bar {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .filter-select {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .category-section {
+            margin-bottom: 2rem;
+            border-radius: 10px;
+        }
+        
+        .category-header {
+            padding: 1.25rem 2rem;
+        }
+        
+        .category-title {
+            font-size: 1.25rem;
+        }
+        
+        .category-count {
+            font-size: 0.875rem;
+            padding: 0.375rem 1rem;
+        }
+        
+        .item-row {
+            padding: 1.25rem 2rem;
+        }
+        
+        .item-image,
+        .item-image-placeholder {
+            width: 56px;
+            height: 56px;
+        }
+        
+        .item-name {
+            font-size: 1rem;
+        }
+        
+        .item-description {
+            font-size: 0.875rem;
+        }
+        
+        .item-category {
+            font-size: 0.8125rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .item-price {
+            font-size: 1rem;
+        }
+        
+        .item-action-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 0.875rem;
+        }
+    }
+    
+    /* Large Desktop Devices (1441px+) */
+    @media (min-width: 1441px) {
+        .main-container {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .page-title {
+            font-size: 2.25rem;
+        }
+        
+        .search-controls {
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .search-bar {
+            padding: 1.25rem 2rem;
+            font-size: 1.125rem;
+        }
+        
+        .filter-select {
+            padding: 1.25rem 2rem;
+            font-size: 1.125rem;
+        }
+        
+        .category-section {
+            margin-bottom: 2.5rem;
+            border-radius: 12px;
+        }
+        
+        .category-header {
+            padding: 1.5rem 2.5rem;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+        }
+        
+        .category-count {
+            font-size: 1rem;
+            padding: 0.5rem 1.25rem;
+        }
+        
+        .item-row {
+            padding: 1.5rem 2.5rem;
+        }
+        
+        .item-image,
+        .item-image-placeholder {
+            width: 64px;
+            height: 64px;
+        }
+        
+        .item-name {
+            font-size: 1.125rem;
+        }
+        
+        .item-description {
+            font-size: 1rem;
+        }
+        
+        .item-category {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .item-price {
+            font-size: 1.125rem;
+        }
+        
+        .item-action-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+    
+    /* Enhanced scrollbar for full screen */
+    .fullscreen-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .fullscreen-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    
+    .fullscreen-scrollbar::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        border-radius: 4px;
+    }
+    
+    .fullscreen-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #e55a2b 0%, #e8821a 100%);
+    }
+    
     /* Smooth Transitions */
     * {
         transition: var(--transition);
@@ -440,86 +1833,101 @@
 </style>
 
 
-<!-- Main Content Grid -->
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-    <!-- Item List -->
-    <div class="xl:col-span-2">
-        <div class="bg-white rounded-xl lg:rounded-2xl xl:rounded-3xl shadow-lg lg:shadow-xl xl:shadow-2xl border border-gray-100">
-            <div class="p-4 sm:p-6 lg:p-8 border-b border-gray-200">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                    <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">Inventory Items</h2>
-                    <div class="flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-3">
-                        <button onclick="showAddItemModal()" class="bg-primary-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl lg:rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-semibold text-sm sm:text-base">
-                            <i class="fas fa-plus mr-1 sm:mr-2"></i>
-                            Add Item
-                        </button>
-                        <button class="bg-gray-100 text-gray-700 px-4 sm:px-6 py-2 sm:py-3 rounded-xl lg:rounded-2xl hover:bg-gray-200 transition-colors duration-200 font-semibold text-sm sm:text-base">
-                            <i class="fas fa-filter mr-1 sm:mr-2"></i>
-                            Filter
-                        </button>
-                    </div>
+<!-- Full Screen Main Container -->
+<div class="w-full h-screen flex flex-col overflow-hidden">
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Section -->
+        <div class="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <div>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Inventory Items</h2>
+                    <p class="text-sm text-gray-600 mt-1">Manage your hotel inventory items</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <button onclick="showAddItemModal()" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-semibold flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i class="fas fa-plus mr-2"></i>
+                        <span class="hidden sm:inline">Add New Item</span>
+                        <span class="sm:hidden">Add Item</span>
+                    </button>
+                    <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold flex items-center justify-center">
+                        <i class="fas fa-filter mr-2"></i>
+                        <span class="hidden sm:inline">Advanced Filter</span>
+                        <span class="sm:hidden">Filter</span>
+                    </button>
                 </div>
             </div>
-            <div class="p-4 sm:p-6 lg:p-8">
-                <!-- Search and Filter Bar -->
-                <div class="mb-6">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <input type="text" id="search-items" placeholder="Search items by name or category..." class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            </div>
-                            </div>
-                        <div class="flex gap-2">
-                            <select id="category-filter" class="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                                <option value="">All Categories</option>
-                            </select>
-                            <select id="status-filter" class="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-orange text-sm sm:text-base">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-                        </div>
-                    </div>
+        </div>
 
-                <!-- Items List Container -->
-                <div id="items-container">
-                    <!-- Loading State -->
-                    <div id="loading-state" class="text-center py-12">
-                        <div class="inline-flex items-center space-x-2 text-gray-500">
-                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-orange"></div>
-                            <span>Loading items...</span>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="empty-state" class="text-center py-12 hidden">
-                        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-box-open text-gray-400 text-3xl"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Items Found</h3>
-                        <p class="text-gray-600 mb-6">Get started by adding your first inventory item.</p>
-                        <button onclick="showAddItemModal()" class="bg-primary-orange text-white px-6 py-3 rounded-xl hover:bg-secondary-orange transition-colors duration-200 font-semibold">
-                            <i class="fas fa-plus mr-2"></i>
-                            Add First Item
-                                </button>
-                    </div>
-
-                    <!-- Items List by Category -->
-                    <div id="items-list" class="space-y-6">
-                        <!-- Dynamic categories with horizontal scrolling will be loaded here -->
+        <!-- Search and Filter Bar -->
+        <div class="flex-shrink-0 bg-gray-50 border-b border-gray-200 px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-4">
+                <!-- Search Input -->
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" id="search-items" placeholder="Search items by name, category, or description..." class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base transition-all duration-200">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
-                            </div>
+                
+                <!-- Filter Controls -->
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <select id="category-filter" class="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base bg-white min-w-[150px]">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="status-filter" class="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base bg-white min-w-[120px]">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                    <button class="px-4 py-3 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 text-sm sm:text-base flex items-center justify-center">
+                        <i class="fas fa-sort mr-2"></i>
+                        Sort
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items List Container -->
+        <div class="flex-1 overflow-hidden bg-white">
+            <div id="items-container" class="h-full overflow-y-auto">
+                <!-- Loading State -->
+                <div id="loading-state" class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <div class="inline-flex items-center space-x-3 text-gray-500">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                            <span class="text-lg">Loading items...</span>
                         </div>
                     </div>
+                </div>
 
+                <!-- Empty State -->
+                <div id="empty-state" class="flex items-center justify-center h-full hidden">
+                    <div class="text-center max-w-md mx-auto px-6">
+                        <div class="w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-box-open text-orange-500 text-5xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">No Items Found</h3>
+                        <p class="text-gray-600 mb-8 text-lg">Get started by adding your first inventory item to manage your hotel's stock.</p>
+                        <button onclick="showAddItemModal()" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add First Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Items List Container -->
+                <div id="items-list" class="items-list-container">
+                    <!-- Dynamic items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Add Item Modal -->
 <div id="addItemModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
-    <div class="relative top-4 sm:top-8 lg:top-12 mx-auto p-4 sm:p-6 lg:p-8 w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-4xl">
+    <div class="mobile-modal sm:relative sm:top-8 lg:top-12 sm:mx-auto sm:p-6 lg:p-8 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 sm:max-w-4xl lg:desktop-modal">
         <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 px-6 sm:px-8 py-6 sm:py-8 relative overflow-hidden">
@@ -542,9 +1950,9 @@
             </div>
             
             <!-- Modal Body -->
-            <div class="p-6 sm:p-8">
+            <div class="p-4 sm:p-6 lg:p-8">
                 <form id="addItemForm" enctype="multipart/form-data">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                    <div class="mobile-form-grid lg:desktop-form-grid lg:grid lg:grid-cols-2 lg:gap-6 sm:gap-8">
                         <!-- Item Category -->
                         <div class="lg:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
@@ -628,7 +2036,7 @@
 
 <!-- Edit Item Modal -->
 <div id="editItemModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
-    <div class="relative top-4 sm:top-8 lg:top-12 mx-auto p-4 sm:p-6 lg:p-8 w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-4xl">
+    <div class="mobile-modal sm:relative sm:top-8 lg:top-12 sm:mx-auto sm:p-6 lg:p-8 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 sm:max-w-4xl">
         <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="editModalContent">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-6 sm:px-8 py-6 sm:py-8 relative overflow-hidden">
@@ -651,10 +2059,10 @@
             </div>
             
             <!-- Modal Body -->
-            <div class="p-6 sm:p-8">
+            <div class="p-4 sm:p-6 lg:p-8">
                 <form id="editItemForm" enctype="multipart/form-data">
                     <input type="hidden" name="item_id" id="edit_item_id">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                    <div class="mobile-form-grid lg:desktop-form-grid lg:grid lg:grid-cols-2 lg:gap-6 sm:gap-8">
                         <!-- Item Category -->
                         <div class="lg:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
@@ -738,7 +2146,7 @@
 
 <!-- Stock Management Modal -->
 <div id="stockModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50 transition-all duration-300">
-    <div class="relative top-4 sm:top-8 lg:top-12 mx-auto p-4 sm:p-6 lg:p-8 w-11/12 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 max-w-4xl">
+    <div class="mobile-modal sm:relative sm:top-8 lg:top-12 sm:mx-auto sm:p-6 lg:p-8 sm:w-5/6 md:w-4/5 lg:w-3/4 xl:w-2/3 sm:max-w-4xl">
         <div class="bg-white rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="stockModalContent">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-green-500 via-green-600 to-green-700 px-6 sm:px-8 py-6 sm:py-8 relative overflow-hidden">
@@ -761,7 +2169,7 @@
             </div>
             
             <!-- Modal Body -->
-            <div class="p-6 sm:p-8">
+            <div class="p-4 sm:p-6 lg:p-8">
                 <div id="stockItemInfo" class="mb-6 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
                     <!-- Item info will be populated here -->
                 </div>
@@ -772,7 +2180,7 @@
                     
                     <!-- Stock In Fields -->
                     <div id="stock-in-fields" class="hidden">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                        <div class="mobile-form-grid lg:grid lg:grid-cols-2 lg:gap-6 sm:gap-8 mb-6 sm:mb-8">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
                                     <i class="fas fa-plus-circle text-green-500 mr-2"></i>
@@ -802,15 +2210,19 @@
                                 PLACE PURCHASED FROM
                             </label>
                             <div class="relative">
-                                <input type="text" name="place_purchased_from" placeholder="Enter place purchased from" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base transition-all duration-200">
+                                <input type="text" name="place_purchased_from" id="place_purchased_from_input" placeholder="Enter place purchased from" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm sm:text-base transition-all duration-200 uppercase-input">
                                 <i class="fas fa-map-marker-alt absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <!-- Live search dropdown -->
+                                <div id="purchased_from_suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 hidden max-h-60 overflow-y-auto">
+                                    <!-- Suggestions will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Stock Out Fields -->
                     <div id="stock-out-fields" class="hidden">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
+                        <div class="mobile-form-grid lg:grid lg:grid-cols-2 lg:gap-6 sm:gap-8 mb-6 sm:mb-8">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
                                     <i class="fas fa-minus-circle text-red-500 mr-2"></i>
@@ -830,7 +2242,6 @@
                                 <div class="relative">
                                     <select name="transaction_type" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base transition-all duration-200 appearance-none bg-white">
                                         <option value="">Select transaction type</option>
-                                        <option value="sale">Sale</option>
                                         <option value="return">Return</option>
                                         <option value="waste">Waste</option>
                                     </select>
@@ -839,21 +2250,9 @@
                             </div>
                         </div>
                         
-                        <!-- Sale Fields -->
-                        <div id="sale-fields" class="hidden mb-6 sm:mb-8">
-                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                                <i class="fas fa-dollar-sign text-blue-500 mr-2"></i>
-                                SELLING PRICE
-                            </label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base font-medium">KSh</span>
-                                <input type="number" name="selling_price" step="0.01" min="0" placeholder="0.00" class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base transition-all duration-200">
-                            </div>
-                        </div>
-                        
                         <!-- Return Fields -->
                         <div id="return-fields" class="hidden mb-6 sm:mb-8">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                            <div class="mobile-form-grid lg:desktop-form-grid lg:grid lg:grid-cols-2 lg:gap-6 sm:gap-8">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
                                         <i class="fas fa-undo text-yellow-500 mr-2"></i>
@@ -877,8 +2276,12 @@
                                         REASON FOR RETURN
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="reason" placeholder="Enter reason for return" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base transition-all duration-200">
+                                        <input type="text" name="reason" id="return_reason_input" placeholder="Enter reason for return" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base transition-all duration-200 uppercase-input">
                                         <i class="fas fa-comment-dots absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                        <!-- Live search dropdown -->
+                                        <div id="return_reason_suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 hidden max-h-60 overflow-y-auto">
+                                            <!-- Suggestions will be populated here -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -891,8 +2294,12 @@
                                 REASON FOR WASTE
                             </label>
                             <div class="relative">
-                                <input type="text" name="reason" placeholder="Enter reason for waste" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base transition-all duration-200">
+                                <input type="text" name="reason" id="waste_reason_input" placeholder="Enter reason for waste" class="w-full px-4 py-4 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base transition-all duration-200 uppercase-input">
                                 <i class="fas fa-exclamation-triangle absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <!-- Live search dropdown -->
+                                <div id="waste_reason_suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 hidden max-h-60 overflow-y-auto">
+                                    <!-- Suggestions will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1034,13 +2441,44 @@
                     const stockInFields = document.getElementById('stock-in-fields');
                     const stockOutFields = document.getElementById('stock-out-fields');
                     
-                    if (action === 'stock_in') {
+                    if (action === 'in') {
                         modalTitle.textContent = 'Stock In - Purchase Record';
                         submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Stock In';
                         submitBtn.className = 'w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold text-sm sm:text-base flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5';
                         
+                        // Populate price field with current item price as suggestion
+                        const priceInput = document.querySelector('input[name="price_per_unit"]');
+                        if (priceInput && item.price) {
+                            priceInput.value = item.price;
+                            priceInput.placeholder = `Last price: KSh ${item.price}`;
+                            priceInput.style.backgroundColor = '#f0fdf4'; // Light green background to indicate suggestion
+                            priceInput.style.borderColor = '#22c55e'; // Green border to indicate suggestion
+                        }
+                        
+                        // Populate purchased from field with last used value as suggestion
+                        const purchasedFromInput = document.querySelector('input[name="place_purchased_from"]');
+                        if (purchasedFromInput) {
+                            // Get last purchased from value from localStorage (keyed by item name)
+                            const lastPurchasedFrom = localStorage.getItem(`last_purchased_from_${item.name}`);
+                            if (lastPurchasedFrom) {
+                                purchasedFromInput.value = lastPurchasedFrom;
+                                purchasedFromInput.placeholder = `Last: ${lastPurchasedFrom}`;
+                                purchasedFromInput.style.backgroundColor = '#f0fdf4'; // Light green background to indicate suggestion
+                                purchasedFromInput.style.borderColor = '#22c55e'; // Green border to indicate suggestion
+                            } else {
+                                purchasedFromInput.placeholder = 'Enter place purchased from';
+                                purchasedFromInput.style.backgroundColor = '';
+                                purchasedFromInput.style.borderColor = '';
+                            }
+                        }
+                        
                         stockInFields.classList.remove('hidden');
                         stockOutFields.classList.add('hidden');
+                        
+                        // Initialize live search for purchased from field
+                        setTimeout(() => {
+                            initializePurchasedFromLiveSearch();
+                        }, 100);
                     } else {
                         modalTitle.textContent = 'Stock Out - Transaction Record';
                         submitBtn.innerHTML = '<i class="fas fa-minus mr-2"></i>Stock Out';
@@ -1089,14 +2527,16 @@
             // Hide all conditional fields
             document.getElementById('stock-in-fields').classList.add('hidden');
             document.getElementById('stock-out-fields').classList.add('hidden');
-            document.getElementById('sale-fields').classList.add('hidden');
             document.getElementById('return-fields').classList.add('hidden');
             document.getElementById('waste-fields').classList.add('hidden');
             
-            // Clear any validation states
+            // Clear any validation states and reset styling
             const inputs = document.querySelectorAll('#stockForm input, #stockForm select');
             inputs.forEach(input => {
                 input.classList.remove('border-red-500');
+                // Reset any custom styling
+                input.style.backgroundColor = '';
+                input.style.borderColor = '';
             });
         }, 300);
     }
@@ -1104,25 +2544,28 @@
     // Handle transaction type change for stock out
     function handleTransactionTypeChange() {
         const transactionType = document.querySelector('select[name="transaction_type"]').value;
-        const saleFields = document.getElementById('sale-fields');
         const returnFields = document.getElementById('return-fields');
         const wasteFields = document.getElementById('waste-fields');
         
         // Hide all fields first
-        saleFields.classList.add('hidden');
         returnFields.classList.add('hidden');
         wasteFields.classList.add('hidden');
         
         // Show relevant fields based on selection
         switch(transactionType) {
-            case 'sale':
-                saleFields.classList.remove('hidden');
-                break;
             case 'return':
                 returnFields.classList.remove('hidden');
+                // Initialize live search for return reason field
+                setTimeout(() => {
+                    initializeReasonLiveSearch('return_reason_input', 'return_reason_suggestions', 'return');
+                }, 100);
                 break;
             case 'waste':
                 wasteFields.classList.remove('hidden');
+                // Initialize live search for waste reason field
+                setTimeout(() => {
+                    initializeReasonLiveSearch('waste_reason_input', 'waste_reason_suggestions', 'waste');
+                }, 100);
                 break;
         }
     }
@@ -1203,25 +2646,41 @@
         const itemId = document.getElementById('stock_item_id').value;
         const action = document.getElementById('stock_action').value;
         
-        // Get the correct quantity field based on action
+        // Get the correct quantity field based on action and set proper action value
         let quantity;
-        if (action === 'stock_in') {
+        if (action === 'in') {
             quantity = formData.get('stock_in_quantity');
-            formData.set('quantity', quantity); // Set the standard quantity field for backend
+            // Validate quantity is not empty and is a valid number
+            if (!quantity || quantity.trim() === '' || isNaN(quantity) || parseInt(quantity) <= 0) {
+                showNotification('Please enter a valid quantity for stock in', 'error');
+                return;
+            }
+            formData.set('quantity', parseInt(quantity)); // Set the standard quantity field for backend as integer
+            formData.set('action', 'stock_in'); // Set the correct action for backend
         } else {
             quantity = formData.get('stock_out_quantity');
-            formData.set('quantity', quantity); // Set the standard quantity field for backend
+            // Validate quantity is not empty and is a valid number
+            if (!quantity || quantity.trim() === '' || isNaN(quantity) || parseInt(quantity) <= 0) {
+                showNotification('Please enter a valid quantity for stock out', 'error');
+                return;
+            }
+            formData.set('quantity', parseInt(quantity)); // Set the standard quantity field for backend as integer
+            formData.set('action', 'stock_out'); // Set the correct action for backend
         }
         
         // Ensure text inputs are uppercase
         const reason = formData.get('reason');
         if (reason) {
-            formData.set('reason', reason.toUpperCase());
+            // Normalize the reason value (uppercase, consistent spacing)
+            const normalizedReason = reason.toUpperCase().replace(/\s+/g, ' ').trim();
+            formData.set('reason', normalizedReason);
         }
         
         const placePurchasedFrom = formData.get('place_purchased_from');
         if (placePurchasedFrom) {
-            formData.set('place_purchased_from', placePurchasedFrom.toUpperCase());
+            // Normalize the purchased from value (uppercase, consistent spacing)
+            const normalizedValue = placePurchasedFrom.toUpperCase().replace(/\s+/g, ' ').trim();
+            formData.set('place_purchased_from', normalizedValue);
         }
         
         // Clear previous validation states
@@ -1233,7 +2692,7 @@
         let hasErrors = false;
         
         // Validate required fields based on action
-        if (action === 'stock_in') {
+        if (action === 'in') {
             const pricePerUnit = formData.get('price_per_unit');
             const place = formData.get('place_purchased_from');
             
@@ -1242,7 +2701,7 @@
                 showNotification('Please enter a valid quantity for stock in', 'error');
                 hasErrors = true;
             }
-            if (!pricePerUnit || pricePerUnit <= 0) {
+            if (!pricePerUnit || pricePerUnit.trim() === '' || isNaN(pricePerUnit) || parseFloat(pricePerUnit) <= 0) {
                 document.querySelector('input[name="price_per_unit"]').classList.add('border-red-500');
                 showNotification('Please enter a valid price per unit', 'error');
                 hasErrors = true;
@@ -1252,7 +2711,7 @@
                 showNotification('Please enter the place purchased from', 'error');
                 hasErrors = true;
             }
-        } else if (action === 'stock_out') {
+        } else if (action === 'out') {
             const transactionType = formData.get('transaction_type');
             
             if (!quantity || quantity <= 0) {
@@ -1294,6 +2753,35 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // Save purchased from value to localStorage for future suggestions (only for stock in)
+                if (action === 'in') {
+                    const purchasedFrom = formData.get('place_purchased_from');
+                    if (purchasedFrom && purchasedFrom.trim() !== '') {
+                        // Get item name from the modal display
+                        const itemNameElement = document.querySelector('#stockItemInfo h4');
+                        if (itemNameElement) {
+                            const itemName = itemNameElement.textContent.trim();
+                            // Use the already normalized value
+                            localStorage.setItem(`last_purchased_from_${itemName}`, purchasedFrom);
+                        }
+                    }
+                }
+                
+                // Save reason value to localStorage for future suggestions (for stock out)
+                if (action === 'out') {
+                    const reason = formData.get('reason');
+                    const transactionType = formData.get('transaction_type');
+                    if (reason && reason.trim() !== '' && transactionType) {
+                        // Get item name from the modal display
+                        const itemNameElement = document.querySelector('#stockItemInfo h4');
+                        if (itemNameElement) {
+                            const itemName = itemNameElement.textContent.trim();
+                            // Use the already normalized value
+                            localStorage.setItem(`last_reason_${transactionType}_${itemName}`, reason);
+                        }
+                    }
+                }
+                
                 showNotification('Stock updated successfully!', 'success');
                 closeStockModal();
                 loadItems(); // Refresh the items list
@@ -1549,6 +3037,296 @@
             }
         });
     }
+    
+    function stockIn(itemId) {
+        showStockModal(itemId, 'in');
+    }
+    
+    function stockOut(itemId) {
+        showStockModal(itemId, 'out');
+    }
+    
+    // Live search functionality for purchased from field
+    function initializePurchasedFromLiveSearch() {
+        const input = document.getElementById('place_purchased_from_input');
+        const suggestionsContainer = document.getElementById('purchased_from_suggestions');
+        let currentHighlightIndex = -1;
+        
+        if (!input || !suggestionsContainer) return;
+        
+        // Auto-format input to uppercase with consistent spacing
+        input.addEventListener('input', function(e) {
+            let value = e.target.value;
+            // Convert to uppercase and normalize spacing
+            value = value.toUpperCase().replace(/\s+/g, ' ').trim();
+            e.target.value = value;
+            
+            // Show suggestions if there's input
+            if (value.length > 0) {
+                showSuggestions(value);
+            } else {
+                hideSuggestions();
+            }
+        });
+        
+        // Handle keyboard navigation
+        input.addEventListener('keydown', function(e) {
+            const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentHighlightIndex = Math.min(currentHighlightIndex + 1, suggestions.length - 1);
+                updateHighlight(suggestions);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentHighlightIndex = Math.max(currentHighlightIndex - 1, -1);
+                updateHighlight(suggestions);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentHighlightIndex >= 0 && suggestions[currentHighlightIndex]) {
+                    selectSuggestion(suggestions[currentHighlightIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                hideSuggestions();
+                currentHighlightIndex = -1;
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                hideSuggestions();
+                currentHighlightIndex = -1;
+            }
+        });
+        
+        function showSuggestions(query) {
+            const suggestions = getAllPurchasedFromSuggestions();
+            const filteredSuggestions = suggestions.filter(suggestion => 
+                suggestion.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            if (filteredSuggestions.length === 0) {
+                hideSuggestions();
+                return;
+            }
+            
+            suggestionsContainer.innerHTML = filteredSuggestions.map(suggestion => {
+                const count = getSuggestionCount(suggestion);
+                return `
+                    <div class="suggestion-item" data-value="${suggestion}">
+                        <span class="suggestion-text">${suggestion}</span>
+                        <span class="suggestion-count">(${count} times)</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add click handlers
+            suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    selectSuggestion(this);
+                });
+            });
+            
+            suggestionsContainer.classList.remove('hidden');
+            currentHighlightIndex = -1;
+        }
+        
+        function hideSuggestions() {
+            suggestionsContainer.classList.add('hidden');
+            suggestionsContainer.innerHTML = '';
+        }
+        
+        function updateHighlight(suggestions) {
+            suggestions.forEach((item, index) => {
+                item.classList.toggle('highlighted', index === currentHighlightIndex);
+            });
+        }
+        
+        function selectSuggestion(suggestionElement) {
+            const value = suggestionElement.dataset.value;
+            input.value = value;
+            hideSuggestions();
+            currentHighlightIndex = -1;
+            input.focus();
+        }
+    }
+    
+    // Get all purchased from suggestions from localStorage
+    function getAllPurchasedFromSuggestions() {
+        const suggestions = new Set();
+        
+        // Get all localStorage keys that start with 'last_purchased_from_'
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('last_purchased_from_')) {
+                const value = localStorage.getItem(key);
+                if (value && value.trim() !== '') {
+                    suggestions.add(value.trim().toUpperCase());
+                }
+            }
+        }
+        
+        return Array.from(suggestions).sort();
+    }
+    
+    // Get count of how many times a suggestion has been used
+    function getSuggestionCount(suggestion) {
+        let count = 0;
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('last_purchased_from_')) {
+                const value = localStorage.getItem(key);
+                if (value && value.trim().toUpperCase() === suggestion) {
+                    count++;
+                }
+            }
+        }
+        
+        return count;
+    }
+    
+    // Live search functionality for reason fields
+    function initializeReasonLiveSearch(inputId, suggestionsId, reasonType) {
+        const input = document.getElementById(inputId);
+        const suggestionsContainer = document.getElementById(suggestionsId);
+        let currentHighlightIndex = -1;
+        
+        if (!input || !suggestionsContainer) return;
+        
+        // Auto-format input to uppercase with consistent spacing
+        input.addEventListener('input', function(e) {
+            let value = e.target.value;
+            // Convert to uppercase and normalize spacing
+            value = value.toUpperCase().replace(/\s+/g, ' ').trim();
+            e.target.value = value;
+            
+            // Show suggestions if there's input
+            if (value.length > 0) {
+                showReasonSuggestions(value, reasonType);
+            } else {
+                hideReasonSuggestions();
+            }
+        });
+        
+        // Handle keyboard navigation
+        input.addEventListener('keydown', function(e) {
+            const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentHighlightIndex = Math.min(currentHighlightIndex + 1, suggestions.length - 1);
+                updateReasonHighlight(suggestions);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentHighlightIndex = Math.max(currentHighlightIndex - 1, -1);
+                updateReasonHighlight(suggestions);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentHighlightIndex >= 0 && suggestions[currentHighlightIndex]) {
+                    selectReasonSuggestion(suggestions[currentHighlightIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                hideReasonSuggestions();
+                currentHighlightIndex = -1;
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                hideReasonSuggestions();
+                currentHighlightIndex = -1;
+            }
+        });
+        
+        function showReasonSuggestions(query, type) {
+            const suggestions = getAllReasonSuggestions(type);
+            const filteredSuggestions = suggestions.filter(suggestion => 
+                suggestion.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            if (filteredSuggestions.length === 0) {
+                hideReasonSuggestions();
+                return;
+            }
+            
+            suggestionsContainer.innerHTML = filteredSuggestions.map(suggestion => {
+                const count = getReasonSuggestionCount(suggestion, type);
+                return `
+                    <div class="suggestion-item" data-value="${suggestion}">
+                        <span class="suggestion-text">${suggestion}</span>
+                        <span class="suggestion-count">(${count} times)</span>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add click handlers
+            suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    selectReasonSuggestion(this);
+                });
+            });
+            
+            suggestionsContainer.classList.remove('hidden');
+            currentHighlightIndex = -1;
+        }
+        
+        function hideReasonSuggestions() {
+            suggestionsContainer.classList.add('hidden');
+            suggestionsContainer.innerHTML = '';
+        }
+        
+        function updateReasonHighlight(suggestions) {
+            suggestions.forEach((item, index) => {
+                item.classList.toggle('highlighted', index === currentHighlightIndex);
+            });
+        }
+        
+        function selectReasonSuggestion(suggestionElement) {
+            const value = suggestionElement.dataset.value;
+            input.value = value;
+            hideReasonSuggestions();
+            currentHighlightIndex = -1;
+            input.focus();
+        }
+    }
+    
+    // Get all reason suggestions from localStorage
+    function getAllReasonSuggestions(reasonType) {
+        const suggestions = new Set();
+        
+        // Get all localStorage keys that start with 'last_reason_'
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(`last_reason_${reasonType}_`)) {
+                const value = localStorage.getItem(key);
+                if (value && value.trim() !== '') {
+                    suggestions.add(value.trim().toUpperCase());
+                }
+            }
+        }
+        
+        return Array.from(suggestions).sort();
+    }
+    
+    // Get count of how many times a reason suggestion has been used
+    function getReasonSuggestionCount(suggestion, reasonType) {
+        let count = 0;
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(`last_reason_${reasonType}_`)) {
+                const value = localStorage.getItem(key);
+                if (value && value.trim().toUpperCase() === suggestion) {
+                    count++;
+                }
+            }
+        }
+        
+        return count;
+    }
 
     function loadItems() {
         console.log('Loading items...');
@@ -1614,94 +3392,53 @@
         // Hide empty state
         if (emptyState) emptyState.classList.add('hidden');
 
-        // Group items by category
+        // Group items by category and render with category headers
         const groupedItems = groupItemsByCategory(items);
         
-        // Render items in professional list format
         itemsList.innerHTML = Object.keys(groupedItems).map(category => `
-            <div class="category-section mb-8">
-                <div class="modern-category-header">
-                    <div class="flex items-center justify-between">
-                        <h3 class="modern-category-title capitalize">${category.replace('_', ' ')}</h3>
-                        <span class="modern-category-count">${groupedItems[category].length} items</span>
+            <div class="category-section" data-category="${category}">
+                <div class="category-header">
+                    <div class="category-title">
+                        <span class="capitalize">${category.replace('_', ' ')}</span>
+                        <span class="category-count">${groupedItems[category].length} items</span>
                     </div>
                 </div>
-                <div class="professional-list overflow-hidden">
-                    <div class="table-responsive">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                ${groupedItems[category].map(item => `
-                                    <tr class="hover:bg-gray-50 transition-colors duration-200 ${!item.stock_update_enabled ? 'bg-orange-50' : ''}">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-12 w-12">
-                                                    <div class="h-12 w-12 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm relative overflow-hidden">
-                                                        ${item.image_url ? 
-                                                            `<img src="${item.image_url}" alt="${item.name}" class="h-full w-full object-cover rounded-lg">` :
-                                                            `<i class="fas fa-box text-white text-lg"></i>`
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">${item.name}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900 capitalize">${item.category.replace('_', ' ')}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-semibold text-green-600">KSh ${item.price}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center space-x-2">
-                                                <span class="modern-badge ${getModernStockBadgeClass(item.stock)}">
-                                                    <i class="fas ${getStockIcon(item.stock)} mr-1"></i>
-                                                    ${getStockText(item.stock)}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center space-x-2">
-                                                <span class="text-xs text-gray-500 font-medium">Auto Stock:</span>
-                                                <label class="modern-toggle">
-                                                    <input type="checkbox" ${item.stock_update_enabled ? 'checked' : ''} 
-                                                           onchange="toggleStockUpdate(${item.id}, this.checked)">
-                                                    <span class="modern-toggle-slider"></span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex space-x-2">
-                                                <button onclick="showEditItemModal(${item.id})" class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 p-2 rounded-lg hover:bg-indigo-50">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button onclick="showStockModal(${item.id}, 'stock_in')" class="text-green-600 hover:text-green-900 transition-colors duration-200 p-2 rounded-lg hover:bg-green-50">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                                <button onclick="showStockModal(${item.id}, 'stock_out')" class="text-yellow-600 hover:text-yellow-900 transition-colors duration-200 p-2 rounded-lg hover:bg-yellow-50">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <button onclick="deleteItem(${item.id})" class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 rounded-lg hover:bg-red-50">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="category-items">
+                    ${groupedItems[category].map(item => `
+                        <div class="item-row" data-item-id="${item.id}">
+                            <div class="item-image-placeholder">
+                                ${item.image_url ? 
+                                    `<img src="${item.image_url}" alt="${item.name}" class="item-image">` :
+                                    `<i class="fas fa-box text-gray-400"></i>`
+                                }
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">${item.name}</div>
+                                <div class="item-description">${item.description || 'No description'}</div>
+                            </div>
+                            <div class="item-category capitalize">${item.category.replace('_', ' ')}</div>
+                            <div class="item-price">KSh ${item.price}</div>
+                            <div class="item-actions">
+                                <button class="item-action-btn stock-in" onclick="stockIn(${item.id})" title="Stock In">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="item-action-btn stock-out" onclick="stockOut(${item.id})" title="Stock Out">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="item-action-btn ${item.stock_update_enabled ? 'active' : 'inactive'}" 
+                                        onclick="toggleStockUpdate(${item.id}, ${!item.stock_update_enabled})"
+                                        title="${item.stock_update_enabled ? 'Disable' : 'Enable'} Auto Stock">
+                                    <i class="fas ${item.stock_update_enabled ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                                </button>
+                                <button class="item-action-btn edit" onclick="showEditItemModal(${item.id})" title="Edit Item">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="item-action-btn delete" onclick="deleteItem(${item.id})" title="Delete Item">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
         `).join('');

@@ -1,6 +1,82 @@
-{% extends "base.html" %}
+{% extends "role_base.html" %}
 
 {% block title %}Receipts Management - Hotel POS System{% endblock %}
+
+{% block extra_head %}
+<!-- QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+{% endblock %}
+
+{% block sidebar_icon %}{% if employee_role == 'admin' %}crown{% else %}user-tie{% endif %}{% endblock %}
+{% block sidebar_title %}{% if employee_role == 'admin' %}Admin Panel{% else %}Manager Panel{% endif %}{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% else %}/manager/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+
+<!-- Human Resource -->
+<a href="{% if employee_role == 'admin' %}/admin/human-resources{% else %}/manager/human-resources{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resource</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+
+<!-- Item Management -->
+<a href="{% if employee_role == 'admin' %}/admin/item-management{% else %}/manager/item-management{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Analytics -->
+<a href="{% if employee_role == 'admin' %}/admin/analytics{% else %}/manager/analytics{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+
+<!-- Receipts Management -->
+<a href="/receipts" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipts</p>
+        <p class="text-xs text-white/70">Manage receipts</p>
+    </div>
+</a>
+
+<!-- Settings -->
+<a href="{% if employee_role == 'admin' %}/admin/settings{% else %}/manager/settings{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System configuration</p>
+    </div>
+</a>
+{% endblock %}
 
 {% block content %}
 
@@ -33,6 +109,106 @@
                             <p class="text-xs sm:text-sm font-medium">Live Data</p>
                             <p class="text-xs text-indigo-200 hidden sm:block">Real-time updates</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Scanner Section -->
+<div class="mb-6 sm:mb-8">
+    <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 p-6 sm:p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+            <div class="mb-4 lg:mb-0">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3">
+                        <i class="fas fa-qrcode text-white text-lg"></i>
+                    </div>
+                    QR Code Scanner
+                </h2>
+                <p class="text-sm sm:text-base text-gray-600 mt-1">Scan receipt QR codes to confirm or view details</p>
+            </div>
+            <button id="qr-scan-btn" class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center font-semibold">
+                <i class="fas fa-camera mr-2"></i>
+                Start Scanning
+            </button>
+        </div>
+        
+        <!-- QR Scanner -->
+        <div id="qr-scanner-section" class="hidden">
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200 relative overflow-hidden">
+                <!-- Animated background pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-green-400 rounded-full blur-3xl animate-pulse"></div>
+                    <div class="absolute bottom-0 right-0 w-32 h-32 bg-emerald-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+                </div>
+                
+                <div class="relative z-10">
+                    <!-- Scanner Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-camera text-green-600 mr-2 animate-pulse"></i>
+                                Camera Scanner Active
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Point your camera at the receipt QR code</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-xs font-semibold text-green-600">Scanning...</span>
+                        </div>
+                    </div>
+
+                    <!-- Camera View Container -->
+                    <div class="bg-black rounded-xl p-4 mb-4 relative shadow-2xl">
+                        <!-- Scanning overlay with frame -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="relative">
+                                <!-- Corner markers for scanning frame -->
+                                <div class="absolute -top-2 -left-2 w-8 h-8 border-t-4 border-l-4 border-green-500 rounded-tl-lg"></div>
+                                <div class="absolute -top-2 -right-2 w-8 h-8 border-t-4 border-r-4 border-green-500 rounded-tr-lg"></div>
+                                <div class="absolute -bottom-2 -left-2 w-8 h-8 border-b-4 border-l-4 border-green-500 rounded-bl-lg"></div>
+                                <div class="absolute -bottom-2 -right-2 w-8 h-8 border-b-4 border-r-4 border-green-500 rounded-br-lg"></div>
+                                
+                                <!-- Scanning line animation -->
+                                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-green-500/20 to-transparent animate-scan-line"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- QR Reader Container -->
+                        <div id="qr-reader" class="w-full mx-auto rounded-lg overflow-hidden bg-black"></div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="bg-white/80 backdrop-blur-sm rounded-lg p-4 mb-4 border border-green-200">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-info-circle text-green-600 text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-800 mb-1">How to scan:</p>
+                                <ul class="text-xs text-gray-600 space-y-1 list-disc list-inside">
+                                    <li>Position the receipt QR code within the camera frame</li>
+                                    <li>Ensure good lighting and hold steady</li>
+                                    <li>The receipt will be automatically opened when scanned</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Messages -->
+                    <div id="scan-status" class="hidden mb-4 p-3 rounded-lg text-center font-semibold">
+                        <i class="fas mr-2"></i>
+                        <span></span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-center space-x-3">
+                        <button id="stop-scan-btn" class="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center">
+                            <i class="fas fa-stop mr-2"></i>
+                            Stop Scanning
+                        </button>
                     </div>
                 </div>
             </div>
@@ -131,127 +307,38 @@
             </div>
         </div>
 
-        <!-- Visual Analytics Section -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <!-- Compact Receipt Status Counts -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100/50 overflow-hidden mb-4">
+            <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200/50">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-line text-indigo-600"></i>
-                        </div>
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Receipt Status Analytics</h2>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        <span id="analyticsPeriod">All Time</span>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-chart-bar text-indigo-600 text-sm"></i>
+                        <h3 class="text-sm font-semibold text-gray-800">Status Summary</h3>
                     </div>
                 </div>
             </div>
-            <div class="p-4 sm:p-6">
-                <!-- Status Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-yellow-800">Pending</p>
-                                <p class="text-2xl font-bold text-yellow-900" id="pendingCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
-                            </div>
+            <div class="px-4 py-3">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div class="flex items-center justify-between sm:justify-start space-x-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <span class="text-xs text-gray-600">Pending:</span>
+                            <span class="text-sm font-bold text-yellow-700" id="pendingCount">0</span>
                         </div>
                     </div>
-                    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-red-800">Cancelled</p>
-                                <p class="text-2xl font-bold text-red-900" id="cancelledCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-times-circle text-red-600 text-xl"></i>
-                            </div>
+                    <div class="flex items-center justify-between sm:justify-start space-x-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <span class="text-xs text-gray-600">Cancelled:</span>
+                            <span class="text-sm font-bold text-red-700" id="cancelledCount">0</span>
                         </div>
                     </div>
-                    <div class="bg-green-50 border border-green-200 rounded-xl p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-green-800">Confirmed</p>
-                                <p class="text-2xl font-bold text-green-900" id="confirmedCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                            </div>
+                    <div class="flex items-center justify-between sm:justify-start space-x-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-xs text-gray-600">Confirmed:</span>
+                            <span class="text-sm font-bold text-green-700" id="confirmedCount">0</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Charts Row -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Status Distribution Chart -->
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4" id="chartTitle">Status Distribution</h3>
-                        <div class="relative">
-                            <canvas id="statusChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Revenue by Status -->
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue by Status</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                                    <span class="text-sm text-gray-700">Confirmed</span>
-                                </div>
-                                <span class="font-semibold text-green-600" id="confirmedRevenue">KSh 0.00</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                                    <span class="text-sm text-gray-700">Pending</span>
-                                </div>
-                                <span class="font-semibold text-yellow-600" id="pendingRevenue">KSh 0.00</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-2">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                                    <span class="text-sm text-gray-700">Cancelled</span>
-                                </div>
-                                <span class="font-semibold text-red-600" id="cancelledRevenue">KSh 0.00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Performance Metrics -->
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                            <i class="fas fa-percentage text-blue-600"></i>
-                        </div>
-                        <p class="text-sm font-medium text-blue-800">Completion Rate</p>
-                        <p class="text-xl font-bold text-blue-900" id="completionRate">0%</p>
-                    </div>
-                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                            <i class="fas fa-ban text-purple-600"></i>
-                        </div>
-                        <p class="text-sm font-medium text-purple-800">Cancellation Rate</p>
-                        <p class="text-xl font-bold text-purple-900" id="cancellationRate">0%</p>
-                    </div>
-                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                            <i class="fas fa-clock text-orange-600"></i>
-                        </div>
-                        <p class="text-sm font-medium text-orange-800">Pending Rate</p>
-                        <p class="text-xl font-bold text-orange-900" id="pendingRate">0%</p>
-                    </div>
-                    <div class="bg-teal-50 border border-teal-200 rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                            <i class="fas fa-money-bill-wave text-teal-600"></i>
-                        </div>
-                        <p class="text-sm font-medium text-teal-800">Total Revenue</p>
-                        <p class="text-xl font-bold text-teal-900" id="totalRevenue">KSh 0.00</p>
                     </div>
                 </div>
             </div>
@@ -295,7 +382,6 @@
                                     <option value="">Select Action</option>
                                     <option value="confirm">Mark as Confirmed</option>
                                     <option value="cancel">Mark as Cancelled</option>
-                                    <option value="pending">Mark as Pending</option>
                                 </select>
                                 <button id="applyStatus" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
                                     Apply Status
@@ -490,8 +576,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Initialize filter system
     function initializeFilterSystem() {
@@ -694,34 +778,13 @@
         document.getElementById('selectAll').checked = false;
         updateSelectedCount();
         
-        // Update analytics after filtering
-        setTimeout(updateAnalytics, 50);
-    }
-
-    // Initialize analytics system
-    function initializeAnalytics() {
-        // Calculate and display analytics for visible receipts
-        updateAnalytics();
+        // Update receipt counts after filtering
+        updateReceiptCounts();
         
-        // Update analytics when filters change
-        const applyFilterBtn = document.getElementById('applyFilter');
-        if (applyFilterBtn) {
-            applyFilterBtn.addEventListener('click', function() {
-                setTimeout(updateAnalytics, 100); // Small delay to ensure table is updated
-            });
-        }
-        
-        // Update analytics when search changes
-        const searchInput = document.getElementById('receiptSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                setTimeout(updateAnalytics, 100);
-            });
-        }
     }
     
-    // Update analytics based on visible receipts
-    function updateAnalytics() {
+    // Update receipt status counts
+    function updateReceiptCounts() {
         const visibleRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => 
             row.style.display !== 'none'
         );
@@ -729,38 +792,26 @@
         let pendingCount = 0;
         let cancelledCount = 0;
         let confirmedCount = 0;
-        let pendingRevenue = 0;
-        let cancelledRevenue = 0;
-        let confirmedRevenue = 0;
         
         visibleRows.forEach(row => {
             const statusElement = row.querySelector('[id^="status-"]');
-            const totalElement = row.querySelector('td:nth-child(3) span');
             
-            if (!statusElement || !totalElement) return;
+            if (!statusElement) return;
             
             const status = statusElement.textContent.trim().toLowerCase();
-            const totalText = totalElement.textContent.replace('KSh ', '').replace(',', '');
-            const total = parseFloat(totalText) || 0;
             
             switch(status) {
                 case 'pending':
                     pendingCount++;
-                    pendingRevenue += total;
                     break;
                 case 'cancelled':
                     cancelledCount++;
-                    cancelledRevenue += total;
                     break;
                 case 'confirmed':
                     confirmedCount++;
-                    confirmedRevenue += total;
                     break;
             }
         });
-        
-        const totalCount = pendingCount + cancelledCount + confirmedCount;
-        const totalRevenue = pendingRevenue + cancelledRevenue + confirmedRevenue;
         
         // Update counts
         document.getElementById('pendingCount').textContent = pendingCount;
@@ -768,274 +819,9 @@
         document.getElementById('confirmedCount').textContent = confirmedCount;
         
         // Update sidebar statistics
-        updateSidebarStatistics(pendingCount, cancelledCount, confirmedCount, totalCount);
-        
-        // Update revenue
-        document.getElementById('pendingRevenue').textContent = `KSh ${pendingRevenue.toFixed(2)}`;
-        document.getElementById('cancelledRevenue').textContent = `KSh ${cancelledRevenue.toFixed(2)}`;
-        document.getElementById('confirmedRevenue').textContent = `KSh ${confirmedRevenue.toFixed(2)}`;
-        document.getElementById('totalRevenue').textContent = `KSh ${totalRevenue.toFixed(2)}`;
-        
-        // Calculate rates
-        const completionRate = totalCount > 0 ? ((confirmedCount / totalCount) * 100).toFixed(1) : 0;
-        const cancellationRate = totalCount > 0 ? ((cancelledCount / totalCount) * 100).toFixed(1) : 0;
-        const pendingRate = totalCount > 0 ? ((pendingCount / totalCount) * 100).toFixed(1) : 0;
-        
-        // Update rates
-        document.getElementById('completionRate').textContent = `${completionRate}%`;
-        document.getElementById('cancellationRate').textContent = `${cancellationRate}%`;
-        document.getElementById('pendingRate').textContent = `${pendingRate}%`;
-        
-        // Update chart
-        updateStatusChart(pendingCount, cancelledCount, confirmedCount);
-        
-        // Update period display
-        updateAnalyticsPeriod();
+        updateSidebarStatistics(pendingCount, cancelledCount, confirmedCount, pendingCount + cancelledCount + confirmedCount);
     }
-    
-    // Update status distribution chart
-    function updateStatusChart(pending, cancelled, confirmed) {
-        const ctx = document.getElementById('statusChart');
-        if (!ctx) return;
-        
-        // Destroy existing chart if it exists
-        if (window.statusChartInstance) {
-            window.statusChartInstance.destroy();
-        }
-        
-        const filterType = document.getElementById('filterType').value;
-        const isMultiDay = filterType === 'range' || filterType === 'month' || filterType === 'year';
-        
-        if (isMultiDay) {
-            // Show line chart for trends when comparing multiple days
-            document.getElementById('chartTitle').textContent = 'Status Trends Over Time';
-            updateTrendChart(pending, cancelled, confirmed);
-        } else {
-            // Show pie chart for single day analysis
-            document.getElementById('chartTitle').textContent = 'Status Distribution';
-            updatePieChart(pending, cancelled, confirmed);
-        }
-    }
-    
-    // Update pie chart for single day analysis
-    function updatePieChart(pending, cancelled, confirmed) {
-        const ctx = document.getElementById('statusChart');
-        
-        window.statusChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Pending', 'Cancelled', 'Confirmed'],
-                datasets: [{
-                    data: [pending, cancelled, confirmed],
-                    backgroundColor: [
-                        '#F59E0B', // Yellow for pending
-                        '#EF4444', // Red for cancelled
-                        '#10B981'  // Green for confirmed
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Status Distribution (Single Day)',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Update trend chart for multi-day analysis
-    function updateTrendChart(pending, cancelled, confirmed) {
-        const ctx = document.getElementById('statusChart');
-        
-        // Generate sample trend data for demonstration
-        // In a real implementation, you would fetch actual daily data
-        const days = generateTrendData();
-        
-        window.statusChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: days.labels,
-                datasets: [
-                    {
-                        label: 'Pending',
-                        data: days.pending,
-                        borderColor: '#F59E0B',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Cancelled',
-                        data: days.cancelled,
-                        borderColor: '#EF4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Confirmed',
-                        data: days.confirmed,
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Status Trends Over Time',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            }
-        });
-    }
-    
-    // Generate trend data based on current filter
-    function generateTrendData() {
-        const filterType = document.getElementById('filterType').value;
-        let labels = [];
-        let pending = [];
-        let cancelled = [];
-        let confirmed = [];
-        
-        if (filterType === 'range') {
-            const fromDate = new Date(document.getElementById('fromDate').value);
-            const toDate = new Date(document.getElementById('toDate').value);
-            const daysDiff = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
-            
-            for (let i = 0; i < daysDiff; i++) {
-                const date = new Date(fromDate);
-                date.setDate(date.getDate() + i);
-                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                
-                // Generate sample data (in real implementation, fetch from database)
-                pending.push(Math.floor(Math.random() * 10) + 1);
-                cancelled.push(Math.floor(Math.random() * 5) + 1);
-                confirmed.push(Math.floor(Math.random() * 15) + 5);
-            }
-        } else if (filterType === 'month') {
-            const monthValue = document.getElementById('monthSelect').value;
-            const year = monthValue.split('-')[0];
-            const month = monthValue.split('-')[1];
-            const daysInMonth = new Date(year, month, 0).getDate();
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                labels.push(day.toString());
-                pending.push(Math.floor(Math.random() * 8) + 1);
-                cancelled.push(Math.floor(Math.random() * 4) + 1);
-                confirmed.push(Math.floor(Math.random() * 12) + 3);
-            }
-        } else if (filterType === 'year') {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            labels = months;
-            
-            for (let i = 0; i < 12; i++) {
-                pending.push(Math.floor(Math.random() * 50) + 10);
-                cancelled.push(Math.floor(Math.random() * 20) + 5);
-                confirmed.push(Math.floor(Math.random() * 100) + 20);
-            }
-        }
-        
-        return { labels, pending, cancelled, confirmed };
-    }
-    
-    // Update analytics period display
-    function updateAnalyticsPeriod() {
-        const filterType = document.getElementById('filterType').value;
-        const periodElement = document.getElementById('analyticsPeriod');
-        
-        let periodText = 'All Time';
-        
-        switch(filterType) {
-            case 'single':
-                const singleDate = document.getElementById('singleDate').value;
-                if (singleDate) {
-                    const date = new Date(singleDate);
-                    periodText = date.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                }
-                break;
-            case 'range':
-                const fromDate = document.getElementById('fromDate').value;
-                const toDate = document.getElementById('toDate').value;
-                if (fromDate && toDate) {
-                    const from = new Date(fromDate);
-                    const to = new Date(toDate);
-                    periodText = `${from.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${to.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-                }
-                break;
-            case 'month':
-                const monthValue = document.getElementById('monthSelect').value;
-                if (monthValue) {
-                    const date = new Date(monthValue + '-01');
-                    periodText = date.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long' 
-                    });
-                }
-                break;
-            case 'year':
-                const yearValue = document.getElementById('yearSelect').value;
-                if (yearValue) {
-                    periodText = yearValue;
-                }
-                break;
-        }
-        
-        periodElement.textContent = periodText;
-    }
+
     
     // Update sidebar statistics
     function updateSidebarStatistics(pendingCount, cancelledCount, confirmedCount, totalCount) {
@@ -1164,9 +950,8 @@
         // Initialize filter functionality
         initializeFilterSystem();
         
-        // Initialize analytics
-        initializeAnalytics();
-        
+        // Initialize receipt counts
+        updateReceiptCounts();
         
         // Add live search functionality
         const searchInput = document.getElementById('receiptSearch');
@@ -1410,11 +1195,17 @@
     function updateReceiptStatus(receiptIds, status) {
         const statusText = {
             'confirm': 'confirmed',
-            'cancel': 'cancelled',
-            'pending': 'pending'
+            'cancel': 'cancelled'
         };
         
-        const confirmMessage = `Are you sure you want to mark ${receiptIds.length} receipt(s) as ${statusText[status]}?`;
+        // Enhanced confirmation message with stock impact info
+        let confirmMessage = `Are you sure you want to mark ${receiptIds.length} receipt(s) as ${statusText[status]}?`;
+        
+        if (status === 'cancel') {
+            confirmMessage += `\n\n⚠️ This will:\n• Restore stock quantities for all items in the receipt(s)\n• Create cancellation transaction records\n• Cannot be undone easily`;
+        } else if (status === 'confirm') {
+            confirmMessage += `\n\n⚠️ This will:\n• Confirm the sale as completed\n• Only deduct stock if receipt was previously cancelled\n• Create transaction records if needed`;
+        }
         
         if (!confirm(confirmMessage)) {
             return;
@@ -1440,8 +1231,19 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Refresh the page to maintain proper sorting
-                alert(`Successfully updated ${receiptIds.length} receipt(s) status`);
+                // Show enhanced success message with stock update info
+                let message = `Successfully updated ${data.updated_count} receipt(s) status to ${statusText[status]}`;
+                if (data.stock_updates && data.stock_updates > 0) {
+                    message += `\n\nStock updates processed: ${data.stock_updates} items`;
+                    if (status === 'cancel') {
+                        message += '\n✓ Stock quantities restored for cancelled items';
+                    } else if (status === 'confirm') {
+                        message += '\n✓ Stock quantities deducted (receipt was previously cancelled)';
+                    }
+                } else if (status === 'confirm') {
+                    message += '\n✓ Receipt confirmed (no stock changes needed)';
+                }
+                alert(message);
                 window.location.reload();
             } else {
                 alert('Error updating status: ' + data.message);
@@ -1513,8 +1315,9 @@
         document.getElementById('selectAll').checked = false;
         updateSelectedCount();
         
-        // Update analytics after search
-        setTimeout(updateAnalytics, 50);
+        // Update receipt counts after search
+        updateReceiptCounts();
+        
     }
     
     // Check if all visible receipts are selected and clear search if so
@@ -1552,7 +1355,477 @@
             // Keep the selections - don't clear them
             // Just update the select all checkbox state
             updateSelectAllState();
+            
+            // Update receipt counts after clearing search
+            updateReceiptCounts();
         }
     }
+
+    // QR Code Scanning Functions
+    let qrScanner = null;
+    let isScanning = false;
+    let isProcessingScan = false;
+    let lastScannedReceipt = null;
+    let scanCooldown = 2000;
+    let confirmedReceipts = new Set(); // Track confirmed receipts to prevent duplicate confirmations
+
+    async function startQRScanner() {
+        if (isScanning) return;
+        
+        const qrReader = document.getElementById('qr-reader');
+        if (!qrReader) return;
+        
+        if (qrScanner) {
+            await stopQRScanner();
+        }
+        
+        qrReader.innerHTML = '';
+        
+        document.getElementById('qr-scanner-section').classList.remove('hidden');
+        showScanStatus('info', 'Starting camera...');
+        
+        try {
+            qrScanner = new Html5Qrcode("qr-reader");
+            
+            let cameraId = null;
+            
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                
+                if (devices && devices.length > 0) {
+                    const backCamera = devices.find(device => {
+                        const label = device.label ? device.label.toLowerCase() : '';
+                        return label.includes('back') || label.includes('rear') || label.includes('environment');
+                    });
+                    
+                    if (backCamera) {
+                        cameraId = backCamera.id;
+                    } else {
+                        cameraId = devices[0].id;
+                    }
+                }
+            } catch (camError) {
+                console.warn('Could not enumerate cameras, using default:', camError);
+            }
+            
+            const config = {
+                fps: 10,
+                qrbox: function(viewfinderWidth, viewfinderHeight) {
+                    const minEdgePercentage = 0.6;
+                    const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                    const qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                    return {
+                        width: qrboxSize,
+                        height: qrboxSize
+                    };
+                },
+                aspectRatio: 1.0
+            };
+            
+            if (cameraId) {
+                await qrScanner.start(
+                    cameraId,
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+            } else {
+                await qrScanner.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+            }
+            
+            isScanning = true;
+            showScanStatus('info', 'Camera ready! Point at the receipt QR code');
+            
+        } catch (error) {
+            console.error('Error starting QR scanner:', error);
+            isScanning = false;
+            qrScanner = null;
+            
+            let errorMessage = 'Error starting camera. ';
+            if (error.message.includes('NotAllowedError') || error.message.includes('Permission denied')) {
+                errorMessage += 'Please allow camera permissions in your browser settings.';
+            } else if (error.message.includes('NotFoundError')) {
+                errorMessage += 'No camera found on this device.';
+            } else {
+                errorMessage += error.message || 'Please check camera permissions.';
+            }
+            
+            showScanStatus('error', errorMessage);
+            alert(errorMessage);
+            
+            document.getElementById('qr-scanner-section').classList.add('hidden');
+        }
+    }
+    
+    async function stopQRScanner() {
+        if (qrScanner && isScanning) {
+            try {
+                await qrScanner.stop();
+                await qrScanner.clear();
+            } catch (err) {
+                console.error('Error stopping scanner:', err);
+                try {
+                    await qrScanner.clear();
+                } catch (clearErr) {
+                    console.error('Error clearing scanner:', clearErr);
+                }
+            }
+            qrScanner = null;
+            isScanning = false;
+            isProcessingScan = false;
+        }
+        
+        const qrReader = document.getElementById('qr-reader');
+        if (qrReader) {
+            qrReader.innerHTML = '';
+        }
+        
+        document.getElementById('qr-scanner-section').classList.add('hidden');
+        
+        const scanStatus = document.getElementById('scan-status');
+        if (scanStatus) {
+            scanStatus.classList.add('hidden');
+        }
+    }
+
+    function showScanStatus(type, message) {
+        const scanStatus = document.getElementById('scan-status');
+        if (!scanStatus) return;
+
+        scanStatus.classList.remove('success', 'error', 'warning', 'info', 'hidden');
+        scanStatus.classList.add(type);
+
+        const icon = scanStatus.querySelector('i');
+        const text = scanStatus.querySelector('span');
+        
+        if (icon) {
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle mr-2';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle mr-2';
+            } else if (type === 'warning') {
+                icon.className = 'fas fa-exclamation-triangle mr-2';
+            } else {
+                icon.className = 'fas fa-info-circle mr-2';
+            }
+        }
+        
+        if (text) {
+            text.textContent = message;
+        }
+
+        scanStatus.classList.remove('hidden');
+    }
+    
+    function onScanSuccess(decodedText, decodedResult) {
+        console.log('QR Code scanned:', decodedText);
+        
+        if (isProcessingScan) {
+            console.log('Already processing a scan, ignoring...');
+            return;
+        }
+
+        const receiptNumber = extractReceiptNumberFromUrl(decodedText);
+        if (!receiptNumber) {
+            showScanStatus('error', 'Invalid QR code. Please scan a valid receipt QR code.');
+            
+            setTimeout(() => {
+                if (isScanning) {
+                    showScanStatus('info', 'Camera ready! Point at the receipt QR code');
+                }
+            }, 2000);
+            return;
+        }
+        
+        const now = Date.now();
+        if (lastScannedReceipt && (now - lastScannedReceipt.timestamp) < scanCooldown) {
+            if (lastScannedReceipt.receiptNumber === receiptNumber) {
+                showScanStatus('warning', 'Please wait before scanning again...');
+                return;
+            }
+        }
+        
+        isProcessingScan = true;
+        lastScannedReceipt = {
+            receiptNumber: receiptNumber,
+            timestamp: now
+        };
+        
+        showScanStatus('info', 'Scanning receipt #' + receiptNumber + '...');
+        
+        // Confirm the receipt
+        confirmReceiptFromQR(receiptNumber);
+    }
+    
+    function onScanFailure(error) {
+        // Silently handle scan failures
+    }
+    
+    function extractReceiptNumberFromUrl(url) {
+        try {
+            console.log('Extracting receipt number from URL:', url);
+            
+            const match = url.match(/\/receipt\/([^\/\?#]+)/);
+            
+            if (match && match[1]) {
+                const receiptNumber = match[1];
+                console.log('Extracted receipt number:', receiptNumber);
+                return receiptNumber;
+            }
+            
+            console.warn('Could not extract receipt number from URL:', url);
+            return null;
+        } catch (error) {
+            console.error('Error extracting receipt number:', error);
+            return null;
+        }
+    }
+    
+    function getReceiptIdByReceiptNumber(receiptNumber) {
+        console.log('Looking up receipt by number:', receiptNumber);
+        return fetch(`/api/receipts?receipt_number=${encodeURIComponent(receiptNumber)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Receipt lookup response:', data);
+                if (data.success && data.receipts && data.receipts.length > 0) {
+                    // API should return exact match, but double-check
+                    const receipt = data.receipts.find(r => 
+                        String(r.receipt_number) === String(receiptNumber)
+                    ) || data.receipts[0]; // Fallback to first result
+                    
+                    if (receipt && receipt.id) {
+                        console.log('Found receipt ID:', receipt.id, 'for receipt number:', receiptNumber);
+                        return receipt.id;
+                    }
+                }
+                console.warn('Receipt not found for receipt number:', receiptNumber);
+                return null;
+            })
+            .catch(error => {
+                console.error('Error fetching receipt by number:', error);
+                return null;
+            });
+    }
+    
+    function confirmReceiptFromQR(receiptNumber, receiptId = null) {
+        // Check if already confirmed
+        if (confirmedReceipts.has(receiptNumber)) {
+            showScanStatus('warning', 'Receipt #' + receiptNumber + ' already confirmed!');
+            
+            setTimeout(() => {
+                isProcessingScan = false;
+                if (isScanning) {
+                    showScanStatus('info', 'Camera ready! Point at the receipt QR code');
+                }
+            }, 2000);
+            return;
+        }
+        
+        // If receiptId is not provided, look it up by receipt number
+        const confirmAction = receiptId ? 
+            Promise.resolve(receiptId) : 
+            getReceiptIdByReceiptNumber(receiptNumber);
+        
+        confirmAction
+            .then(id => {
+                // Try to find receipt in table first
+                if (!id) {
+                    const tableRows = document.querySelectorAll('tbody tr');
+                    tableRows.forEach(row => {
+                        const receiptNumElement = row.querySelector('td:nth-child(2) span');
+                        if (receiptNumElement && receiptNumElement.textContent.includes(receiptNumber)) {
+                            const checkbox = row.querySelector('.receipt-checkbox');
+                            if (checkbox) {
+                                id = parseInt(checkbox.dataset.receiptId);
+                            }
+                        }
+                    });
+                }
+                
+                if (!id) {
+                    throw new Error(`Receipt not found: ${receiptNumber}`);
+                }
+                
+                // Check if receipt is already confirmed by checking the status badge
+                const statusElement = document.getElementById(`status-${id}`);
+                if (statusElement && statusElement.textContent.trim().toLowerCase() === 'confirmed') {
+                    showScanStatus('warning', 'Receipt #' + receiptNumber + ' is already confirmed!');
+                    confirmedReceipts.add(receiptNumber);
+                    
+                    setTimeout(() => {
+                        isProcessingScan = false;
+                        if (isScanning) {
+                            showScanStatus('info', 'Camera ready! Scan next receipt...');
+                        }
+                    }, 2000);
+                    return Promise.reject(new Error('Receipt already confirmed'));
+                }
+                
+                // Show confirming status
+                showScanStatus('info', 'Confirming receipt #' + receiptNumber + '...');
+                
+                // Confirm using the receipt ID
+                return fetch(`/api/receipts/${id}/confirm`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json());
+            })
+            .then(data => {
+                if (data.success) {
+                    // Add to confirmed receipts set (use receipt number as key)
+                    confirmedReceipts.add(receiptNumber);
+                    
+                    // Show success status
+                    showScanStatus('success', 'Receipt #' + receiptNumber + ' confirmed successfully! ✓');
+                    
+                    // Update the status badge in the UI
+                    const tableRows = document.querySelectorAll('tbody tr');
+                    tableRows.forEach(row => {
+                        const receiptNumElement = row.querySelector('td:nth-child(2) span');
+                        if (receiptNumElement && receiptNumElement.textContent.includes(receiptNumber)) {
+                            const checkbox = row.querySelector('.receipt-checkbox');
+                            if (checkbox) {
+                                const receiptId = parseInt(checkbox.dataset.receiptId);
+                                updateStatusBadge(receiptId, 'confirmed');
+                            }
+                        }
+                    });
+                    
+                    // Update receipt counts after status change
+                    updateReceiptCounts();
+                    
+                    // Reset processing state after a delay
+                    setTimeout(() => {
+                        isProcessingScan = false;
+                        
+                        // Continue scanning for more receipts
+                        if (isScanning) {
+                            showScanStatus('info', 'Camera ready! Scan next receipt...');
+                            console.log('Ready to scan next receipt...');
+                        }
+                    }, 2000);
+                    
+                } else {
+                    // Show error status
+                    showScanStatus('error', data.message || 'Error confirming receipt');
+                    
+                    // Reset processing state after a delay
+                    setTimeout(() => {
+                        isProcessingScan = false;
+                        if (isScanning) {
+                            showScanStatus('info', 'Camera ready! Point at the receipt QR code');
+                        }
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error confirming receipt:', error);
+                const errorMsg = error.message || 'Error confirming receipt. Please try again.';
+                showScanStatus('error', errorMsg);
+                
+                // Reset processing state after a delay
+                setTimeout(() => {
+                    isProcessingScan = false;
+                    if (isScanning) {
+                        showScanStatus('info', 'Camera ready! Point at the receipt QR code');
+                    }
+                }, 3000);
+            });
+    }
+    
+    // Event Listeners for QR Scanner
+    document.getElementById('qr-scan-btn').addEventListener('click', function() {
+        startQRScanner();
+    });
+    
+    document.getElementById('stop-scan-btn').addEventListener('click', function() {
+        stopQRScanner();
+    });
 </script>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* QR Scanner Animations */
+    @keyframes scan-line {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+    }
+
+    .animate-scan-line {
+        animation: scan-line 2s ease-in-out infinite;
+    }
+
+    /* QR Reader styling */
+    #qr-reader {
+        min-height: 400px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    #qr-reader video {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+
+    #qr-reader canvas {
+        display: none;
+    }
+
+    #qr-reader div {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    #qr-reader div video {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Scanning status messages */
+    #scan-status.success {
+        background: linear-gradient(to right, #10b981, #059669);
+        color: white;
+    }
+
+    #scan-status.error {
+        background: linear-gradient(to right, #ef4444, #dc2626);
+        color: white;
+    }
+
+    #scan-status.warning {
+        background: linear-gradient(to right, #f59e0b, #d97706);
+        color: white;
+    }
+
+    #scan-status.info {
+        background: linear-gradient(to right, #3b82f6, #2563eb);
+        color: white;
+    }
+</style>
 {% endblock %}

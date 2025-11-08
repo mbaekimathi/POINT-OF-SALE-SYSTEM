@@ -41,6 +41,7 @@
     </div>
 </a>
 
+
 <!-- Stock Analytics -->
 <a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
     <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
@@ -71,6 +72,17 @@
     <div>
         <p class="font-semibold">Period Analytics</p>
         <p class="text-xs text-white/70">Time-based reports</p>
+    </div>
+</a>
+
+<!-- Receipt Analytics -->
+<a href="/receipts" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipt Analytics</p>
+        <p class="text-xs text-white/70">Receipt insights</p>
     </div>
 </a>
 
@@ -116,178 +128,70 @@
     </div>
 </div>
 
-<!-- Analytics Navigation Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+<!-- Analytics Overview -->
+<div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden mb-8">
+    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-8 border-b border-gray-200/50">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-chart-pie text-white text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Analytics Overview</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Access comprehensive analytics and reporting tools from the sidebar. Each section provides detailed insights into different aspects of your business performance.</p>
+        </div>
+    </div>
     
-    <!-- Sales Analytics Card - Admin Only -->
-    {% if employee_role == 'admin' %}
-    <div class="group bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-line text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-lg">Sales Analytics</h3>
-                        <p class="text-blue-100 text-sm">Revenue & transaction insights</p>
-                    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Quick Stats -->
+            <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-chart-line text-white text-lg"></i>
                 </div>
-                <div class="text-white/60 group-hover:text-white transition-colors">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Sales Performance</h3>
+                <p class="text-sm text-gray-600">Track revenue and transactions</p>
             </div>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-600 text-sm mb-4">Analyze sales performance, revenue trends, and transaction patterns to optimize your business operations.</p>
-            <a href="/analytics/sales" class="inline-flex items-center justify-center w-full bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 transition-colors duration-200 font-medium">
-                <i class="fas fa-chart-line mr-2"></i>
-                View Sales Analytics
-            </a>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Item Analytics Card -->
-    <div class="group bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
-        <div class="bg-gradient-to-br from-green-500 to-green-600 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-box text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-lg">Item Analytics</h3>
-                        <p class="text-green-100 text-sm">Product performance metrics</p>
-                    </div>
+            
+            <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-box text-white text-lg"></i>
                 </div>
-                <div class="text-white/60 group-hover:text-white transition-colors">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Item Insights</h3>
+                <p class="text-sm text-gray-600">Product performance metrics</p>
             </div>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-600 text-sm mb-4">Track item popularity, pricing effectiveness, and category performance to optimize your menu.</p>
-            <a href="/analytics/items" class="inline-flex items-center justify-center w-full bg-green-500 text-white px-4 py-3 rounded-xl hover:bg-green-600 transition-colors duration-200 font-medium">
-                <i class="fas fa-box mr-2"></i>
-                View Item Analytics
-            </a>
-        </div>
-    </div>
-
-    <!-- Stock Analytics Card -->
-    <div class="group bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
-        <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-warehouse text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-lg">Stock Analytics</h3>
-                        <p class="text-orange-100 text-sm">Inventory management insights</p>
-                    </div>
+            
+            <div class="text-center p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
+                <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-warehouse text-white text-lg"></i>
                 </div>
-                <div class="text-white/60 group-hover:text-white transition-colors">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Stock Management</h3>
+                <p class="text-sm text-gray-600">Inventory optimization</p>
             </div>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-600 text-sm mb-4">Monitor stock levels, turnover rates, and inventory trends to prevent stockouts and optimize ordering.</p>
-            <a href="/analytics/stock" class="inline-flex items-center justify-center w-full bg-orange-500 text-white px-4 py-3 rounded-xl hover:bg-orange-600 transition-colors duration-200 font-medium">
-                <i class="fas fa-warehouse mr-2"></i>
-                View Stock Analytics
-            </a>
-        </div>
-    </div>
-
-    <!-- Employee Analytics Card -->
-    <div class="group bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-users text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-lg">Employee Analytics</h3>
-                        <p class="text-purple-100 text-sm">Staff performance metrics</p>
-                    </div>
+            
+            <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-users text-white text-lg"></i>
                 </div>
-                <div class="text-white/60 group-hover:text-white transition-colors">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Team Performance</h3>
+                <p class="text-sm text-gray-600">Employee analytics</p>
             </div>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-600 text-sm mb-4">Analyze employee performance, sales contributions, and productivity metrics to optimize staffing.</p>
-            <a href="/analytics/employees" class="inline-flex items-center justify-center w-full bg-purple-500 text-white px-4 py-3 rounded-xl hover:bg-purple-600 transition-colors duration-200 font-medium">
-                <i class="fas fa-users mr-2"></i>
-                View Employee Analytics
-            </a>
-        </div>
-    </div>
-
-    <!-- Period Analytics Card -->
-    <div class="group bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
-        <div class="bg-gradient-to-br from-teal-500 to-teal-600 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-calendar-alt text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-lg">Period Analytics</h3>
-                        <p class="text-teal-100 text-sm">Time-based performance analysis</p>
-                    </div>
+            
+            <div class="text-center p-6 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl">
+                <div class="w-12 h-12 bg-teal-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-calendar-alt text-white text-lg"></i>
                 </div>
-                <div class="text-white/60 group-hover:text-white transition-colors">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </div>
+                <h3 class="font-semibold text-gray-800 mb-1">Time Analysis</h3>
+                <p class="text-sm text-gray-600">Period comparisons</p>
             </div>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-600 text-sm mb-4">Compare performance across different time periods, seasons, and business cycles for strategic planning.</p>
-            <a href="/analytics/periods" class="inline-flex items-center justify-center w-full bg-teal-500 text-white px-4 py-3 rounded-xl hover:bg-teal-600 transition-colors duration-200 font-medium">
-                <i class="fas fa-calendar-alt mr-2"></i>
-                View Period Analytics
-            </a>
-        </div>
-    </div>
-
-    <!-- Quick Actions Card -->
-    <div class="group bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
-        <div class="bg-gradient-to-br from-gray-600 to-gray-700 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-bolt text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold text-lg">Quick Actions</h3>
-                        <p class="text-gray-200 text-sm">Common analytics tasks</p>
-                    </div>
+            
+            <div class="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
+                <div class="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-receipt text-white text-lg"></i>
                 </div>
-                <div class="text-white/60 group-hover:text-white transition-colors">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                </div>
-            </div>
-        </div>
-        <div class="p-6">
-            <div class="space-y-3">
-                <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium">
-                    <i class="fas fa-download mr-2"></i>
-                    Export Reports
-                </button>
-                <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium">
-                    <i class="fas fa-cog mr-2"></i>
-                    Analytics Settings
-                </button>
+                <h3 class="font-semibold text-gray-800 mb-1">Receipt Data</h3>
+                <p class="text-sm text-gray-600">Transaction insights</p>
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- Recent Activity Section -->

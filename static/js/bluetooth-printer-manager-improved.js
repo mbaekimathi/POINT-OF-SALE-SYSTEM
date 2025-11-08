@@ -88,11 +88,65 @@ class EnhancedBluetoothPrinterManager {
                     });
                 });
                 
-                // Auto-reconnection disabled - user must manually connect
-                console.log('Auto-reconnection disabled. User must manually connect printers.');
+                // Try to reconnect to previously paired devices using getDevices()
+                this.attemptReconnectFromPairedDevices();
             }
         } catch (error) {
             console.error('Error loading persisted connections:', error);
+        }
+    }
+
+    // Attempt to reconnect to previously paired devices without showing picker
+    async attemptReconnectFromPairedDevices() {
+        if (!this.supportsGetDevices) {
+            console.log('getDevices() not supported, skipping auto-reconnect');
+            return;
+        }
+
+        try {
+            const pairedDevices = await navigator.bluetooth.getDevices();
+            console.log('Found previously paired devices:', pairedDevices.length);
+
+            // Try to match paired devices with saved printer connections
+            for (const [printerId, printer] of this.connectedPrinters.entries()) {
+                if (printer.status === 'disconnected') {
+                    // Find matching paired device
+                    const matchedDevice = pairedDevices.find(d => 
+                        d.id === printer.deviceId || d.name === printer.name
+                    );
+
+                    if (matchedDevice) {
+                        console.log(`Attempting to reconnect to ${printer.name} from paired devices...`);
+                        try {
+                            // Try to reconnect without showing picker
+                            if (matchedDevice.gatt.connected) {
+                                // Already connected, just use it
+                                printer.device = matchedDevice;
+                                printer.server = matchedDevice.gatt;
+                                printer.status = 'connected';
+                                this.setupDeviceEventListeners(matchedDevice, printerId);
+                                console.log(`Successfully reconnected to ${printer.name}`);
+                                this.notifyConnectionStatus('reconnected', printer);
+                            } else {
+                                // Connect to GATT server
+                                const server = await this.connectWithTimeout(matchedDevice);
+                                printer.device = matchedDevice;
+                                printer.server = server;
+                                printer.status = 'connected';
+                                this.setupDeviceEventListeners(matchedDevice, printerId);
+                                console.log(`Successfully reconnected to ${printer.name}`);
+                                this.notifyConnectionStatus('reconnected', printer);
+                            }
+                        } catch (error) {
+                            console.log(`Failed to reconnect to ${printer.name}:`, error.message);
+                        }
+                    }
+                }
+            }
+
+            this.savePersistedConnections();
+        } catch (error) {
+            console.error('Error attempting reconnect from paired devices:', error);
         }
     }
 
@@ -115,9 +169,29 @@ class EnhancedBluetoothPrinterManager {
     }
 
     // Add a new Bluetooth printer connection with improved error handling
+    // Supports multiple devices connecting to the same printer
     async addPrinter(device, server) {
         try {
             const deviceName = device.name || 'Bluetooth Printer';
+            
+            // Check if this device is already connected (by deviceId)
+            const existingPrinter = Array.from(this.connectedPrinters.values()).find(
+                p => p.deviceId === device.id && p.status === 'connected'
+            );
+
+            if (existingPrinter) {
+                console.log(`Printer ${deviceName} already connected as ${existingPrinter.id}, updating connection...`);
+                // Update existing connection
+                existingPrinter.device = device;
+                existingPrinter.server = server;
+                existingPrinter.status = 'connected';
+                existingPrinter.lastUsed = new Date().toISOString();
+                this.setupDeviceEventListeners(device, existingPrinter.id);
+                this.savePersistedConnections();
+                return existingPrinter.id;
+            }
+
+            // Create new printer connection
             const printerId = `ble_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             
             const printerData = {
@@ -130,7 +204,8 @@ class EnhancedBluetoothPrinterManager {
                 connectedAt: new Date().toISOString(),
                 lastUsed: new Date().toISOString(),
                 browserInfo: this.browserInfo.name,
-                connectionAttempts: 0
+                connectionAttempts: 0,
+                shared: true // Allow sharing across tabs/devices
             };
 
             this.connectedPrinters.set(printerId, printerData);
@@ -139,12 +214,76 @@ class EnhancedBluetoothPrinterManager {
             // Set up device event listeners
             this.setupDeviceEventListeners(device, printerId);
             
+            // Broadcast connection to other tabs
+            this.broadcastConnectionState('connected', printerData);
+            
             console.log(`Added printer: ${deviceName} (${printerId})`);
             return printerId;
             
         } catch (error) {
             console.error('Error adding printer:', error);
             throw error;
+        }
+    }
+
+    // Broadcast connection state to other tabs/devices
+    broadcastConnectionState(type, printer) {
+        try {
+            // Use BroadcastChannel for cross-tab communication
+            if (typeof BroadcastChannel !== 'undefined') {
+                if (!this.broadcastChannel) {
+                    this.broadcastChannel = new BroadcastChannel('bluetooth-printer-connections');
+                    this.broadcastChannel.onmessage = (event) => {
+                        this.handleBroadcastMessage(event.data);
+                    };
+                }
+
+                this.broadcastChannel.postMessage({
+                    type: type,
+                    printer: {
+                        id: printer.id,
+                        name: printer.name,
+                        deviceId: printer.deviceId,
+                        status: printer.status,
+                        connectedAt: printer.connectedAt,
+                        lastUsed: printer.lastUsed
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error broadcasting connection state:', error);
+        }
+    }
+
+    // Handle broadcast messages from other tabs
+    handleBroadcastMessage(data) {
+        if (data.type === 'connected' || data.type === 'reconnected') {
+            // Another tab connected to a printer - update our state
+            const existingPrinter = Array.from(this.connectedPrinters.values()).find(
+                p => p.deviceId === data.printer.deviceId
+            );
+
+            if (existingPrinter && existingPrinter.status === 'disconnected') {
+                // Update disconnected printer info
+                existingPrinter.name = data.printer.name;
+                existingPrinter.connectedAt = data.printer.connectedAt;
+                existingPrinter.lastUsed = data.printer.lastUsed;
+                console.log(`Received connection update from another tab for ${data.printer.name}`);
+                this.savePersistedConnections();
+            }
+        } else if (data.type === 'disconnected') {
+            // Another tab disconnected - update our state
+            const existingPrinter = Array.from(this.connectedPrinters.values()).find(
+                p => p.deviceId === data.printer.deviceId
+            );
+
+            if (existingPrinter) {
+                existingPrinter.status = 'disconnected';
+                existingPrinter.device = null;
+                existingPrinter.server = null;
+                console.log(`Received disconnection update from another tab for ${data.printer.name}`);
+                this.savePersistedConnections();
+            }
         }
     }
 
@@ -165,9 +304,19 @@ class EnhancedBluetoothPrinterManager {
             printer.server = null;
             printer.connectionAttempts = (printer.connectionAttempts || 0) + 1;
             
-            // Auto-reconnection disabled
-            console.log(`Printer ${printerId} disconnected. Auto-reconnection disabled.`);
+            // Broadcast disconnection to other tabs
+            this.broadcastConnectionState('disconnected', printer);
+            
+            // Try to reconnect using getDevices() if supported
+            if (this.supportsGetDevices && printer.shared) {
+                console.log(`Printer ${printerId} disconnected. Attempting to reconnect from paired devices...`);
+                this.attemptReconnectFromPairedDevices();
+            } else {
+                console.log(`Printer ${printerId} disconnected.`);
+            }
+            
             this.notifyConnectionStatus('disconnected', printer);
+            this.savePersistedConnections();
         }
     }
 
@@ -191,10 +340,11 @@ class EnhancedBluetoothPrinterManager {
     }
 
     // Enhanced reconnection with better error handling and timeout
-    async attemptReconnection(printerId) {
+    // Now supports reconnecting without showing picker if device is already paired
+    async attemptReconnection(printerId, showPicker = false) {
         const printer = this.connectedPrinters.get(printerId);
         if (!printer) {
-            return;
+            return false;
         }
 
         console.log(`Attempting to reconnect printer ${printerId}: ${printer.name}`);
@@ -203,26 +353,48 @@ class EnhancedBluetoothPrinterManager {
             // First, try to get previously paired devices without showing picker
             let device = null;
             
-            if (this.supportsGetDevices) {
+            if (this.supportsGetDevices && !showPicker) {
                 try {
                     const pairedDevices = await navigator.bluetooth.getDevices();
                     device = pairedDevices.find(d => d.id === printer.deviceId || d.name === printer.name);
                     console.log(`Found paired device for ${printer.name}:`, device ? 'Yes' : 'No');
+                    
+                    // If device is already connected, just use it
+                    if (device && device.gatt.connected) {
+                        printer.device = device;
+                        printer.server = device.gatt;
+                        printer.status = 'connected';
+                        printer.lastUsed = new Date().toISOString();
+                        printer.connectionAttempts = 0;
+                        this.setupDeviceEventListeners(device, printerId);
+                        this.broadcastConnectionState('reconnected', printer);
+                        this.savePersistedConnections();
+                        console.log(`Successfully reconnected to already-connected device ${printer.name}`);
+                        return true;
+                    }
                 } catch (error) {
                     console.log('getDevices() failed, falling back to requestDevice');
                 }
             }
 
-            // If not found in paired devices, try requestDevice (this will show picker)
-            if (!device) {
-                console.log(`Device not found in paired devices, requesting device selection for ${printer.name}`);
+            // If not found in paired devices or showPicker is true, try requestDevice (this will show picker)
+            if (!device || showPicker) {
+                console.log(`Device not found in paired devices or picker requested, requesting device selection for ${printer.name}`);
                 device = await this.requestDeviceWithTimeout();
             }
 
             // Check if this is the device we're looking for
             if (device && (device.id === printer.deviceId || device.name === printer.name)) {
                 const connectionStartTime = Date.now();
-                const server = await this.connectWithTimeout(device);
+                
+                // Connect only if not already connected
+                let server;
+                if (device.gatt.connected) {
+                    server = device.gatt;
+                } else {
+                    server = await this.connectWithTimeout(device);
+                }
+                
                 const connectionTime = Date.now() - connectionStartTime;
                 
                 // Record connection time
@@ -236,15 +408,21 @@ class EnhancedBluetoothPrinterManager {
                 
                 this.setupDeviceEventListeners(device, printerId);
                 
+                // Broadcast reconnection to other tabs
+                this.broadcastConnectionState('reconnected', printer);
+                
                 console.log(`Successfully reconnected printer ${printerId}: ${printer.name} in ${connectionTime}ms`);
                 this.notifyConnectionStatus('reconnected', printer);
                 this.savePersistedConnections();
+                return true;
             } else {
                 console.log(`Device found but doesn't match printer ${printerId}`);
+                return false;
             }
         } catch (error) {
             console.log(`Reconnection attempt failed for printer ${printerId}:`, error.message);
             this.notifyConnectionStatus('failed', printer);
+            return false;
         }
     }
 

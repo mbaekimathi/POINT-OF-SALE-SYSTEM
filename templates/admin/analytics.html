@@ -6,58 +6,80 @@
 {% block sidebar_title %}Admin Panel{% endblock %}
 
 {% block sidebar_nav %}
-<!-- Role Page View -->
-<a href="/admin/role-page-view" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
-    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-eye text-white text-lg"></i>
+<!-- Analytics Dashboard -->
+<a href="/admin/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
     </div>
     <div>
-        <p class="font-semibold">Role Page View</p>
-        <p class="text-xs text-white/70">View all roles</p>
+        <p class="font-semibold">Analytics Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
     </div>
 </a>
 
-<!-- Human Resource Management -->
-<a href="/admin/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+<!-- Sales Analytics -->
+<a href="/analytics/sales" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Sales Analytics</p>
+        <p class="text-xs text-white/70">Revenue & transactions</p>
+    </div>
+</a>
+
+<!-- Item Analytics -->
+<a href="/analytics/items" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-box text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Analytics</p>
+        <p class="text-xs text-white/70">Product performance</p>
+    </div>
+</a>
+
+<!-- Stock Analytics -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Analytics</p>
+        <p class="text-xs text-white/70">Inventory insights</p>
+    </div>
+</a>
+
+<!-- Employee Analytics -->
+<a href="/analytics/employees" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
     <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
         <i class="fas fa-users text-white text-lg"></i>
     </div>
     <div>
-        <p class="font-semibold">Human Resources</p>
-        <p class="text-xs text-white/70">Manage employees</p>
+        <p class="font-semibold">Employee Analytics</p>
+        <p class="text-xs text-white/70">Staff performance</p>
     </div>
 </a>
 
-<!-- Item Management -->
-<a href="/admin/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+<!-- Period Analytics -->
+<a href="/analytics/periods" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
     <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-boxes text-white text-lg"></i>
+        <i class="fas fa-calendar-alt text-white text-lg"></i>
     </div>
     <div>
-        <p class="font-semibold">Item Management</p>
-        <p class="text-xs text-white/70">Manage inventory</p>
+        <p class="font-semibold">Period Analytics</p>
+        <p class="text-xs text-white/70">Time-based reports</p>
     </div>
 </a>
 
-<!-- Analytics -->
-<a href="/admin/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
-    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
-        <i class="fas fa-chart-line text-white text-lg"></i>
-    </div>
-    <div>
-        <p class="font-semibold">Analytics</p>
-        <p class="text-xs text-white/70">Reports & insights</p>
-    </div>
-</a>
-
-<!-- Settings -->
-<a href="/admin/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+<!-- Receipt Analytics -->
+<a href="/receipts" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
     <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
-        <i class="fas fa-cog text-white text-lg"></i>
+        <i class="fas fa-receipt text-white text-lg"></i>
     </div>
     <div>
-        <p class="font-semibold">Settings</p>
-        <p class="text-xs text-white/70">System configuration</p>
+        <p class="font-semibold">Receipt Analytics</p>
+        <p class="text-xs text-white/70">Receipt insights</p>
     </div>
 </a>
 {% endblock %}
@@ -84,106 +106,6 @@
     </div>
 </div>
 
-<!-- Analytics Navigation Links - Moved to Top -->
-<div class="bg-white rounded-3xl shadow-2xl border border-gray-100 mb-6 sm:mb-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-    <div class="p-4 sm:p-6 lg:p-8 border-b border-gray-200">
-        <div class="flex items-center gap-3 mb-3">
-            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <i class="fas fa-chart-bar text-white text-sm"></i>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Analytics Sections</h2>
-        </div>
-        <p class="text-gray-600 text-sm sm:text-base">Navigate to specific analytics areas for detailed insights</p>
-    </div>
-    <div class="p-4 sm:p-6 lg:p-8">
-        <!-- Navigation Links as Simple List -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <!-- Sales Analytics -->
-            <a href="/analytics/sales" class="group flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-md animate-fade-in-up" style="animation-delay: 0.3s;">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-200">
-                        <i class="fas fa-chart-line text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 group-hover:text-blue-600">Sales Analytics</h3>
-                        <p class="text-sm text-gray-600">Revenue & transaction insights</p>
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:text-blue-500 transition-colors"></i>
-            </a>
-
-            <!-- Item Analytics -->
-            <a href="/analytics/items" class="group flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-xl border border-green-200 hover:border-green-300 transition-all duration-300 hover:shadow-md animate-fade-in-up" style="animation-delay: 0.4s;">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center group-hover:bg-green-600 transition-colors duration-200">
-                        <i class="fas fa-box text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 group-hover:text-green-600">Item Analytics</h3>
-                        <p class="text-sm text-gray-600">Product performance metrics</p>
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:text-green-500 transition-colors"></i>
-            </a>
-
-            <!-- Stock Analytics -->
-            <a href="/analytics/stock" class="group flex items-center justify-between p-4 bg-orange-50 hover:bg-orange-100 rounded-xl border border-orange-200 hover:border-orange-300 transition-all duration-300 hover:shadow-md animate-fade-in-up" style="animation-delay: 0.5s;">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center group-hover:bg-orange-600 transition-colors duration-200">
-                        <i class="fas fa-warehouse text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 group-hover:text-orange-600">Stock Analytics</h3>
-                        <p class="text-sm text-gray-600">Inventory management insights</p>
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:text-orange-500 transition-colors"></i>
-            </a>
-
-            <!-- Employee Analytics -->
-            <a href="/analytics/employees" class="group flex items-center justify-between p-4 bg-purple-50 hover:bg-purple-100 rounded-xl border border-purple-200 hover:border-purple-300 transition-all duration-300 hover:shadow-md animate-fade-in-up" style="animation-delay: 0.6s;">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition-colors duration-200">
-                        <i class="fas fa-users text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 group-hover:text-purple-600">Employee Analytics</h3>
-                        <p class="text-sm text-gray-600">Staff performance metrics</p>
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:text-purple-500 transition-colors"></i>
-            </a>
-
-            <!-- Period Analytics -->
-            <a href="/analytics/periods" class="group flex items-center justify-between p-4 bg-teal-50 hover:bg-teal-100 rounded-xl border border-teal-200 hover:border-teal-300 transition-all duration-300 hover:shadow-md animate-fade-in-up" style="animation-delay: 0.7s;">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center group-hover:bg-teal-600 transition-colors duration-200">
-                        <i class="fas fa-calendar-alt text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 group-hover:text-teal-600">Period Analytics</h3>
-                        <p class="text-sm text-gray-600">Time-based performance analysis</p>
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:text-teal-500 transition-colors"></i>
-            </a>
-
-            <!-- Receipts Management -->
-            <a href="/receipts" class="group flex items-center justify-between p-4 bg-indigo-50 hover:bg-indigo-100 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all duration-300 hover:shadow-md animate-fade-in-up" style="animation-delay: 0.8s;">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 transition-colors duration-200">
-                        <i class="fas fa-receipt text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-800 group-hover:text-indigo-600">Receipts Management</h3>
-                        <p class="text-sm text-gray-600">View and manage all receipts</p>
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:text-indigo-500 transition-colors"></i>
-            </a>
-        </div>
-    </div>
-</div>
 
 <!-- Live Business Intelligence Dashboard -->
 <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 mb-6 sm:mb-8 animate-fade-in-up" style="animation-delay: 0.9s;">

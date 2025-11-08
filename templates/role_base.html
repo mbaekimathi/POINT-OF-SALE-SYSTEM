@@ -118,13 +118,19 @@
                     <button id="sidebar-toggle" class="lg:hidden p-2 lg:p-3 rounded-xl text-gray-600 hover:text-primary-orange hover:bg-gray-100 transition-all duration-200">
                         <i class="fas fa-bars text-lg lg:text-xl"></i>
                     </button>
-                    <div class="flex items-center ml-2 lg:ml-4">
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-primary-orange to-primary-blue rounded-2xl flex items-center justify-center shadow-lg">
+                    <div class="flex items-center ml-2 lg:ml-4 space-x-3">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-primary-orange via-primary-orange to-primary-blue rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
                             <i class="fas fa-hotel text-white text-lg lg:text-xl"></i>
                         </div>
-                        <div class="ml-2 lg:ml-4">
-                            <h1 class="text-lg lg:text-2xl font-bold text-gray-800">{{ hotel_settings.hotel_name if hotel_settings else 'Hotel POS' }}</h1>
-                            <p class="text-xs lg:text-sm text-gray-500 hidden sm:block">Management System</p>
+                        <div>
+                            <h1 class="text-lg lg:text-2xl font-bold text-gray-800 tracking-tight">
+                                {% if hotel_settings and hotel_settings.hotel_name %}
+                                    {{ hotel_settings.hotel_name }}
+                                {% else %}
+                                    Hotel POS
+                                {% endif %}
+                            </h1>
+                            <p class="text-xs lg:text-sm text-gray-500 hidden sm:block">Point of Sale System</p>
                         </div>
                     </div>
                 </div>
@@ -268,7 +274,9 @@
                         <i class="fas fa-hotel text-white text-lg"></i>
                     </div>
                     <div>
-                        <span class="text-gray-600 text-sm font-medium">© 2024 {{ hotel_settings.hotel_name if hotel_settings else 'Hotel POS System' }}</span>
+                        <span class="text-gray-600 text-sm font-medium">
+                            © 2024 {% if hotel_settings and hotel_settings.hotel_name %}{{ hotel_settings.hotel_name }}{% else %}Hotel POS System{% endif %}
+                        </span>
                         <p class="text-gray-500 text-xs">All rights reserved • Secure & Reliable</p>
                     </div>
                 </div>
@@ -384,6 +392,52 @@
                     });
                 }
             });
+        });
+    </script>
+    
+    <!-- Printer Management Scripts - Load before extra_scripts so managers are available -->
+    <script src="/static/js/bluetooth-printer-manager-improved.js"></script>
+    <script src="/static/js/wifi-printer-manager.js"></script>
+    <script src="/static/js/unified-printer-manager.js"></script>
+    
+    <!-- Initialize Printer Managers - Must initialize before POS scripts use them -->
+    <script>
+        // Wait for DOM to be ready before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fallback to original manager if enhanced version fails
+            if (typeof window.enhancedBluetoothPrinterManager === 'undefined') {
+                console.warn('Enhanced Bluetooth manager failed to load, falling back to original');
+                const script = document.createElement('script');
+                script.src = '/static/js/bluetooth-printer-manager.js';
+                script.onload = function() {
+                    // Create compatibility wrapper
+                    window.bluetoothPrinterManager = window.bluetoothPrinterManager || new BluetoothPrinterManager();
+                    console.log('Bluetooth printer manager initialized (fallback)');
+                };
+                document.head.appendChild(script);
+            } else {
+                // Use enhanced manager as primary
+                window.bluetoothPrinterManager = window.enhancedBluetoothPrinterManager;
+                console.log('Enhanced Bluetooth printer manager initialized');
+            }
+
+            // Initialize WiFi printer manager
+            setTimeout(function() {
+                if (typeof window.WiFiPrinterManager !== 'undefined') {
+                    window.wifiPrinterManager = new window.WiFiPrinterManager();
+                    console.log('WiFi printer manager initialized');
+                } else {
+                    console.warn('WiFi printer manager not available');
+                }
+
+                // Initialize unified printer manager
+                if (typeof window.UnifiedPrinterManager !== 'undefined' && window.bluetoothPrinterManager && window.wifiPrinterManager) {
+                    window.unifiedPrinterManager = new window.UnifiedPrinterManager(window.bluetoothPrinterManager, window.wifiPrinterManager);
+                    console.log('Unified printer manager initialized');
+                } else {
+                    console.warn('Unified printer manager not available');
+                }
+            }, 100);
         });
     </script>
     

@@ -102,7 +102,45 @@
           <div><span class="font-medium">HELB:</span> <span id="detail-helb"></span></div>
         </div>
       </div>
-      <button id="detail-edit-btn" class="mt-4 inline-flex items-center gap-2 px-5 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring ring-blue-200 transition font-semibold"><i class="fas fa-pen"></i>Edit</button>
+      <div class="mt-4 flex gap-3 justify-center flex-wrap">
+        <button id="detail-edit-btn" class="inline-flex items-center gap-2 px-5 py-2 text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring ring-blue-200 transition font-semibold"><i class="fas fa-pen"></i>Edit</button>
+        <button id="detail-payment-btn" class="inline-flex items-center gap-2 px-5 py-2 text-white bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring ring-green-200 transition font-semibold"><i class="fas fa-money-bill-wave"></i>Record Payment</button>
+        <a id="detail-transactions-btn" href="#" class="inline-flex items-center gap-2 px-5 py-2 text-white bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl shadow hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring ring-purple-200 transition font-semibold"><i class="fas fa-history"></i>View Transactions</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-3 p-0 animate-fade-in-up relative overflow-hidden">
+    <button id="payment-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-blue-700 transition-colors text-2xl"><i class="fas fa-times"></i></button>
+    <div class="bg-gradient-to-r from-green-50 to-blue-50 px-6 py-6 border-b border-gray-200 rounded-t-3xl">
+      <h2 class="text-2xl font-bold text-gray-900">Record Salary Payment</h2>
+      <p class="text-gray-600 text-sm mt-1">Record payment made to employee</p>
+    </div>
+    <div class="p-6">
+      <form id="payment-form" class="space-y-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Employee</label>
+          <input id="payment-employee-name" type="text" readonly class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-700 font-bold">
+          <input id="payment-employee-id" type="hidden">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Amount Paid (KES)</label>
+          <input id="payment-amount" type="number" step="0.01" min="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" placeholder="0.00" required>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Date</label>
+          <input id="payment-date" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white" required>
+        </div>
+        <div class="flex justify-end space-x-4 pt-4">
+          <button type="button" id="payment-cancel-btn" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold">Cancel</button>
+          <button type="submit" class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+            <i class="fas fa-check mr-2"></i>Record Payment
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -333,6 +371,8 @@
               <div class="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-10 sm:opacity-100 sm:static">
                 <button aria-label="View Details" class="focus:outline-none bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl p-2 shadow-sm transition-all view-payroll-btn" data-payroll='${JSON.stringify(pay).replace(/'/g,"&#39;")}'><i class="fas fa-eye"></i></button>
                 <button aria-label="Edit Payroll" class="focus:outline-none bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl p-2 shadow-sm transition-all edit-payroll-btn" data-payroll='${JSON.stringify(pay).replace(/'/g,"&#39;")}'><i class="fas fa-pen"></i></button>
+                <button aria-label="Make Payment" class="focus:outline-none bg-green-50 hover:bg-green-100 text-green-700 rounded-xl p-2 shadow-sm transition-all make-payment-btn" data-payroll='${JSON.stringify(pay).replace(/'/g,"&#39;")}'><i class="fas fa-money-bill-wave"></i></button>
+                <a href="/admin/payroll-transactions/${pay.employee_id}" aria-label="View Transactions" class="focus:outline-none bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl p-2 shadow-sm transition-all inline-block" title="View Transactions"><i class="fas fa-history"></i></a>
               </div>
               <img src="${pay.profile_photo ? '/static/uploads/' + pay.profile_photo : ''}" alt="${pay.full_name}" class="w-20 h-20 rounded-xl object-cover mb-5 border-2 border-blue-100 shadow-md" onerror="this.style.display='none'" style="background:#f3f4f6;"/>
               <h3 class="text-lg font-bold text-gray-800 mb-1 text-center line-clamp-1 view-clickable">${pay.full_name}</h3>
@@ -354,6 +394,13 @@
               el.onclick = e => {
                 e.stopPropagation();
                 showEditModal(pay);
+              };
+            });
+            // Payment button
+            card.querySelectorAll('.make-payment-btn').forEach(el => {
+              el.onclick = e => {
+                e.stopPropagation();
+                showPaymentModal(pay);
               };
             });
             grid.appendChild(card);
@@ -502,6 +549,15 @@
     document.addEventListener('keyup', function(e) { if(!document.getElementById('payroll-detail-modal').classList.contains('hidden') && e.key === 'Escape') closeDetailsModal(); });
     // Edit from inside detail modal
     document.getElementById('detail-edit-btn').onclick = function(e) { closeDetailsModal(); showEditModal(lastPayrollClicked); };
+    // Payment from inside detail modal
+    document.getElementById('detail-payment-btn').onclick = function(e) { closeDetailsModal(); showPaymentModal(lastPayrollClicked); };
+    // Transactions from inside detail modal
+    document.getElementById('detail-transactions-btn').onclick = function(e) {
+      e.preventDefault();
+      if (lastPayrollClicked && lastPayrollClicked.employee_id) {
+        window.location.href = `/admin/payroll-transactions/${lastPayrollClicked.employee_id}`;
+      }
+    };
 
     // Edit modal logic
     let currentlyEditingPayroll = null;
@@ -567,6 +623,79 @@
       } catch (err) {
         console.error(err);
         showNotification('Error saving payroll','error');
+      }
+    });
+
+    // Payment Modal Functions
+    function showPaymentModal(pay) {
+      document.getElementById('payment-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('payment-employee-name').value = pay.full_name || '';
+      // Use employee_id from payroll object
+      document.getElementById('payment-employee-id').value = pay.employee_id || '';
+      document.getElementById('payment-amount').value = '';
+      // Set default date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('payment-date').value = today;
+      document.getElementById('payment-amount').focus();
+    }
+
+    function closePaymentModal() {
+      document.getElementById('payment-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+      document.getElementById('payment-form').reset();
+    }
+
+    document.getElementById('payment-modal-close').onclick = closePaymentModal;
+    document.getElementById('payment-cancel-btn').onclick = closePaymentModal;
+    document.getElementById('payment-modal').onclick = function(e) {
+      if (e.target === this) closePaymentModal();
+    };
+    document.addEventListener('keyup', function(e) {
+      if (!document.getElementById('payment-modal').classList.contains('hidden') && e.key === 'Escape') {
+        closePaymentModal();
+      }
+    });
+
+    // Payment form submit
+    document.getElementById('payment-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const employeeId = document.getElementById('payment-employee-id').value;
+      const amount = parseFloat(document.getElementById('payment-amount').value);
+      const paymentDate = document.getElementById('payment-date').value;
+
+      if (!employeeId || !amount || amount <= 0) {
+        showNotification('Please enter a valid amount', 'error');
+        return;
+      }
+
+      if (!paymentDate) {
+        showNotification('Please select a payment date', 'error');
+        return;
+      }
+
+      const payload = {
+        employee_id: parseInt(employeeId),
+        amount: amount,
+        payment_date: paymentDate
+      };
+
+      try {
+        const res = await fetch('/api/payroll/record-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showNotification('Payment recorded successfully', 'success');
+          closePaymentModal();
+        } else {
+          showNotification(data.message || 'Failed to record payment', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showNotification('Error recording payment', 'error');
       }
     });
 </script>

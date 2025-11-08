@@ -246,45 +246,60 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-lg border-b-4 border-primary-orange">
+    <header class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-2xl border-b-2 border-primary-orange/50 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-20">
                 <!-- Logo and Title -->
                 <div class="flex items-center">
-                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:text-primary-orange hover:bg-gray-100">
+                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all duration-200 mr-2">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
-                    <div class="flex items-center ml-4 lg:ml-0">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary-orange to-primary-blue rounded-lg flex items-center justify-center">
-                            <i class="fas fa-hotel text-white text-lg"></i>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-orange via-primary-orange to-primary-blue rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200">
+                            <i class="fas fa-hotel text-white text-xl"></i>
                         </div>
-                        <h1 class="ml-3 text-2xl font-bold text-gray-800">Hotel POS</h1>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white tracking-tight">
+                                {% if hotel_settings and hotel_settings.hotel_name %}
+                                    {{ hotel_settings.hotel_name }}
+                                {% else %}
+                                    Hotel POS
+                                {% endif %}
+                            </h1>
+                            <p class="text-xs text-gray-400 font-medium">Point of Sale System</p>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- User Menu -->
                 <div class="flex items-center space-x-4">
-                    <div class="hidden md:flex items-center space-x-2 text-sm text-gray-600">
-                        <i class="fas fa-clock"></i>
-                        <span id="current-time"></span>
+                    <div class="hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 backdrop-blur-sm">
+                        <i class="fas fa-clock text-primary-orange"></i>
+                        <span id="current-time" class="text-white text-sm font-medium"></span>
                     </div>
-                    
-                    <!-- Employee Login Button -->
-                    <button id="employee-login-btn" class="bg-primary-orange text-white px-4 py-2 rounded-lg hover:bg-secondary-orange transition-colors duration-200 font-medium">
-                        <i class="fas fa-sign-in-alt mr-2"></i>
-                        <span class="hidden sm:inline">Employee Login</span>
-                        <span class="sm:hidden">Login</span>
-                    </button>
-                    
-                    <div class="relative">
-                        <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
-                            <div class="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
+
+                    {% if session.employee_id %}
+                        <!-- Logged-in employee summary -->
+                        <div class="hidden sm:flex items-center space-x-3 px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 backdrop-blur-sm">
+                            <div class="w-9 h-9 bg-gradient-to-br from-primary-blue to-primary-orange rounded-full flex items-center justify-center shadow-md">
                                 <i class="fas fa-user text-white text-sm"></i>
                             </div>
-                            <span class="hidden md:block text-gray-700 font-medium">Guest</span>
-                            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                            <div class="text-left leading-tight">
+                                <div class="text-white text-sm font-semibold">{{ session.employee_name or 'Employee' }}</div>
+                                <div class="text-gray-400 text-xs capitalize">{{ session.employee_role or 'employee' }}</div>
+                            </div>
+                        </div>
+                        <a href="/employee/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                    {% else %}
+                        <!-- Employee Login Button -->
+                        <button id="employee-login-btn" class="bg-gradient-to-r from-primary-orange to-secondary-orange text-white px-5 py-2.5 rounded-lg hover:from-secondary-orange hover:to-primary-orange transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span class="hidden sm:inline">Employee Login</span>
+                            <span class="sm:hidden">Login</span>
                         </button>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -292,121 +307,277 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:transition-none">
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:transition-none border-r border-gray-700/50">
             <div class="flex flex-col h-full">
                 <!-- Sidebar Header -->
-                <div class="flex items-center justify-between h-16 bg-gradient-to-r from-primary-orange to-primary-blue px-4">
-                    <h2 class="text-white font-semibold text-lg">Navigation</h2>
+                <div class="flex items-center justify-between h-20 px-6 bg-gradient-to-r from-primary-orange/20 to-primary-blue/20 border-b border-gray-700/50 backdrop-blur-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary-orange to-primary-blue rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-compass text-white text-lg"></i>
+                        </div>
+                        <h2 class="text-white font-bold text-lg tracking-tight">Navigation</h2>
+                    </div>
                     <!-- Close button for mobile -->
-                    <button id="sidebar-close" class="lg:hidden text-white hover:text-gray-200 p-1">
+                    <button id="sidebar-close" class="lg:hidden text-gray-300 hover:text-white hover:bg-gray-700/50 p-2 rounded-lg transition-all duration-200">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
                 
                 <!-- Navigation Menu -->
-                <nav class="flex-1 px-4 py-6 space-y-2">
-                    <a href="/pos" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
-                        <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
-                        <span>Point of Sale</span>
+                <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                    <a href="/pos" class="flex items-center px-4 py-4 text-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white transition-all duration-200 group border border-transparent hover:border-gray-700/50">
+                        <div class="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-primary-orange/30 transition-colors duration-200">
+                            <i class="fas fa-shopping-cart text-lg"></i>
+                        </div>
+                        <div class="flex-1">
+                            <span class="font-semibold block">Point of Sale</span>
+                            <span class="text-xs text-gray-400 group-hover:text-gray-300">Process transactions</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-500 group-hover:text-white text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
                     </a>
-                    
-                    <a href="/admin/off-days-management" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
-                        <i class="fas fa-calendar-times w-5 h-5 mr-3"></i>
-                        <span>Off Days</span>
-                    </a>
-                    
-                    <a href="#" id="employee-login-nav" class="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-primary-orange hover:text-white transition-colors duration-200">
-                        <i class="fas fa-sign-in-alt w-5 h-5 mr-3"></i>
-                        <span>Employee Login</span>
-                    </a>
-                    
+                    {% if session.employee_id %}
+                        {% if session.employee_role == 'cashier' %}
+                            <!-- Cashier in-session sidebar -->
+                            <a href="/pos" class="flex items-center px-4 py-4 rounded-xl transition-all duration-200 group border {{ 'bg-gradient-to-r from-primary-orange/30 to-primary-blue/30 text-white border-primary-orange/50' if request.path == '/pos' else 'text-gray-300 border-transparent hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white hover:border-gray-700/50' }}">
+                                <div class="w-10 h-10 {{ 'bg-primary-orange/40' if request.path == '/pos' else 'bg-gray-700/50 group-hover:bg-primary-orange/30' }} rounded-lg flex items-center justify-center mr-3 transition-colors duration-200">
+                                    <i class="fas fa-shopping-cart text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">Point of Sale</span>
+                                    <span class="text-xs {{ 'text-gray-300' if request.path == '/pos' else 'text-gray-400 group-hover:text-gray-300' }}">Process transactions</span>
+                                </div>
+                                <i class="fas fa-chevron-right {{ 'text-white' if request.path == '/pos' else 'text-gray-500 group-hover:text-white' }} text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
+                            </a>
+                            <a href="/cashier/cash-drawer" class="flex items-center px-4 py-4 rounded-xl transition-all duration-200 group border {{ 'bg-gradient-to-r from-primary-orange/30 to-primary-blue/30 text-white border-primary-orange/50' if request.path.startswith('/cashier/cash-drawer') else 'text-gray-300 border-transparent hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white hover:border-gray-700/50' }}">
+                                <div class="w-10 h-10 {{ 'bg-primary-orange/40' if request.path.startswith('/cashier/cash-drawer') else 'bg-gray-700/50 group-hover:bg-primary-orange/30' }} rounded-lg flex items-center justify-center mr-3 transition-colors duration-200">
+                                    <i class="fas fa-cash-register text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">Cash Drawer</span>
+                                    <span class="text-xs {{ 'text-gray-300' if request.path.startswith('/cashier/cash-drawer') else 'text-gray-400 group-hover:text-gray-300' }}">Manage cash</span>
+                                </div>
+                            </a>
+                            <a href="/cashier/stock-management" class="flex items-center px-4 py-4 rounded-xl transition-all duration-200 group border {{ 'bg-gradient-to-r from-primary-orange/30 to-primary-blue/30 text-white border-primary-orange/50' if request.path.startswith('/cashier/stock-management') else 'text-gray-300 border-transparent hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white hover:border-gray-700/50' }}">
+                                <div class="w-10 h-10 {{ 'bg-primary-orange/40' if request.path.startswith('/cashier/stock-management') else 'bg-gray-700/50 group-hover:bg-primary-orange/30' }} rounded-lg flex items-center justify-center mr-3 transition-colors duration-200">
+                                    <i class="fas fa-boxes text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">Stock Management</span>
+                                    <span class="text-xs {{ 'text-gray-300' if request.path.startswith('/cashier/stock-management') else 'text-gray-400 group-hover:text-gray-300' }}">Inventory control</span>
+                                </div>
+                            </a>
+                            <a href="/cashier/receipt-confirmation" class="flex items-center px-4 py-4 rounded-xl transition-all duration-200 group border {{ 'bg-gradient-to-r from-primary-orange/30 to-primary-blue/30 text-white border-primary-orange/50' if request.path.startswith('/cashier/receipt-confirmation') else 'text-gray-300 border-transparent hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white hover:border-gray-700/50' }}">
+                                <div class="w-10 h-10 {{ 'bg-primary-orange/40' if request.path.startswith('/cashier/receipt-confirmation') else 'bg-gray-700/50 group-hover:bg-primary-orange/30' }} rounded-lg flex items-center justify-center mr-3 transition-colors duration-200">
+                                    <i class="fas fa-clipboard-check text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">Receipt Confirmation</span>
+                                    <span class="text-xs {{ 'text-gray-300' if request.path.startswith('/cashier/receipt-confirmation') else 'text-gray-400 group-hover:text-gray-300' }}">Verify receipts</span>
+                                </div>
+                            </a>
+                            <a href="/cashier/payments" class="flex items-center px-4 py-4 rounded-xl transition-all duration-200 group border {{ 'bg-gradient-to-r from-primary-orange/30 to-primary-blue/30 text-white border-primary-orange/50' if request.path.startswith('/cashier/payments') else 'text-gray-300 border-transparent hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white hover:border-gray-700/50' }}">
+                                <div class="w-10 h-10 {{ 'bg-primary-orange/40' if request.path.startswith('/cashier/payments') else 'bg-gray-700/50 group-hover:bg-primary-orange/30' }} rounded-lg flex items-center justify-center mr-3 transition-colors duration-200">
+                                    <i class="fas fa-credit-card text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">Payments</span>
+                                    <span class="text-xs {{ 'text-gray-300' if request.path.startswith('/cashier/payments') else 'text-gray-400 group-hover:text-gray-300' }}">Payment history</span>
+                                </div>
+                            </a>
+                            <a href="/employee/off-days" class="flex items-center px-4 py-4 rounded-xl transition-all duration-200 group border {{ 'bg-gradient-to-r from-primary-orange/30 to-primary-blue/30 text-white border-primary-orange/50' if request.path.startswith('/employee/off-days') else 'text-gray-300 border-transparent hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white hover:border-gray-700/50' }}">
+                                <div class="w-10 h-10 {{ 'bg-primary-orange/40' if request.path.startswith('/employee/off-days') else 'bg-gray-700/50 group-hover:bg-primary-orange/30' }} rounded-lg flex items-center justify-center mr-3 transition-colors duration-200">
+                                    <i class="fas fa-calendar-times text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">My Off Days</span>
+                                    <span class="text-xs {{ 'text-gray-300' if request.path.startswith('/employee/off-days') else 'text-gray-400 group-hover:text-gray-300' }}">Schedule time off</span>
+                                </div>
+                            </a>
+                        {% else %}
+                            <!-- Non-cashier logged-in default links -->
+                            <a href="/employee/off-days" class="flex items-center px-4 py-4 text-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white transition-all duration-200 group border border-transparent hover:border-gray-700/50">
+                                <div class="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-primary-orange/30 transition-colors duration-200">
+                                    <i class="fas fa-calendar-check text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="font-semibold block">My Off Days</span>
+                                    <span class="text-xs text-gray-400 group-hover:text-gray-300">Schedule time off</span>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="#" id="employee-login-nav" class="flex items-center px-4 py-4 text-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-primary-orange/20 hover:to-primary-blue/20 hover:text-white transition-all duration-200 group border border-transparent hover:border-gray-700/50">
+                            <div class="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-primary-orange/30 transition-colors duration-200">
+                                <i class="fas fa-sign-in-alt text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="font-semibold block">Employee Login</span>
+                                <span class="text-xs text-gray-400 group-hover:text-gray-300">Access your account</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-500 group-hover:text-white text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
+                        </a>
+                    {% endif %}
                 </nav>
                 
                 <!-- Sidebar Footer -->
-                <div class="p-4 border-t border-gray-200">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
-                            <i class="fas fa-power-off text-white text-sm"></i>
+                {% if not session.employee_id %}
+                <div class="p-4 border-t border-gray-700/50 bg-gray-800/30 backdrop-blur-sm">
+                    <div class="flex items-center justify-center space-x-3 px-4 py-3 rounded-lg bg-gradient-to-r from-primary-orange/10 to-primary-blue/10 border border-gray-700/30">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary-orange to-primary-blue rounded-lg flex items-center justify-center shadow-lg">
+                            <i class="fas fa-shield-alt text-white text-sm"></i>
                         </div>
-                        <span class="text-sm text-gray-600">Logout</span>
+                        <div class="flex-1">
+                            <p class="text-white text-sm font-semibold">Secure Access</p>
+                            <p class="text-gray-400 text-xs">Employee login required</p>
+                        </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 lg:ml-0">
+        <main class="flex-1 lg:ml-72 min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
             <!-- Mobile Sidebar Overlay -->
-            <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+            <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden backdrop-blur-sm"></div>
             
             <!-- Page Content -->
-            <div class="p-6">
+            <div class="p-6 lg:p-8">
                 {% block content %}{% endblock %}
             </div>
         </main>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center space-x-4 mb-4 md:mb-0">
-                    <div class="w-8 h-8 bg-gradient-to-r from-primary-orange to-primary-blue rounded-lg flex items-center justify-center">
-                        <i class="fas fa-hotel text-white text-sm"></i>
+    <footer class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-t border-gray-700/50 mt-auto shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+                <!-- Brand Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-orange to-primary-blue rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-hotel text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">
+                                {% if hotel_settings and hotel_settings.hotel_name %}
+                                    {{ hotel_settings.hotel_name }}
+                                {% else %}
+                                    Hotel POS
+                                {% endif %}
+                            </h3>
+                            <p class="text-gray-400 text-xs">Point of Sale System</p>
+                        </div>
                     </div>
-                    <span class="text-gray-600 text-sm">© 2024 Hotel POS System. All rights reserved.</span>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Professional POS solution for efficient business operations and customer management.
+                    </p>
                 </div>
                 
-                <div class="flex items-center space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-primary-orange transition-colors duration-200">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                <!-- Contact Info -->
+                {% if hotel_settings %}
+                <div class="space-y-4">
+                    <h4 class="text-white font-semibold text-base mb-4">Contact Information</h4>
+                    <div class="space-y-3">
+                        {% if hotel_settings.company_phone %}
+                        <div class="flex items-center space-x-3 text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                            <div class="w-8 h-8 bg-gray-700/50 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-phone text-sm"></i>
+                            </div>
+                            <span class="text-sm">{{ hotel_settings.company_phone }}</span>
+                        </div>
+                        {% endif %}
+                        {% if hotel_settings.company_email %}
+                        <div class="flex items-center space-x-3 text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                            <div class="w-8 h-8 bg-gray-700/50 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-envelope text-sm"></i>
+                            </div>
+                            <span class="text-sm">{{ hotel_settings.company_email }}</span>
+                        </div>
+                        {% endif %}
+                        {% if hotel_settings.hotel_address %}
+                        <div class="flex items-start space-x-3 text-gray-400 hover:text-primary-orange transition-colors duration-200">
+                            <div class="w-8 h-8 bg-gray-700/50 rounded-lg flex items-center justify-center mt-1">
+                                <i class="fas fa-map-marker-alt text-sm"></i>
+                            </div>
+                            <span class="text-sm">{{ hotel_settings.hotel_address }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Social Links -->
+                <div class="space-y-4">
+                    <h4 class="text-white font-semibold text-base mb-4">Connect With Us</h4>
+                    <div class="flex items-center space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-700/50 hover:bg-primary-orange rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200 transform hover:scale-110 shadow-lg hover:shadow-xl">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700/50 hover:bg-primary-orange rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200 transform hover:scale-110 shadow-lg hover:shadow-xl">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700/50 hover:bg-primary-orange rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200 transform hover:scale-110 shadow-lg hover:shadow-xl">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700/50 hover:bg-primary-orange rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200 transform hover:scale-110 shadow-lg hover:shadow-xl">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="border-t border-gray-700/50 pt-6">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div class="flex items-center space-x-2 text-gray-400 text-sm">
+                        <i class="fas fa-copyright"></i>
+                        <span>© 2024 {% if hotel_settings and hotel_settings.hotel_name %}{{ hotel_settings.hotel_name }}{% else %}Hotel POS System{% endif %}. All rights reserved.</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-sm text-gray-400">
+                        <a href="#" class="hover:text-primary-orange transition-colors duration-200">Privacy Policy</a>
+                        <span>•</span>
+                        <a href="#" class="hover:text-primary-orange transition-colors duration-200">Terms of Service</a>
+                        <span>•</span>
+                        <a href="#" class="hover:text-primary-orange transition-colors duration-200">Support</a>
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- Employee Login/Registration Modal -->
-    <div id="employee-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 modal-overlay">
-        <div class="glass-effect bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden border border-white/20 modal-container">
+    <div id="employee-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4 modal-overlay">
+        <div class="glass-effect bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-white/20 modal-container">
             <!-- Modal Header -->
-            <div class="relative p-8 border-b border-white/20 bg-gradient-to-r from-white/5 to-white/10">
+            <div class="relative p-4 sm:p-6 md:p-8 border-b border-white/20 bg-gradient-to-r from-white/5 to-white/10">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-primary-orange to-primary-blue rounded-2xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-user-shield text-white text-xl"></i>
+                    <div class="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-orange to-primary-blue rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-shield text-white text-sm sm:text-base md:text-xl"></i>
                         </div>
                         <div>
-                            <h2 id="modal-title" class="text-2xl font-bold text-white mb-1">Employee Login</h2>
-                            <p class="text-white/70 text-sm">Access your employee account</p>
+                            <h2 id="modal-title" class="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1">Employee Login</h2>
+                            <p class="text-white/70 text-xs sm:text-sm">Access your employee account</p>
                         </div>
                     </div>
-                    <button id="close-modal" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 hover:scale-105">
-                        <i class="fas fa-times text-lg"></i>
+                    <button id="close-modal" class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-white/10 hover:bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 hover:scale-105">
+                        <i class="fas fa-times text-sm sm:text-base md:text-lg"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Modal Content -->
-            <div class="p-8">
+            <div class="p-4 sm:p-6 md:p-8 overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-140px)]">
                 <!-- Login Form -->
-                <form id="login-form" class="space-y-6">
+                <form id="login-form" class="space-y-4 sm:space-y-6">
                     <div class="space-y-2">
                         <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
                             <i class="fas fa-id-card mr-2 text-primary-orange"></i>
                             Employee Code (4 digits)
                         </label>
                         <input type="text" id="employee-code" name="employee_code" maxlength="4" 
-                               class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 text-center text-lg font-mono tracking-widest input-field form-field"
+                               class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 text-center text-base sm:text-lg font-mono tracking-widest input-field form-field touch-manipulation"
                                placeholder="0000" required>
                     </div>
                     
@@ -417,7 +588,7 @@
                         </label>
                         <div class="relative">
                             <input type="password" id="password" name="password" 
-                                   class="w-full px-4 py-4 pr-14 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 input-field form-field"
+                                   class="w-full px-3 sm:px-4 py-3 sm:py-4 pr-12 sm:pr-14 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 input-field form-field touch-manipulation"
                                    placeholder="Enter your password" required>
                             <button type="button" id="toggle-password" class="password-toggle-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-all duration-200">
                                 <i class="fas fa-eye" id="password-eye-icon"></i>
@@ -425,22 +596,22 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="w-full bg-gradient-to-r from-primary-orange to-secondary-orange text-white py-4 rounded-xl font-semibold hover:from-secondary-orange hover:to-primary-orange transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 btn-primary">
+                    <button type="submit" class="w-full bg-gradient-to-r from-primary-orange to-secondary-orange text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold hover:from-secondary-orange hover:to-primary-orange transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 btn-primary touch-manipulation">
                         <i class="fas fa-sign-in-alt icon-bounce"></i>
                         <span>Sign In</span>
                     </button>
                 </form>
 
                 <!-- Registration Form -->
-                <form id="register-form" class="space-y-6 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form id="register-form" class="space-y-4 sm:space-y-6 hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div class="space-y-2">
                             <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
                                 <i class="fas fa-user mr-2 text-primary-orange"></i>
                                 Full Name
                             </label>
                             <input type="text" id="full-name" name="full_name" 
-                                   class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                                   class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 touch-manipulation"
                                    placeholder="Enter full name" required>
                         </div>
                         
@@ -450,7 +621,7 @@
                                 Email
                             </label>
                             <input type="email" id="email" name="email" 
-                                   class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                                   class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 touch-manipulation"
                                    placeholder="Enter email" required>
                         </div>
                     </div>
@@ -461,7 +632,7 @@
                             Phone Number
                         </label>
                         <input type="tel" id="phone-number" name="phone_number" 
-                               class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                               class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 touch-manipulation"
                                placeholder="Enter phone number" required>
                     </div>
                     
@@ -471,11 +642,11 @@
                             Employee Code (4 digits)
                         </label>
                         <input type="text" id="reg-employee-code" name="employee_code" maxlength="4" 
-                               class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 text-center text-lg font-mono tracking-widest"
+                               class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 text-center text-base sm:text-lg font-mono tracking-widest touch-manipulation"
                                placeholder="0000" required>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div class="space-y-2">
                             <label class="block text-white/90 text-sm font-semibold mb-3 flex items-center">
                                 <i class="fas fa-lock mr-2 text-primary-orange"></i>
@@ -483,7 +654,7 @@
                             </label>
                             <div class="relative">
                                 <input type="password" id="reg-password" name="password" 
-                                       class="w-full px-4 py-4 pr-14 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                                       class="w-full px-3 sm:px-4 py-3 sm:py-4 pr-12 sm:pr-14 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 touch-manipulation"
                                        placeholder="Enter password" required>
                                 <button type="button" id="toggle-reg-password" class="password-toggle-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-all duration-200">
                                     <i class="fas fa-eye" id="reg-password-eye-icon"></i>
@@ -498,7 +669,7 @@
                             </label>
                             <div class="relative">
                                 <input type="password" id="confirm-password" name="confirm_password" 
-                                       class="w-full px-4 py-4 pr-14 bg-white/15 border border-white/25 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200"
+                                       class="w-full px-3 sm:px-4 py-3 sm:py-4 pr-12 sm:pr-14 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange/50 transition-all duration-200 touch-manipulation"
                                        placeholder="Confirm password" required>
                                 <button type="button" id="toggle-confirm-password" class="password-toggle-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-all duration-200">
                                     <i class="fas fa-eye" id="confirm-password-eye-icon"></i>
@@ -514,23 +685,23 @@
                         </label>
                         <div class="relative">
                             <input type="file" id="profile-photo" name="profile_photo" accept="image/*" 
-                                   class="w-full px-4 py-4 bg-white/15 border border-white/25 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-orange file:text-white hover:file:bg-secondary-orange transition-all duration-200">
+                                   class="w-full px-3 sm:px-4 py-3 sm:py-4 bg-white/15 border border-white/25 rounded-lg sm:rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-orange file:text-white hover:file:bg-secondary-orange transition-all duration-200 touch-manipulation">
                         </div>
                     </div>
                     
-                    <button type="submit" class="w-full text-white py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 btn-secondary">
+                    <button type="submit" class="w-full text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2 btn-secondary touch-manipulation">
                         <i class="fas fa-user-plus icon-bounce"></i>
                         <span>Create Account</span>
                     </button>
                 </form>
 
                 <!-- Toggle between Login and Register -->
-                <div class="mt-8 pt-6 border-t border-white/20">
+                <div class="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/20">
                     <div class="text-center">
-                        <p class="text-white/70 text-sm mb-4">
+                        <p class="text-white/70 text-xs sm:text-sm mb-3 sm:mb-4">
                             <span id="toggle-text">Don't have an account?</span>
                         </p>
-                        <button id="toggle-form" class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 border border-white/20">
+                        <button id="toggle-form" class="bg-white/10 hover:bg-white/20 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-medium transition-all duration-200 hover:scale-105 border border-white/20 text-sm sm:text-base">
                             <i class="fas fa-user-plus mr-2"></i>
                             <span id="toggle-button-text">Sign up here</span>
                         </button>
@@ -742,11 +913,22 @@
                     // Update UI to show logged in state
                     updateLoggedInUI(result.employee);
                     
+                    // Debug logging
+                    console.log('Login result:', result);
+                    console.log('Employee role:', result.employee?.role);
+                    console.log('Redirect URL:', result.redirect_url);
+                    
                     // Redirect to role-specific dashboard
                     if (result.redirect_url) {
                         setTimeout(() => {
+                            console.log('Redirecting to:', result.redirect_url);
                             window.location.href = result.redirect_url;
                         }, 1000); // Small delay to show success message
+                    } else {
+                        console.warn('No redirect_url in response, using default');
+                        setTimeout(() => {
+                            window.location.href = '/employee/dashboard';
+                        }, 1000);
                     }
                 } else {
                     showNotification(result.message, 'error');

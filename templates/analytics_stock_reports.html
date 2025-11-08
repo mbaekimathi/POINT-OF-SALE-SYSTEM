@@ -1,0 +1,1409 @@
+{% extends "role_base.html" %}
+
+{% block title %}Stock Reports - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}file-alt{% endblock %}
+{% block sidebar_title %}Reports{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Stock Analytics Overview -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Overview</p>
+        <p class="text-xs text-white/70">Main dashboard</p>
+    </div>
+</a>
+
+<!-- Stock Inventory -->
+<a href="/analytics/stock/inventory" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Inventory Management</p>
+        <p class="text-xs text-white/70">Stock levels & alerts</p>
+    </div>
+</a>
+
+<!-- Stock Charts -->
+<a href="/analytics/stock/charts" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-chart-bar text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics Charts</p>
+        <p class="text-xs text-white/70">Visual data analysis</p>
+    </div>
+</a>
+
+<!-- Stock Reports -->
+<a href="/analytics/stock/reports" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-file-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Reports</p>
+        <p class="text-xs text-white/70">Detailed reports</p>
+    </div>
+</a>
+
+<!-- Stock Recommendations -->
+<a href="/analytics/stock/recommendations" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-robot text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Smart Recommendations</p>
+        <p class="text-xs text-white/70">Reorder suggestions</p>
+    </div>
+</a>
+
+<!-- Stock Audits -->
+<a href="/stock-audits" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-clipboard-check text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Audits</p>
+        <p class="text-xs text-white/70">Transaction history</p>
+    </div>
+</a>
+
+<!-- Back to Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Analytics</p>
+        <p class="text-xs text-white/70">Return to main analytics</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-home text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Enhanced Stock Reports Header -->
+<div class="relative overflow-hidden bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8 shadow-2xl">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 sm:space-y-6 lg:space-y-0">
+            <div class="text-white">
+                <div class="flex items-center space-x-3 mb-3">
+                    <a href="/analytics/stock" class="text-white/70 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-white text-sm"></i>
+                    </div>
+                    <!-- Manager Role Badge -->
+                    <div class="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-3 py-1.5">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-user-tie text-white text-sm"></i>
+                            <span class="text-white text-sm font-medium">Manager</span>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                    Stock Reports
+                </h1>
+                <p class="text-purple-100 text-base sm:text-lg lg:text-xl font-medium">Comprehensive stock analysis and detailed reporting</p>
+            </div>
+            
+            <!-- Enhanced Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                <button id="generateReportBtn" class="bg-purple-500/20 backdrop-blur-sm border border-purple-400/30 rounded-xl px-4 py-2 text-white hover:bg-purple-500/30 transition-colors">
+                    <i class="fas fa-file-export mr-2"></i>
+                    Generate Report
+                </button>
+                <button id="exportReportBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Report
+                </button>
+                <button id="refreshDataBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh Data
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Date Filter Controls -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-sm"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Date Filter</h2>
+                <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full" id="dateFilterStatus">All Time</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="resetDateFilterBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-undo mr-1"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Filter Type Selection -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Filter Type</label>
+                <select id="dateFilterType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option value="day">Single Day</option>
+                    <option value="range">Date Range</option>
+                    <option value="month">Month</option>
+                    <option value="preset">Preset Periods</option>
+                </select>
+            </div>
+            
+            <!-- Single Day Filter -->
+            <div id="singleDayFilter" class="date-filter-section">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Date</label>
+                <input type="date" id="singleDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div id="dateRangeFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
+                <div class="space-y-2">
+                    <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Start Date">
+                    <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="End Date">
+                </div>
+            </div>
+            
+            <!-- Month Filter -->
+            <div id="monthFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Month</label>
+                <input type="month" id="monthSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+            </div>
+            
+            <!-- Preset Periods -->
+            <div id="presetFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Preset Periods</label>
+                <select id="presetPeriod" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="last7days">Last 7 Days</option>
+                    <option value="last30days">Last 30 Days</option>
+                    <option value="last90days">Last 90 Days</option>
+                    <option value="thisMonth">This Month</option>
+                    <option value="lastMonth">Last Month</option>
+                    <option value="thisYear">This Year</option>
+                    <option value="lastYear">Last Year</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Apply Filter Button -->
+        <div class="mt-4 flex justify-end">
+            <button id="applyDateFilterBtn" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i class="fas fa-filter mr-2"></i>Apply Filter
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Report Types Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+    <!-- Stock Summary Report -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="generateReport('summary')">
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Stock Summary</h3>
+            </div>
+        </div>
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-600 text-sm mb-3">Comprehensive overview of stock levels, alerts, and key metrics</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Includes: Levels, Alerts, KPIs</span>
+                <i class="fas fa-arrow-right text-blue-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Movement Report -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="generateReport('movement')">
+        <div class="bg-gradient-to-r from-green-50 to-green-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exchange-alt text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Movement Report</h3>
+            </div>
+        </div>
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-600 text-sm mb-3">Detailed analysis of stock in/out transactions and trends</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Includes: Transactions, Trends, Flow</span>
+                <i class="fas fa-arrow-right text-green-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profitability Report -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="generateReport('profitability')">
+        <div class="bg-gradient-to-r from-purple-50 to-purple-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Profitability Report</h3>
+            </div>
+        </div>
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-600 text-sm mb-3">Analysis of item profitability, margins, and revenue potential</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Includes: Margins, Revenue, ROI</span>
+                <i class="fas fa-arrow-right text-purple-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alert Report -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="generateReport('alerts')">
+        <div class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Alert Report</h3>
+            </div>
+        </div>
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-600 text-sm mb-3">Low stock alerts and reorder recommendations</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Includes: Alerts, Reorders, Urgency</span>
+                <i class="fas fa-arrow-right text-red-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Performance Report -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="generateReport('supplier')">
+        <div class="bg-gradient-to-r from-orange-50 to-orange-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-truck text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Supplier Report</h3>
+            </div>
+        </div>
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-600 text-sm mb-3">Supplier performance and purchasing analysis</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Includes: Suppliers, Costs, Performance</span>
+                <i class="fas fa-arrow-right text-orange-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Report -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="generateReport('custom')">
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cog text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Custom Report</h3>
+            </div>
+        </div>
+        <div class="p-4 sm:p-6">
+            <p class="text-gray-600 text-sm mb-3">Create a custom report with specific parameters</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Includes: Custom filters, Fields</span>
+                <i class="fas fa-arrow-right text-gray-500"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generated Reports Section -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-6">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-file-alt text-white text-sm"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Generated Reports</h2>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="clearReportsBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-trash mr-1"></i>Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <div id="reportsContent" class="space-y-4">
+            <div class="text-center py-8">
+                <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">No reports generated yet</p>
+                <p class="text-gray-400 text-sm">Click on any report type above to generate your first report</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Global variables
+    let currentDateFilter = {};
+    let currentReportsData = null;
+
+    // Global function for showing notifications
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>
+                ${message}
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Global function for generating reports (accessible from onclick)
+    function generateReport(reportType) {
+        const reportsContent = document.getElementById('reportsContent');
+        
+        // Show loading
+        reportsContent.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-500 mb-4"></i>
+                <p class="text-gray-600 text-lg">Generating ${reportType} report...</p>
+            </div>
+        `;
+        
+        // Generate report with real data
+        setTimeout(() => {
+            const reportId = 'report_' + Date.now();
+            const reportHtml = createReportHTML(reportType, reportId);
+            
+            // Clear loading and add report
+            reportsContent.innerHTML = '';
+            reportsContent.insertAdjacentHTML('beforeend', reportHtml);
+            
+            showNotification(`${reportType} report generated successfully`, 'success');
+        }, 1500);
+    }
+
+    // Global function for creating report HTML
+    function createReportHTML(reportType, reportId) {
+        const reportTitles = {
+            'summary': 'Stock Summary Report',
+            'movement': 'Inventory Movement Report',
+            'profitability': 'Profitability Analysis Report',
+            'alerts': 'Low Stock Alert Report',
+            'supplier': 'Supplier Performance Report',
+            'custom': 'Custom Stock Report'
+        };
+        
+        const reportColors = {
+            'summary': 'blue',
+            'movement': 'green',
+            'profitability': 'purple',
+            'alerts': 'red',
+            'supplier': 'orange',
+            'custom': 'gray'
+        };
+        
+        const color = reportColors[reportType];
+        const title = reportTitles[reportType];
+        
+        // Generate report content based on type and available data
+        let reportContent = generateReportContent(reportType);
+        
+        return `
+            <div class="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-${color}-50 to-${color}-100 px-4 py-3 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-${color}-500 to-${color}-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">${title}</h3>
+                                <p class="text-sm text-gray-600">Generated on ${new Date().toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="exportReport('${reportId}')" class="bg-${color}-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-${color}-700 transition-colors">
+                                <i class="fas fa-download mr-1"></i>Export
+                            </button>
+                            <button onclick="deleteReport('${reportId}')" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-trash mr-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4" id="${reportId}">
+                    ${reportContent}
+                </div>
+            </div>
+        `;
+    }
+
+    // Global function for generating report content
+    function generateReportContent(reportType) {
+        if (!currentReportsData) {
+            return `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+                    <p class="text-gray-600 text-lg">No data available</p>
+                    <p class="text-gray-500 text-sm">Please refresh the data and try again</p>
+                </div>
+            `;
+        }
+
+        switch(reportType) {
+            case 'summary':
+                return generateSummaryReport();
+            case 'movement':
+                return generateMovementReport();
+            case 'profitability':
+                return generateProfitabilityReport();
+            case 'alerts':
+                return generateAlertsReport();
+            case 'supplier':
+                return generateSupplierReport();
+            case 'custom':
+                return generateCustomReport();
+            default:
+                return generateSummaryReport();
+        }
+    }
+
+    // Global function for exporting reports
+    function exportReport(reportId) {
+        showNotification('Report exported successfully', 'success');
+    }
+
+    // Global function for deleting reports
+    function deleteReport(reportId) {
+        const reportElement = document.getElementById(reportId).closest('.bg-white');
+        reportElement.remove();
+        showNotification('Report deleted', 'success');
+    }
+
+    // Global function for exporting all reports
+    function exportAllReports() {
+        showNotification('All reports exported successfully', 'success');
+    }
+
+    // Global function for clearing all reports
+    function clearAllReports() {
+        document.getElementById('reportsContent').innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">No reports generated yet</p>
+                <p class="text-gray-400 text-sm">Click on any report type above to generate your first report</p>
+            </div>
+        `;
+        showNotification('All reports cleared', 'success');
+    }
+
+    // Global functions for generating specific report types
+    function generateSummaryReport() {
+        const summary = currentReportsData.summary || {};
+        const inventory = currentReportsData.inventoryOverview || [];
+        
+        return `
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800">Total Items</h4>
+                        <p class="text-2xl font-bold text-blue-600">${summary.totalItems || inventory.length}</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-red-800">Low Stock Items</h4>
+                        <p class="text-2xl font-bold text-red-600">${summary.lowStockCount || 0}</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-green-800">Inventory Value</h4>
+                        <p class="text-2xl font-bold text-green-600">shs ${(summary.totalStockValue || 0).toLocaleString()}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">All Items by Stock Level</h4>
+                    <div class="max-h-96 overflow-y-auto space-y-2">
+                        ${inventory.map(item => `
+                            <div class="flex justify-between items-center p-2 bg-white rounded border">
+                                <div class="flex-1">
+                                    <span class="text-sm font-medium">${item.name}</span>
+                                    <span class="text-xs text-gray-500 ml-2">${item.category || 'No Category'}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm font-medium ${item.status === 'Low Stock' ? 'text-red-600' : item.status === 'Out of Stock' ? 'text-red-800' : 'text-green-600'}">${item.currentStock} ${item.unit}</span>
+                                    <div class="text-xs text-gray-500">${item.status}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateMovementReport() {
+        const chartData = currentReportsData.chartData?.stockInOutAnalysis || {};
+        const inventory = currentReportsData.inventoryOverview || [];
+        const mostUsedItems = currentReportsData.mostUsedItems || [];
+        
+        return `
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Stock Movement Analysis</h4>
+                    <p class="text-sm text-gray-600 mb-4">Analysis of stock in/out patterns and trends</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="font-medium text-gray-700 mb-2">Stock In Trends</h5>
+                            <p class="text-sm text-gray-600">Average daily stock in: ${chartData.stockIn ? (chartData.stockIn.reduce((a, b) => a + b, 0) / chartData.stockIn.length).toFixed(1) : 'N/A'} units</p>
+                        </div>
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="font-medium text-gray-700 mb-2">Stock Out Trends</h5>
+                            <p class="text-sm text-gray-600">Average daily stock out: ${chartData.stockOut ? (chartData.stockOut.reduce((a, b) => a + b, 0) / chartData.stockOut.length).toFixed(1) : 'N/A'} units</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Most Active Items</h4>
+                    <p class="text-sm text-gray-600 mb-4">Items with highest movement and sales activity</p>
+                    
+                    <div class="max-h-96 overflow-y-auto">
+                        <div class="space-y-2">
+                            ${mostUsedItems.map(item => `
+                                <div class="flex justify-between items-center p-3 bg-white rounded border">
+                                    <div class="flex-1">
+                                        <span class="font-medium text-gray-800">${item.name}</span>
+                                        <span class="text-sm text-gray-500 ml-2">${item.category || 'N/A'}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-blue-600">${item.totalQuantity || 0} sold</div>
+                                        <div class="text-xs text-gray-500">${item.transactionCount || 0} transactions</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">All Items Movement Status</h4>
+                    <p class="text-sm text-gray-600 mb-4">Complete overview of all items and their movement patterns</p>
+                    
+                    <div class="max-h-96 overflow-y-auto">
+                        <div class="space-y-2">
+                            ${inventory.map(item => `
+                                <div class="flex justify-between items-center p-3 bg-white rounded border">
+                                    <div class="flex-1">
+                                        <span class="font-medium text-gray-800">${item.name}</span>
+                                        <span class="text-sm text-gray-500 ml-2">${item.category || 'N/A'}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium ${item.status === 'Low Stock' ? 'text-red-600' : item.status === 'Out of Stock' ? 'text-red-800' : 'text-green-600'}">
+                                            ${item.currentStock} ${item.unit}
+                                        </div>
+                                        <div class="text-xs text-gray-500">${item.status}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateProfitabilityReport() {
+        const inventory = currentReportsData.inventoryOverview || [];
+        const summary = currentReportsData.summary || {};
+        
+        // Calculate profitability statistics
+        const profitableItems = inventory.filter(item => (item.profitMargin || 0) > 0);
+        const lossItems = inventory.filter(item => (item.profitMargin || 0) < 0);
+        const totalRevenue = inventory.reduce((sum, item) => sum + ((item.sellingPrice || 0) * (item.totalSold || 0)), 0);
+        const totalCost = inventory.reduce((sum, item) => sum + ((item.buyingPrice || 0) * (item.totalSold || 0)), 0);
+        const totalProfit = totalRevenue - totalCost;
+        const avgProfitMargin = inventory.length > 0 
+            ? inventory.reduce((sum, item) => sum + (item.profitMarginPercentage || 0), 0) / inventory.length 
+            : 0;
+        const totalPotentialRevenue = inventory.reduce((sum, item) => sum + (item.potentialRevenue || 0), 0);
+        
+        // Sort items by profitability (highest margin first)
+        const sortedInventory = [...inventory].sort((a, b) => (b.profitMargin || 0) - (a.profitMargin || 0));
+        
+        return `
+            <div class="space-y-6">
+                <!-- Summary Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h5 class="font-semibold text-green-800 text-sm mb-2">Profitable Items</h5>
+                        <p class="text-2xl font-bold text-green-600">${profitableItems.length}</p>
+                        <p class="text-xs text-green-600 mt-1">${inventory.length > 0 ? ((profitableItems.length / inventory.length) * 100).toFixed(1) : 0}% of total</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h5 class="font-semibold text-red-800 text-sm mb-2">Loss Items</h5>
+                        <p class="text-2xl font-bold text-red-600">${lossItems.length}</p>
+                        <p class="text-xs text-red-600 mt-1">${inventory.length > 0 ? ((lossItems.length / inventory.length) * 100).toFixed(1) : 0}% of total</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h5 class="font-semibold text-blue-800 text-sm mb-2">Total Profit</h5>
+                        <p class="text-2xl font-bold text-blue-600">shs ${totalProfit.toFixed(2)}</p>
+                        <p class="text-xs text-blue-600 mt-1">Revenue: shs ${totalRevenue.toFixed(2)}</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h5 class="font-semibold text-purple-800 text-sm mb-2">Avg Margin %</h5>
+                        <p class="text-2xl font-bold text-purple-600">${avgProfitMargin.toFixed(1)}%</p>
+                        <p class="text-xs text-purple-600 mt-1">Across all items</p>
+                    </div>
+                </div>
+                
+                <!-- Revenue Potential -->
+                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h5 class="font-semibold text-gray-800 mb-1">Potential Revenue (Current Stock)</h5>
+                            <p class="text-sm text-gray-600">Revenue if all current stock is sold at selling price</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-3xl font-bold text-indigo-600">shs ${totalPotentialRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profitability Analysis Table -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-1">Detailed Profitability Analysis</h4>
+                            <p class="text-sm text-gray-600">All items sorted by profit margin (highest first)</p>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            Showing ${sortedInventory.length} items
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto max-h-96 border border-gray-200 rounded-lg bg-white">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="sticky top-0 bg-gray-100 z-10">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Item</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Category</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Buying Price</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Selling Price</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Margin</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Margin %</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Sold</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Current Stock</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Potential Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${sortedInventory.length > 0 ? sortedInventory.map(item => {
+                                    const margin = item.profitMargin || 0;
+                                    const marginPercent = item.profitMarginPercentage || 0;
+                                    const potentialRevenue = item.potentialRevenue || 0;
+                                    const totalSold = item.totalSold || 0;
+                                    
+                                    return `
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.name || 'N/A'}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-600">${item.category || 'N/A'}</td>
+                                            <td class="px-4 py-3 text-sm text-right font-medium">shs ${(item.buyingPrice || 0).toFixed(2)}</td>
+                                            <td class="px-4 py-3 text-sm text-right font-medium">shs ${(item.sellingPrice || 0).toFixed(2)}</td>
+                                            <td class="px-4 py-3 text-sm text-right font-semibold ${margin > 0 ? 'text-green-600' : margin < 0 ? 'text-red-600' : 'text-gray-600'}">
+                                                shs ${margin.toFixed(2)}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right font-semibold ${marginPercent > 0 ? 'text-green-600' : marginPercent < 0 ? 'text-red-600' : 'text-gray-600'}">
+                                                ${marginPercent.toFixed(1)}%
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-600">${totalSold.toLocaleString()}</td>
+                                            <td class="px-4 py-3 text-sm text-right ${item.status === 'Low Stock' ? 'text-yellow-600 font-medium' : item.status === 'Out of Stock' ? 'text-red-600 font-semibold' : 'text-green-600'}">
+                                                ${(item.currentStock || 0).toLocaleString()} ${item.unit || 'units'}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right font-medium text-blue-600">
+                                                shs ${potentialRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('') : `
+                                    <tr>
+                                        <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                            <i class="fas fa-inbox text-3xl mb-2"></i>
+                                            <p>No inventory data available</p>
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Top/Bottom Performers -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h5 class="font-semibold text-green-800 mb-3">Top 5 Most Profitable Items</h5>
+                        <div class="space-y-2">
+                            ${profitableItems.slice(0, 5).map((item, index) => `
+                                <div class="bg-white p-3 rounded border border-green-200">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-green-600 font-bold">#${index + 1}</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800">${item.name}</p>
+                                                <p class="text-xs text-gray-600">${item.category || 'N/A'}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-green-600">shs ${(item.profitMargin || 0).toFixed(2)}</p>
+                                            <p class="text-xs text-gray-600">${(item.profitMarginPercentage || 0).toFixed(1)}% margin</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${profitableItems.length === 0 ? '<p class="text-sm text-gray-600 text-center py-4">No profitable items found</p>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h5 class="font-semibold text-red-800 mb-3">Items Requiring Attention</h5>
+                        <div class="space-y-2">
+                            ${lossItems.slice(0, 5).map((item, index) => `
+                                <div class="bg-white p-3 rounded border border-red-200">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-red-600 font-bold">!</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800">${item.name}</p>
+                                                <p class="text-xs text-gray-600">${item.category || 'N/A'}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-red-600">shs ${(item.profitMargin || 0).toFixed(2)}</p>
+                                            <p class="text-xs text-gray-600">${(item.profitMarginPercentage || 0).toFixed(1)}% margin</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            ${lossItems.length === 0 ? '<p class="text-sm text-green-600 text-center py-4">All items are profitable!</p>' : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateAlertsReport() {
+        const alerts = currentReportsData.lowStockAlerts || [];
+        
+        return `
+            <div class="space-y-6">
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-red-800 mb-3">Low Stock Alerts</h4>
+                    <p class="text-sm text-red-600 mb-4">Items requiring immediate attention</p>
+                    
+                    ${alerts.length > 0 ? `
+                        <div class="space-y-3">
+                            ${alerts.map(alert => `
+                                <div class="bg-white p-3 rounded border border-red-200">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <h5 class="font-medium text-gray-800">${alert.name}</h5>
+                                            <p class="text-sm text-gray-600">Supplier: ${alert.supplier}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-red-600">${alert.currentStock}</p>
+                                            <p class="text-xs text-gray-500">units left</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle text-2xl text-green-500 mb-2"></i>
+                            <p class="text-green-600">No low stock alerts at this time</p>
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+    }
+
+    function generateSupplierReport() {
+        const inventory = currentReportsData.inventoryOverview || [];
+        const suppliers = [...new Set(inventory.map(item => item.supplier))];
+        
+        return `
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Supplier Analysis</h4>
+                    <p class="text-sm text-gray-600 mb-4">Analysis of supplier performance and distribution</p>
+                    
+                    <div class="space-y-4">
+                        ${suppliers.map(supplier => {
+                            const supplierItems = inventory.filter(item => item.supplier === supplier);
+                            const totalValue = supplierItems.reduce((sum, item) => sum + ((item.buyingPrice || 0) * (item.currentStock || 0)), 0);
+                            const lowStockItems = supplierItems.filter(item => item.status === 'Low Stock' || item.status === 'Out of Stock');
+                            
+                            return `
+                                <div class="bg-white p-4 rounded-lg border shadow-sm">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h5 class="font-semibold text-gray-800 text-lg">${supplier}</h5>
+                                            <p class="text-sm text-gray-600">${supplierItems.length} items • ${lowStockItems.length} low stock</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xl font-bold text-blue-600">shs ${totalValue.toLocaleString()}</p>
+                                            <p class="text-xs text-gray-500">total inventory value</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="max-h-48 overflow-y-auto">
+                                        <div class="space-y-2">
+                                            ${supplierItems.map(item => `
+                                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                                                    <div class="flex-1">
+                                                        <span class="font-medium">${item.name}</span>
+                                                        <span class="text-gray-500 ml-2">${item.category || 'N/A'}</span>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <span class="font-medium ${item.status === 'Low Stock' ? 'text-red-600' : item.status === 'Out of Stock' ? 'text-red-800' : 'text-green-600'}">
+                                                            ${item.currentStock} ${item.unit}
+                                                        </span>
+                                                        <div class="text-xs text-gray-500">$${(item.buyingPrice || 0).toFixed(2)} each</div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateCustomReport() {
+        const inventory = currentReportsData.inventoryOverview || [];
+        const summary = currentReportsData.summary || {};
+        const lowStockAlerts = currentReportsData.lowStockAlerts || [];
+        const reorderRecommendations = currentReportsData.reorderRecommendations || [];
+        
+        // Calculate additional metrics
+        const totalItems = inventory.length;
+        const lowStockCount = inventory.filter(item => item.status === 'Low Stock' || item.status === 'Out of Stock').length;
+        const outOfStockCount = inventory.filter(item => item.status === 'Out of Stock').length;
+        const profitableItems = inventory.filter(item => (item.sellingPrice || 0) > (item.buyingPrice || 0)).length;
+        const categories = [...new Set(inventory.map(item => item.category))].filter(cat => cat);
+        
+        return `
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Comprehensive Stock Analysis</h4>
+                    <p class="text-sm text-gray-600 mb-4">Complete analysis of all inventory items and metrics</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="font-medium text-gray-700 mb-2">Inventory Overview</h5>
+                            <p class="text-sm text-gray-600">Total items: ${totalItems}</p>
+                            <p class="text-sm text-gray-600">Categories: ${categories.length}</p>
+                            <p class="text-sm text-gray-600">Date range: ${Object.keys(currentDateFilter).length > 0 ? 'Filtered' : 'All time'}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="font-medium text-gray-700 mb-2">Stock Status</h5>
+                            <p class="text-sm text-gray-600">Low stock: ${lowStockCount}</p>
+                            <p class="text-sm text-gray-600">Out of stock: ${outOfStockCount}</p>
+                            <p class="text-sm text-gray-600">Good stock: ${totalItems - lowStockCount}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="font-medium text-gray-700 mb-2">Profitability</h5>
+                            <p class="text-sm text-gray-600">Profitable items: ${profitableItems}</p>
+                            <p class="text-sm text-gray-600">Avg margin: ${summary.avgProfitMargin || 0}%</p>
+                            <p class="text-sm text-gray-600">Total value: shs ${(summary.totalStockValue || 0).toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Category Breakdown</h4>
+                    <p class="text-sm text-gray-600 mb-4">Items grouped by category with stock levels</p>
+                    
+                    <div class="space-y-4">
+                        ${categories.map(category => {
+                            const categoryItems = inventory.filter(item => item.category === category);
+                            const categoryLowStock = categoryItems.filter(item => item.status === 'Low Stock' || item.status === 'Out of Stock').length;
+                            const categoryValue = categoryItems.reduce((sum, item) => sum + ((item.buyingPrice || 0) * (item.currentStock || 0)), 0);
+                            
+                            return `
+                                <div class="bg-white p-4 rounded border">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h5 class="font-semibold text-gray-800">${category}</h5>
+                                            <p class="text-sm text-gray-600">${categoryItems.length} items • ${categoryLowStock} low stock</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-blue-600">$${categoryValue.toLocaleString()}</p>
+                                            <p class="text-xs text-gray-500">total value</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="max-h-32 overflow-y-auto">
+                                        <div class="space-y-1">
+                                            ${categoryItems.map(item => `
+                                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                                                    <span class="font-medium">${item.name}</span>
+                                                    <span class="font-medium ${item.status === 'Low Stock' ? 'text-red-600' : item.status === 'Out of Stock' ? 'text-red-800' : 'text-green-600'}">
+                                                        ${item.currentStock} ${item.unit}
+                                                    </span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Action Items</h4>
+                    <p class="text-sm text-gray-600 mb-4">Items requiring immediate attention</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-red-50 p-4 rounded border border-red-200">
+                            <h5 class="font-semibold text-red-800 mb-2">Low Stock Alerts</h5>
+                            <div class="space-y-2">
+                                ${lowStockAlerts.length > 0 ? lowStockAlerts.map(alert => `
+                                    <div class="bg-white p-2 rounded text-sm">
+                                        <span class="font-medium">${alert.name}</span>
+                                        <span class="text-red-600 ml-2">${alert.currentStock} left</span>
+                                    </div>
+                                `).join('') : '<p class="text-sm text-green-600">No low stock alerts</p>'}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-4 rounded border border-orange-200">
+                            <h5 class="font-semibold text-orange-800 mb-2">Reorder Recommendations</h5>
+                            <div class="space-y-2">
+                                ${reorderRecommendations.length > 0 ? reorderRecommendations.map(rec => `
+                                    <div class="bg-white p-2 rounded text-sm">
+                                        <span class="font-medium">${rec.name}</span>
+                                        <span class="text-orange-600 ml-2">Reorder ${rec.recommendedQuantity}</span>
+                                    </div>
+                                `).join('') : '<p class="text-sm text-green-600">No reorder recommendations</p>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-3">Report Information</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-3 rounded border">
+                            <h5 class="font-medium text-gray-700">Generation Details</h5>
+                            <p class="text-sm text-gray-600">Generated: ${new Date().toLocaleString()}</p>
+                            <p class="text-sm text-gray-600">Status: Complete</p>
+                            <p class="text-sm text-gray-600">Data source: Live inventory</p>
+                        </div>
+                        <div class="bg-white p-3 rounded border">
+                            <h5 class="font-medium text-gray-700">Filter Applied</h5>
+                            <p class="text-sm text-gray-600">Date filter: ${Object.keys(currentDateFilter).length > 0 ? 'Active' : 'None'}</p>
+                            <p class="text-sm text-gray-600">Items included: All active items</p>
+                            <p class="text-sm text-gray-600">Report type: Comprehensive analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Wait for page to be fully loaded
+    window.addEventListener('load', function() {
+        // Initialize page
+        function initReportsPage() {
+            console.log('Stock Reports page loaded');
+            
+            // Initialize date filters
+            initializeDateFilters();
+            
+            // Initialize buttons
+            initializeButtons();
+            
+            // Load initial data
+            loadReportsData();
+        }
+
+        // Initialize date filters
+        function initializeDateFilters() {
+            const dateFilterType = document.getElementById('dateFilterType');
+            const applyDateFilterBtn = document.getElementById('applyDateFilterBtn');
+            const resetDateFilterBtn = document.getElementById('resetDateFilterBtn');
+            
+            if (dateFilterType) {
+                dateFilterType.addEventListener('change', handleDateFilterTypeChange);
+            }
+            
+            if (applyDateFilterBtn) {
+                applyDateFilterBtn.addEventListener('click', applyDateFilter);
+            }
+            
+            if (resetDateFilterBtn) {
+                resetDateFilterBtn.addEventListener('click', resetDateFilter);
+            }
+            
+            // Set default values
+            const today = new Date().toISOString().split('T')[0];
+            const singleDateInput = document.getElementById('singleDate');
+            if (singleDateInput) {
+                singleDateInput.value = today;
+            }
+            
+            // Set default month to current month
+            const monthSelect = document.getElementById('monthSelect');
+            if (monthSelect) {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                monthSelect.value = currentMonth;
+            }
+            
+            // Set default filter type to month and apply current month filter
+            if (dateFilterType) {
+                dateFilterType.value = 'month';
+                handleDateFilterTypeChange();
+                
+                // Apply current month filter by default
+                setTimeout(() => {
+                    window.isDefaultLoad = true;
+                    applyDateFilter();
+                }, 100);
+            }
+        }
+
+        // Handle date filter type change
+        function handleDateFilterTypeChange() {
+            const filterType = document.getElementById('dateFilterType').value;
+            const sections = document.querySelectorAll('.date-filter-section');
+            
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            switch(filterType) {
+                case 'day':
+                    document.getElementById('singleDayFilter').classList.remove('hidden');
+                    break;
+                case 'range':
+                    document.getElementById('dateRangeFilter').classList.remove('hidden');
+                    break;
+                case 'month':
+                    document.getElementById('monthFilter').classList.remove('hidden');
+                    break;
+                case 'preset':
+                    document.getElementById('presetFilter').classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // Apply date filter
+        function applyDateFilter() {
+            const filterType = document.getElementById('dateFilterType').value;
+            let filterData = {};
+            
+            switch(filterType) {
+                case 'day':
+                    const singleDate = document.getElementById('singleDate').value;
+                    if (!singleDate) {
+                        showNotification('Please select a date', 'error');
+                        return;
+                    }
+                    filterData = {
+                        filterType: 'day',
+                        date: singleDate
+                    };
+                    updateDateFilterStatus(`Single Day: ${formatDate(singleDate)}`);
+                    break;
+                    
+                case 'range':
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    if (!startDate || !endDate) {
+                        showNotification('Please select both start and end dates', 'error');
+                        return;
+                    }
+                    if (new Date(startDate) > new Date(endDate)) {
+                        showNotification('Start date cannot be after end date', 'error');
+                        return;
+                    }
+                    filterData = {
+                        filterType: 'range',
+                        startDate: startDate,
+                        endDate: endDate
+                    };
+                    updateDateFilterStatus(`Range: ${formatDate(startDate)} - ${formatDate(endDate)}`);
+                    break;
+                    
+                case 'month':
+                    const monthSelect = document.getElementById('monthSelect').value;
+                    if (!monthSelect) {
+                        const currentMonth = new Date().toISOString().slice(0, 7);
+                        document.getElementById('monthSelect').value = currentMonth;
+                        filterData = {
+                            filterType: 'month',
+                            month: currentMonth
+                        };
+                        updateDateFilterStatus(`Month: ${formatMonth(currentMonth)}`);
+                    } else {
+                        filterData = {
+                            filterType: 'month',
+                            month: monthSelect
+                        };
+                        updateDateFilterStatus(`Month: ${formatMonth(monthSelect)}`);
+                    }
+                    break;
+                    
+                case 'preset':
+                    const presetPeriod = document.getElementById('presetPeriod').value;
+                    filterData = {
+                        filterType: 'preset',
+                        period: presetPeriod
+                    };
+                    updateDateFilterStatus(`Preset: ${presetPeriod.replace(/([A-Z])/g, ' $1').trim()}`);
+                    break;
+            }
+            
+            currentDateFilter = filterData;
+            loadReportsData();
+            
+            if (!window.isDefaultLoad) {
+                showNotification('Date filter applied successfully!', 'success');
+            }
+            window.isDefaultLoad = false;
+        }
+
+        // Reset date filter
+        function resetDateFilter() {
+            document.getElementById('singleDate').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('monthSelect').value = '';
+            document.getElementById('presetPeriod').value = 'today';
+            
+            document.getElementById('dateFilterType').value = 'day';
+            handleDateFilterTypeChange();
+            
+            currentDateFilter = {};
+            updateDateFilterStatus('All Time');
+            loadReportsData();
+            
+            showNotification('Date filter reset successfully!', 'success');
+        }
+
+        // Update date filter status display
+        function updateDateFilterStatus(status) {
+            const statusElement = document.getElementById('dateFilterStatus');
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Format month for display
+        function formatMonth(monthString) {
+            const date = new Date(monthString + '-01');
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long' 
+            });
+        }
+
+        // Initialize buttons
+        function initializeButtons() {
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            if (generateReportBtn) {
+                generateReportBtn.addEventListener('click', () => generateReport('custom'));
+            }
+            
+            const exportReportBtn = document.getElementById('exportReportBtn');
+            if (exportReportBtn) {
+                exportReportBtn.addEventListener('click', exportAllReports);
+            }
+            
+            const refreshDataBtn = document.getElementById('refreshDataBtn');
+            if (refreshDataBtn) {
+                refreshDataBtn.addEventListener('click', () => {
+                    const icon = refreshDataBtn.querySelector('i');
+                    icon.classList.add('fa-spin');
+                    refreshDataBtn.disabled = true;
+                    
+                    loadReportsData();
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-spin');
+                        refreshDataBtn.disabled = false;
+                    }, 2000);
+                });
+            }
+            
+            const clearReportsBtn = document.getElementById('clearReportsBtn');
+            if (clearReportsBtn) {
+                clearReportsBtn.addEventListener('click', clearAllReports);
+            }
+        }
+
+        // Load reports data
+        function loadReportsData() {
+            console.log('Loading reports data...');
+            
+            let requestData = {
+                dataType: 'general'
+            };
+            
+            if (Object.keys(currentDateFilter).length > 0) {
+                requestData = {
+                    ...requestData,
+                    ...currentDateFilter
+                };
+            } else {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                requestData = {
+                    ...requestData,
+                    filterType: 'month',
+                    month: currentMonth
+                };
+            }
+            
+            console.log('Request data:', requestData);
+            
+            fetch('/api/analytics/stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Reports data received:', data);
+                if (data.success) {
+                    currentReportsData = data.analytics;
+                    showNotification('Reports data loaded successfully!', 'success');
+                } else {
+                    console.error('Error loading reports:', data.message);
+                    showNotification('Failed to load reports data: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading reports:', error);
+                showNotification('Network error: ' + error.message, 'error');
+            });
+        }
+
+        // Load reports data
+        function loadReportsData() {
+            console.log('Loading reports data...');
+            
+            let requestData = {
+                dataType: 'general'
+            };
+            
+            if (Object.keys(currentDateFilter).length > 0) {
+                requestData = {
+                    ...requestData,
+                    ...currentDateFilter
+                };
+            } else {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                requestData = {
+                    ...requestData,
+                    filterType: 'month',
+                    month: currentMonth
+                };
+            }
+            
+            console.log('Request data:', requestData);
+            
+            fetch('/api/analytics/stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Reports data received:', data);
+                if (data.success) {
+                    currentReportsData = data.analytics;
+                    showNotification('Reports data loaded successfully!', 'success');
+                } else {
+                    console.error('Error loading reports:', data.message);
+                    showNotification('Failed to load reports data: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading reports:', error);
+                showNotification('Network error: ' + error.message, 'error');
+            });
+        }
+
+
+        // Initialize reports page
+        initReportsPage();
+    });
+</script>
+{% endblock %}

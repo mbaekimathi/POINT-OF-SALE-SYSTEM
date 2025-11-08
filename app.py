@@ -851,7 +851,17 @@ def dashboard():
 def point_of_sale():
     """Point of Sale page"""
     hotel_settings = get_hotel_settings()
-    return render_template('pos.html', hotel_settings=hotel_settings)
+    employee_id = session.get('employee_id')
+    employee_role = session.get('employee_role', 'guest')
+    employee_name = session.get('employee_name', 'Guest')
+    employee_profile_photo = get_employee_profile_photo(employee_id)
+    
+    return render_template('pos.html', 
+                         hotel_settings=hotel_settings,
+                         employee_id=employee_id,
+                         employee_role=employee_role,
+                         employee_name=employee_name,
+                         employee_profile_photo=employee_profile_photo)
 
 
 @app.route('/admin/dashboard')
@@ -1468,6 +1478,52 @@ def get_employee_sales_data():
     if 'employee_id' not in session or session.get('employee_role') != 'cashier':
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
     
+    # Get filter parameters
+    filter_type = request.args.get('filter_type', 'all')
+    selected_date = request.args.get('selected_date', '')
+    
+    # Validate filter parameters
+    if filter_type not in ['all', 'day', 'month']:
+        filter_type = 'all'
+    
+    # Build date filter conditions for both sales and payments
+    date_filter = ""
+    payment_date_filter = ""
+    summary_date_filter = ""
+    
+    if filter_type == 'day' and selected_date:
+        try:
+            # Validate date format
+            from datetime import datetime
+            datetime.strptime(selected_date, '%Y-%m-%d')
+            # Use validated date in query (safe after validation)
+            date_filter = f"AND DATE(s.sale_date) = '{selected_date}'"
+            payment_date_filter = f"AND DATE(ep.created_at) = '{selected_date}'"
+            summary_date_filter = f"AND DATE(sale_date) = '{selected_date}'"
+        except ValueError:
+            # Invalid date format, use all
+            filter_type = 'all'
+    elif filter_type == 'month' and selected_date:
+        try:
+            # Validate date format and extract year-month
+            from datetime import datetime
+            date_obj = datetime.strptime(selected_date, '%Y-%m-%d')
+            year = date_obj.year
+            month = date_obj.month
+            # Use validated values in query (safe after validation)
+            date_filter = f"AND YEAR(s.sale_date) = {year} AND MONTH(s.sale_date) = {month}"
+            payment_date_filter = f"AND YEAR(ep.created_at) = {year} AND MONTH(ep.created_at) = {month}"
+            summary_date_filter = f"AND YEAR(sale_date) = {year} AND MONTH(sale_date) = {month}"
+        except ValueError:
+            # Invalid date format, use all
+            filter_type = 'all'
+    
+    # If no filter or all, use default 30 days
+    if filter_type == 'all':
+        date_filter = "AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
+        payment_date_filter = "AND ep.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
+        summary_date_filter = ""
+    
     connection = get_db_connection()
     if not connection:
         return jsonify({'success': False, 'message': 'Database connection failed'}), 500
@@ -1489,49 +1545,73 @@ def get_employee_sales_data():
                 """)
                 
                 # Initialize balances for existing employees who don't have balance records
-                cursor.execute("""
-                    INSERT IGNORE INTO employee_balances (employee_id, total_sales, total_payments, outstanding_balance)
-                    SELECT 
-                        e.id,
-                        COALESCE(SUM(s.total_amount), 0) as total_sales,
-                        0 as total_payments,
-                        COALESCE(SUM(s.total_amount), 0) as outstanding_balance
-                    FROM employees e
-                    LEFT JOIN sales s ON e.id = s.employee_id 
-                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                    WHERE e.status = 'active'
-                    GROUP BY e.id
-                """)
+                # Skip initialization if filtering by date (would create incomplete data)
+                if filter_type == 'all':
+                    cursor.execute("""
+                        INSERT IGNORE INTO employee_balances (employee_id, total_sales, total_payments, outstanding_balance)
+                        SELECT 
+                            e.id,
+                            COALESCE(SUM(s.total_amount), 0) as total_sales,
+                            0 as total_payments,
+                            COALESCE(SUM(s.total_amount), 0) as outstanding_balance
+                        FROM employees e
+                        LEFT JOIN sales s ON e.id = s.employee_id 
+                            AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                        WHERE e.status = 'active'
+                        GROUP BY e.id
+                    """)
                 
                 connection.commit()
             except Exception as table_error:
                 print(f"Error creating/initializing employee_balances table: {table_error}")
                 # Continue with the query even if table creation fails
             
-            # Get all employees with their sales and outstanding balance
+            # Ensure employee_payments table exists for filtered payments
             try:
                 cursor.execute("""
-                SELECT 
-                    e.id,
-                    e.full_name,
-                    e.employee_code,
-                    e.status,
-                        COUNT(s.id) as total_sales,
+                    CREATE TABLE IF NOT EXISTS employee_payments (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        employee_id INT NOT NULL,
+                        cashier_id INT NOT NULL,
+                        amount DECIMAL(10,2) NOT NULL,
+                        status ENUM('completed', 'pending', 'cancelled') DEFAULT 'completed',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+                        FOREIGN KEY (cashier_id) REFERENCES employees(id) ON DELETE CASCADE
+                    )
+                """)
+            except Exception as payments_table_error:
+                print(f"Error creating employee_payments table: {payments_table_error}")
+            
+            # Get all employees with their sales, payments, and outstanding balance (filtered)
+            try:
+                # When filtering, calculate from actual filtered sales and payments
+                # When not filtering, use employee_balances table for efficiency
+                if filter_type != 'all' and date_filter:
+                    # Use filtered sales and payments
+                    cursor.execute(f"""
+                    SELECT 
+                        e.id,
+                        e.full_name,
+                        e.employee_code,
+                        e.status,
+                        COUNT(DISTINCT s.id) as total_sales,
                         COALESCE(SUM(s.total_amount), 0) as total_revenue,
-                        COALESCE(eb.total_payments, 0) as total_payments,
-                        COALESCE(eb.outstanding_balance, SUM(s.total_amount)) as outstanding_balance
+                        COALESCE(SUM(ep.amount), 0) as total_payments,
+                        COALESCE(SUM(s.total_amount), 0) - COALESCE(SUM(ep.amount), 0) as outstanding_balance
                     FROM employees e
                     LEFT JOIN sales s ON e.id = s.employee_id 
-                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                    LEFT JOIN employee_balances eb ON e.id = eb.employee_id
+                        {date_filter}
+                    LEFT JOIN employee_payments ep ON e.id = ep.employee_id 
+                        AND ep.status = 'completed'
+                        {payment_date_filter}
                     WHERE e.status = 'active'
-                    GROUP BY e.id, e.full_name, e.employee_code, e.status, eb.total_payments, eb.outstanding_balance
+                    GROUP BY e.id, e.full_name, e.employee_code, e.status
                     ORDER BY outstanding_balance DESC, total_revenue DESC
-                """)
-            except Exception as query_error:
-                print(f"Error with employee_balances join, using fallback query: {query_error}")
-                # Fallback query without employee_balances table
-                cursor.execute("""
+                    """)
+                else:
+                    # Use employee_balances for unfiltered view
+                    cursor.execute(f"""
                     SELECT 
                         e.id,
                         e.full_name,
@@ -1539,57 +1619,166 @@ def get_employee_sales_data():
                         e.status,
                         COUNT(s.id) as total_sales,
                         COALESCE(SUM(s.total_amount), 0) as total_revenue,
-                        0 as total_payments,
-                        COALESCE(SUM(s.total_amount), 0) as outstanding_balance
-                FROM employees e
-                LEFT JOIN sales s ON e.id = s.employee_id 
-                    AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                WHERE e.status = 'active'
-                GROUP BY e.id, e.full_name, e.employee_code, e.status
+                        COALESCE(eb.total_payments, 0) as total_payments,
+                        COALESCE(eb.outstanding_balance, SUM(s.total_amount)) as outstanding_balance
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        {date_filter}
+                    LEFT JOIN employee_balances eb ON e.id = eb.employee_id
+                    WHERE e.status = 'active'
+                    GROUP BY e.id, e.full_name, e.employee_code, e.status, eb.total_payments, eb.outstanding_balance
                     ORDER BY outstanding_balance DESC, total_revenue DESC
-            """)
+                    """)
+            except Exception as query_error:
+                print(f"Error with employee query, using fallback query: {query_error}")
+                # Fallback query without employee_balances table
+                if filter_type != 'all' and date_filter:
+                    cursor.execute(f"""
+                        SELECT 
+                            e.id,
+                            e.full_name,
+                            e.employee_code,
+                            e.status,
+                            COUNT(DISTINCT s.id) as total_sales,
+                            COALESCE(SUM(s.total_amount), 0) as total_revenue,
+                            COALESCE(SUM(ep.amount), 0) as total_payments,
+                            COALESCE(SUM(s.total_amount), 0) - COALESCE(SUM(ep.amount), 0) as outstanding_balance
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        {date_filter}
+                    LEFT JOIN employee_payments ep ON e.id = ep.employee_id 
+                        AND ep.status = 'completed'
+                        {payment_date_filter}
+                    WHERE e.status = 'active'
+                    GROUP BY e.id, e.full_name, e.employee_code, e.status
+                        ORDER BY outstanding_balance DESC, total_revenue DESC
+                    """)
+                else:
+                    cursor.execute(f"""
+                        SELECT 
+                            e.id,
+                            e.full_name,
+                            e.employee_code,
+                            e.status,
+                            COUNT(s.id) as total_sales,
+                            COALESCE(SUM(s.total_amount), 0) as total_revenue,
+                            0 as total_payments,
+                            COALESCE(SUM(s.total_amount), 0) as outstanding_balance
+                    FROM employees e
+                    LEFT JOIN sales s ON e.id = s.employee_id 
+                        {date_filter}
+                    WHERE e.status = 'active'
+                    GROUP BY e.id, e.full_name, e.employee_code, e.status
+                        ORDER BY outstanding_balance DESC, total_revenue DESC
+                    """)
             
             employees = cursor.fetchall()
             
-            # Get today's sales summary
-            cursor.execute("""
-                SELECT 
-                    COUNT(*) as today_sales,
-                    COALESCE(SUM(total_amount), 0) as today_revenue
-                FROM sales 
-                WHERE DATE(sale_date) = CURDATE()
-            """)
-            
-            today_summary = cursor.fetchone()
-            
-            # Get this week's sales summary
-            cursor.execute("""
-                SELECT 
-                    COUNT(*) as week_sales,
-                    COALESCE(SUM(total_amount), 0) as week_revenue
-                FROM sales 
-                WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
-            """)
-            
-            week_summary = cursor.fetchone()
-            
-            # Get total outstanding balance
-            try:
+            # Get filtered sales summary (today/week based on filter)
+            if filter_type == 'day' and selected_date:
+                cursor.execute(f"""
+                    SELECT 
+                        COUNT(*) as filtered_sales,
+                        COALESCE(SUM(total_amount), 0) as filtered_revenue
+                    FROM sales 
+                    WHERE DATE(sale_date) = '{selected_date}'
+                """)
+                filtered_summary = cursor.fetchone()
+                today_sales = filtered_summary[0] if filtered_summary else 0
+                today_revenue = float(filtered_summary[1]) if filtered_summary else 0.0
+                week_sales = today_sales
+                week_revenue = today_revenue
+            elif filter_type == 'month' and selected_date:
+                try:
+                    from datetime import datetime
+                    date_obj = datetime.strptime(selected_date, '%Y-%m-%d')
+                    year = date_obj.year
+                    month = date_obj.month
+                    cursor.execute(f"""
+                        SELECT 
+                            COUNT(*) as filtered_sales,
+                            COALESCE(SUM(total_amount), 0) as filtered_revenue
+                        FROM sales 
+                        WHERE YEAR(sale_date) = {year} AND MONTH(sale_date) = {month}
+                    """)
+                    filtered_summary = cursor.fetchone()
+                    today_sales = filtered_summary[0] if filtered_summary else 0
+                    today_revenue = float(filtered_summary[1]) if filtered_summary else 0.0
+                    week_sales = today_sales
+                    week_revenue = today_revenue
+                except ValueError:
+                    today_sales = week_sales = 0
+                    today_revenue = week_revenue = 0.0
+            else:
+                # Get today's sales summary
                 cursor.execute("""
                     SELECT 
-                        COALESCE(SUM(outstanding_balance), 0) as total_outstanding
-                    FROM employee_balances
+                        COUNT(*) as today_sales,
+                        COALESCE(SUM(total_amount), 0) as today_revenue
+                    FROM sales 
+                    WHERE DATE(sale_date) = CURDATE()
                 """)
-                outstanding_summary = cursor.fetchone()
+                
+                today_summary = cursor.fetchone()
+                today_sales = today_summary[0] if today_summary else 0
+                today_revenue = float(today_summary[1]) if today_summary else 0.0
+                
+                # Get this week's sales summary
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as week_sales,
+                        COALESCE(SUM(total_amount), 0) as week_revenue
+                    FROM sales 
+                    WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+                """)
+                
+                week_summary = cursor.fetchone()
+                week_sales = week_summary[0] if week_summary else 0
+                week_revenue = float(week_summary[1]) if week_summary else 0.0
+            
+            # Get total outstanding balance (filtered if needed)
+            try:
+                if filter_type != 'all' and date_filter:
+                    # Calculate outstanding from filtered sales minus filtered payments
+                    # Build separate filters for subqueries
+                    sales_date_filter = date_filter.replace('s.', 's2.')
+                    payments_date_filter = payment_date_filter.replace('ep.', 'ep2.')
+                    
+                    cursor.execute(f"""
+                        SELECT 
+                            COALESCE((
+                                SELECT SUM(s2.total_amount) 
+                                FROM sales s2 
+                                JOIN employees e2 ON s2.employee_id = e2.id 
+                                WHERE e2.status = 'active' 
+                                {sales_date_filter}
+                            ), 0) - COALESCE((
+                                SELECT SUM(ep2.amount) 
+                                FROM employee_payments ep2 
+                                JOIN employees e2 ON ep2.employee_id = e2.id 
+                                WHERE e2.status = 'active' 
+                                AND ep2.status = 'completed'
+                                {payments_date_filter}
+                            ), 0) as total_outstanding
+                    """)
+                    outstanding_summary = cursor.fetchone()
+                else:
+                    cursor.execute("""
+                        SELECT 
+                            COALESCE(SUM(outstanding_balance), 0) as total_outstanding
+                        FROM employee_balances
+                    """)
+                    outstanding_summary = cursor.fetchone()
             except Exception as balance_error:
                 print(f"Error getting outstanding balance, using fallback: {balance_error}")
                 # Fallback: calculate from sales data
-                cursor.execute("""
+                fallback_filter = date_filter if date_filter else "AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
+                cursor.execute(f"""
                     SELECT 
                         COALESCE(SUM(s.total_amount), 0) as total_outstanding
                     FROM employees e
                     LEFT JOIN sales s ON e.id = s.employee_id 
-                        AND s.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                        {fallback_filter}
                     WHERE e.status = 'active'
                 """)
                 outstanding_summary = cursor.fetchone()
@@ -1612,10 +1801,10 @@ def get_employee_sales_data():
                 'success': True,
                 'employees': employees_data,
                 'summary': {
-                    'today_sales': today_summary[0] if today_summary else 0,
-                    'today_revenue': float(today_summary[1]) if today_summary else 0.0,
-                    'week_sales': week_summary[0] if week_summary else 0,
-                    'week_revenue': float(week_summary[1]) if week_summary else 0.0,
+                    'today_sales': today_sales,
+                    'today_revenue': today_revenue,
+                    'week_sales': week_sales,
+                    'week_revenue': week_revenue,
                     'total_outstanding': float(outstanding_summary[0]) if outstanding_summary else 0.0
                 }
             })
@@ -3129,14 +3318,49 @@ def admin_settings():
                          employee_profile_photo=employee_profile_photo,
                          hotel_settings=hotel_settings)
 
+@app.route('/off-days')
+def off_days_view():
+    """Public off days viewing page - shows calendar with all employees and their off days
+    If employee is in session, redirects to their role-specific off days page
+    If no session, shows all employees' off days"""
+    
+    # If employee is in session, redirect to their role-specific page
+    if 'employee_id' in session:
+        employee_role = session.get('employee_role')
+        
+        if employee_role == 'admin' or employee_role == 'manager':
+            return redirect(url_for('admin_off_days_management'))
+        else:
+            # For employees, cashiers, etc., redirect to employee off-days page
+            return redirect(url_for('employee_off_days'))
+    
+    # No session - show public view with all employees
+    hotel_settings = get_hotel_settings()
+    return render_template('admin/off_days_management.html',
+                         employee_name='Guest',
+                         employee_role='guest',
+                         employee_id=None,
+                         employee_profile_photo=None,
+                         hotel_settings=hotel_settings)
+
 @app.route('/admin/off-days-management')
 def admin_off_days_management():
-    """Off days management page - shows calendar with all employees and their off days"""
+    """Admin off days management page - shows calendar with all employees and their off days
+    Only accessible to admin/manager roles"""
+    # Check if user is admin or manager
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        # If not authorized, redirect to public off-days page
+        return redirect(url_for('off_days_view'))
+    
     hotel_settings = get_hotel_settings()
-    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    employee_id = session.get('employee_id')
+    employee_profile_photo = get_employee_profile_photo(employee_id)
+    employee_role = session.get('employee_role')
+    
     return render_template('admin/off_days_management.html',
-                         employee_name=session.get('employee_name', 'Guest'),
-                         employee_role=session.get('employee_role', 'guest'),
+                         employee_name=session.get('employee_name'),
+                         employee_role=employee_role,
+                         employee_id=employee_id,
                          employee_profile_photo=employee_profile_photo,
                          hotel_settings=hotel_settings)
 
@@ -4272,8 +4496,12 @@ def change_employee_password():
 # HR Management API Endpoints
 @app.route('/api/hr/employees', methods=['GET'])
 def get_all_employees():
-    """Get all employees for HR management and calendar view"""
-    # Allow access for calendar viewing without authentication
+    """Get all employees for HR management and calendar view
+    - If employee in session (not admin/manager): returns only that employee
+    - If admin/manager in session or no session: returns all employees"""
+    
+    session_employee_id = session.get('employee_id')
+    employee_role = session.get('employee_role')
     
     connection = get_db_connection()
     if not connection:
@@ -4281,12 +4509,22 @@ def get_all_employees():
     
     try:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            cursor.execute("""
-                SELECT id, full_name, email, phone_number, employee_code, 
-                       profile_photo, role, status, created_at, updated_at
-                FROM employees 
-                ORDER BY created_at DESC
-            """)
+            # If employee is logged in and not admin/manager, return only their data
+            if session_employee_id and employee_role not in ['admin', 'manager']:
+                cursor.execute("""
+                    SELECT id, full_name, email, phone_number, employee_code, 
+                           profile_photo, role, status, created_at, updated_at
+                    FROM employees 
+                    WHERE id = %s
+                    ORDER BY created_at DESC
+                """, (session_employee_id,))
+            else:
+                cursor.execute("""
+                    SELECT id, full_name, email, phone_number, employee_code, 
+                           profile_photo, role, status, created_at, updated_at
+                    FROM employees 
+                    ORDER BY created_at DESC
+                """)
             employees = cursor.fetchall()
             
             # Convert datetime objects to strings for JSON serialization
@@ -5130,30 +5368,113 @@ def delete_employee(employee_id):
 
 @app.route('/api/off-days/calendar/<int:year>/<int:month>', methods=['GET'])
 def get_off_days_calendar(year, month):
-    """Get off days calendar data for a specific month"""
-    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    """Get off days calendar data for a specific month
+    - If no session: returns all employees' off days
+    - If employee in session (not admin/manager): returns only that employee's off days
+    - If admin/manager in session: returns all employees' off days"""
     
     connection = get_db_connection()
     if not connection:
         return jsonify({'success': False, 'message': 'Database connection error'}), 500
     
     try:
+        employee_id = session.get('employee_id')
+        employee_role = session.get('employee_role')
+        
+        # Determine if we should filter by employee
+        filter_by_employee = False
+        if employee_id and employee_role not in ['admin', 'manager']:
+            # Employee is logged in and not admin/manager, show only their off days
+            filter_by_employee = True
+        
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            # Get all employees
-            cursor.execute("""
-                SELECT id, full_name, employee_code, role, status
-                FROM employees 
-                WHERE status IN ('active', 'waiting_approval')
-                ORDER BY full_name
-            """)
+            # Get employees based on filter
+            if filter_by_employee:
+                # Get only the logged-in employee
+                cursor.execute("""
+                    SELECT id, full_name, employee_code, role, status
+                    FROM employees 
+                    WHERE id = %s AND status IN ('active', 'waiting_approval')
+                    ORDER BY full_name
+                """, (employee_id,))
+            else:
+                # Get all employees
+                cursor.execute("""
+                    SELECT id, full_name, employee_code, role, status
+                    FROM employees 
+                    WHERE status IN ('active', 'waiting_approval')
+                    ORDER BY full_name
+                """)
             employees = cursor.fetchall()
             
-            # For now, return empty off-days data since we don't have an off_days table yet
-            # This will prevent the 404 errors
+            # Get off days for the specified month, filtered if needed
+            if filter_by_employee:
+                cursor.execute("""
+                    SELECT 
+                        od.id,
+                        od.employee_id,
+                        od.off_date as date,
+                        od.off_type,
+                        od.status,
+                        od.reason,
+                        e.full_name,
+                        e.employee_code,
+                        e.role
+                    FROM off_days od
+                    JOIN employees e ON od.employee_id = e.id
+                    WHERE od.employee_id = %s 
+                    AND YEAR(od.off_date) = %s 
+                    AND MONTH(od.off_date) = %s
+                    ORDER BY od.off_date, e.full_name
+                """, (employee_id, year, month))
+            else:
+                cursor.execute("""
+                    SELECT 
+                        od.id,
+                        od.employee_id,
+                        od.off_date as date,
+                        od.off_type,
+                        od.status,
+                        od.reason,
+                        e.full_name,
+                        e.employee_code,
+                        e.role
+                    FROM off_days od
+                    JOIN employees e ON od.employee_id = e.id
+                    WHERE YEAR(od.off_date) = %s AND MONTH(od.off_date) = %s
+                    ORDER BY od.off_date, e.full_name
+                """, (year, month))
+            
+            off_days = cursor.fetchall()
+            
+            # Format off days for calendar display
+            formatted_off_days = []
+            for off_day in off_days:
+                formatted_off_days.append({
+                    'id': off_day['id'],
+                    'employee_id': off_day['employee_id'],
+                    'date': off_day['date'].strftime('%Y-%m-%d') if off_day['date'] else None,
+                    'off_type': off_day['off_type'],
+                    'status': off_day['status'],
+                    'reason': off_day['reason'],
+                    'full_name': off_day['full_name'],
+                    'employee_code': off_day['employee_code'],
+                    'role': off_day['role']
+                })
+            
+            # Group off days by date for calendar structure
+            calendar_dict = {}
+            for off_day in formatted_off_days:
+                date_key = off_day['date']
+                if date_key:
+                    if date_key not in calendar_dict:
+                        calendar_dict[date_key] = []
+                    calendar_dict[date_key].append(off_day)
+            
             off_days_data = {
                 'employees': employees,
-                'off_days': [],
+                'off_days': formatted_off_days,
+                'calendar': calendar_dict,
                 'year': year,
                 'month': month
             }
@@ -5189,22 +5510,823 @@ def get_employee_off_days_stats(employee_id):
             if not employee:
                 return jsonify({'success': False, 'message': 'Employee not found'}), 404
             
-            # For now, return empty stats since we don't have an off_days table yet
+            # Get off days statistics from the database
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as total_off_days,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_off_days,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_off_days,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_off_days,
+                    SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_off_days
+                FROM off_days
+                WHERE employee_id = %s
+            """, (employee_id,))
+            
+            stats_result = cursor.fetchone()
+            
+            # Helper function to safely convert to int (handles None values)
+            def safe_int(value):
+                if value is None:
+                    return 0
+                try:
+                    return int(value)
+                except (ValueError, TypeError):
+                    return 0
+            
             stats = {
-                'employee': employee,
-                'total_off_days': 0,
-                'used_off_days': 0,
-                'remaining_off_days': 0,
-                'pending_requests': 0
+                'total_off_days': safe_int(stats_result['total_off_days']) if stats_result else 0,
+                'approved_off_days': safe_int(stats_result['approved_off_days']) if stats_result else 0,
+                'pending_off_days': safe_int(stats_result['pending_off_days']) if stats_result else 0,
+                'rejected_off_days': safe_int(stats_result['rejected_off_days']) if stats_result else 0,
+                'cancelled_off_days': safe_int(stats_result['cancelled_off_days']) if stats_result else 0
             }
             
-            return jsonify({'success': True, 'data': stats})
+            return jsonify({
+                'success': True,
+                'employee': employee,
+                'stats': stats
+            })
             
     except Exception as e:
         print(f"Error fetching employee off-days stats: {e}")
-        return jsonify({'success': False, 'message': 'An error occurred while fetching employee stats'}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'An error occurred while fetching employee stats: {str(e)}'}), 500
     finally:
         connection.close()
+
+@app.route('/api/off-days/check-range', methods=['GET'])
+def check_off_days_range():
+    """Check for existing off days in a date range for an employee"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_id = request.args.get('employee_id')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    if not employee_id or not start_date or not end_date:
+        return jsonify({'success': False, 'message': 'Missing required parameters'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT id, off_date, off_type, status, reason
+                FROM off_days
+                WHERE employee_id = %s
+                AND off_date BETWEEN %s AND %s
+                ORDER BY off_date
+            """, (employee_id, start_date, end_date))
+            
+            existing_off_days = cursor.fetchall()
+            
+            # Format dates
+            result = []
+            for off_day in existing_off_days:
+                result.append({
+                    'id': off_day['id'],
+                    'off_date': off_day['off_date'].strftime('%Y-%m-%d') if off_day['off_date'] else None,
+                    'off_type': off_day['off_type'],
+                    'status': off_day['status'],
+                    'reason': off_day['reason']
+                })
+            
+        return jsonify({
+            'success': True,
+            'existing_off_days': result
+        })
+    except Exception as e:
+        print(f"Error checking off days range: {e}")
+        return jsonify({'success': False, 'message': 'Error checking off days range'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/register-range', methods=['POST'])
+def register_off_days_range():
+    """Register or update off days for a date range (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json() or {}
+    required = ['employee_id', 'start_date', 'end_date', 'off_type', 'status']
+    for field in required:
+        if field not in data or data[field] in [None, '']:
+            return jsonify({'success': False, 'message': f'Missing field: {field}'}), 400
+    
+    employee_id = int(data.get('employee_id'))
+    start_date = str(data.get('start_date'))
+    end_date = str(data.get('end_date'))
+    off_type = str(data.get('off_type'))
+    status = str(data.get('status'))
+    reason = data.get('reason') or None
+    approved_by = session.get('employee_id')
+    
+    # Validate date range
+    if start_date > end_date:
+        return jsonify({'success': False, 'message': 'End date must be after start date'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verify employee exists and is active
+            cursor.execute("SELECT id FROM employees WHERE id = %s AND status = 'active'", (employee_id,))
+            if not cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Employee not found or inactive'}), 404
+            
+            # Get existing off days in the range
+            cursor.execute("""
+                SELECT id, off_date
+                FROM off_days
+                WHERE employee_id = %s
+                AND off_date BETWEEN %s AND %s
+            """, (employee_id, start_date, end_date))
+            existing_off_days = cursor.fetchall()
+            existing_dates = {row[1].strftime('%Y-%m-%d'): row[0] for row in existing_off_days}
+            
+            # Generate all dates in the range
+            from datetime import datetime, timedelta
+            start = datetime.strptime(start_date, '%Y-%m-%d')
+            end = datetime.strptime(end_date, '%Y-%m-%d')
+            current_date = start
+            dates_to_process = []
+            
+            while current_date <= end:
+                date_str = current_date.strftime('%Y-%m-%d')
+                dates_to_process.append((date_str, existing_dates.get(date_str)))
+                current_date += timedelta(days=1)
+            
+            # Process each date - update if exists, insert if new
+            updated_count = 0
+            created_count = 0
+            
+            for date_str, existing_id in dates_to_process:
+                if existing_id:
+                    # Update existing off day
+                    cursor.execute("""
+                        UPDATE off_days
+                        SET off_type = %s, status = %s, reason = %s, approved_by = %s, updated_at = NOW()
+                        WHERE id = %s
+                    """, (off_type, status, reason, approved_by, existing_id))
+                    updated_count += 1
+                else:
+                    # Insert new off day
+                    cursor.execute("""
+                        INSERT INTO off_days (employee_id, off_date, off_type, status, reason, approved_by)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """, (employee_id, date_str, off_type, status, reason, approved_by))
+                    created_count += 1
+            
+        connection.commit()
+        
+        message = f'Successfully processed {len(dates_to_process)} off days'
+        if updated_count > 0:
+            message += f' ({updated_count} updated, {created_count} created)'
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'dates_processed': len(dates_to_process),
+            'updated': updated_count,
+            'created': created_count
+        })
+    except Exception as e:
+        print(f"Error registering off days range: {e}")
+        import traceback
+        traceback.print_exc()
+        connection.rollback()
+        return jsonify({'success': False, 'message': f'Error registering off days: {str(e)}'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/employee/<int:employee_id>/list', methods=['GET'])
+def get_employee_off_days_list(employee_id):
+    """Get all off days for an employee
+    - If employee in session: only allow access to their own data
+    - If admin/manager in session: allow access to any employee
+    - If no session: allow access (for viewing)"""
+    
+    session_employee_id = session.get('employee_id')
+    employee_role = session.get('employee_role')
+    
+    # If employee is logged in and not admin/manager, only allow access to their own data
+    if session_employee_id and employee_role not in ['admin', 'manager']:
+        if session_employee_id != employee_id:
+            return jsonify({'success': False, 'message': 'Unauthorized - You can only view your own off days'}), 403
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Verify employee exists and is active
+            cursor.execute("SELECT id, full_name FROM employees WHERE id = %s AND status = 'active'", (employee_id,))
+            employee = cursor.fetchone()
+            
+            if not employee:
+                return jsonify({'success': False, 'message': 'Employee not found or inactive'}), 404
+            
+            # Get all off days for this employee, ordered by date (newest first)
+            cursor.execute("""
+                SELECT id, off_date, off_type, status, reason, created_at, updated_at
+                FROM off_days
+                WHERE employee_id = %s
+                ORDER BY off_date DESC, created_at DESC
+            """, (employee_id,))
+            
+            off_days = cursor.fetchall()
+            
+            # Format dates
+            result = []
+            for off_day in off_days:
+                result.append({
+                    'id': off_day['id'],
+                    'off_date': off_day['off_date'].strftime('%Y-%m-%d') if off_day['off_date'] else None,
+                    'off_date_formatted': off_day['off_date'].strftime('%B %d, %Y') if off_day['off_date'] else None,
+                    'off_type': off_day['off_type'],
+                    'status': off_day['status'],
+                    'reason': off_day['reason'],
+                    'created_at': off_day['created_at'].strftime('%Y-%m-%d %I:%M %p') if off_day.get('created_at') else None,
+                    'updated_at': off_day['updated_at'].strftime('%Y-%m-%d %I:%M %p') if off_day.get('updated_at') else None
+                })
+            
+        return jsonify({
+            'success': True,
+            'off_days': result
+        })
+    except Exception as e:
+        print(f"Error fetching employee off days list: {e}")
+        return jsonify({'success': False, 'message': 'Error fetching off days list'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/<int:off_day_id>', methods=['GET'])
+def get_off_day(off_day_id):
+    """Get a single off day by ID
+    - Admin/manager: can view any off day
+    - Employee: can only view their own off days"""
+    
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    session_employee_id = session.get('employee_id')
+    employee_role = session.get('employee_role')
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT od.id, od.employee_id, od.off_date, od.off_type, od.status, od.reason,
+                       e.full_name, e.employee_code, e.role
+                FROM off_days od
+                JOIN employees e ON od.employee_id = e.id
+                WHERE od.id = %s
+            """, (off_day_id,))
+            
+            off_day = cursor.fetchone()
+            
+            if not off_day:
+                return jsonify({'success': False, 'message': 'Off day not found'}), 404
+            
+            # If employee is not admin/manager, only allow access to their own off days
+            if employee_role not in ['admin', 'manager']:
+                if off_day['employee_id'] != session_employee_id:
+                    return jsonify({'success': False, 'message': 'Unauthorized - You can only view your own off days'}), 403
+            
+            result = {
+                'id': off_day['id'],
+                'employee_id': off_day['employee_id'],
+                'off_date': off_day['off_date'].strftime('%Y-%m-%d') if off_day['off_date'] else None,
+                'off_type': off_day['off_type'],
+                'status': off_day['status'],
+                'reason': off_day['reason'],
+                'full_name': off_day['full_name'],
+                'employee_code': off_day['employee_code'],
+                'role': off_day['role']
+            }
+            
+        return jsonify({
+            'success': True,
+            'off_day': result
+        })
+    except Exception as e:
+        print(f"Error fetching off day: {e}")
+        return jsonify({'success': False, 'message': 'Error fetching off day'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/<int:off_day_id>/range', methods=['GET'])
+def get_off_day_range(off_day_id):
+    """Get the date range for consecutive off days with same type/status/reason (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Get the off day details
+            cursor.execute("""
+                SELECT employee_id, off_date, off_type, status, reason
+                FROM off_days
+                WHERE id = %s
+            """, (off_day_id,))
+            
+            off_day = cursor.fetchone()
+            
+            if not off_day:
+                return jsonify({'success': False, 'message': 'Off day not found'}), 404
+            
+            # Find consecutive days with same type, status, and reason
+            # Get all matching off days ordered by date
+            cursor.execute("""
+                SELECT off_date
+                FROM off_days
+                WHERE employee_id = %s
+                AND off_type = %s
+                AND status = %s
+                AND (reason = %s OR (reason IS NULL AND %s IS NULL))
+                ORDER BY off_date
+            """, (off_day['employee_id'], off_day['off_type'], off_day['status'], 
+                  off_day['reason'], off_day['reason']))
+            
+            all_dates = [row['off_date'] for row in cursor.fetchall()]
+            
+            if not all_dates:
+                start_date = off_day['off_date']
+                end_date = off_day['off_date']
+            else:
+                # Find consecutive range containing the target date
+                target_date = off_day['off_date']
+                
+                # Convert target_date to date if it's datetime
+                if isinstance(target_date, datetime):
+                    target_date = target_date.date()
+                
+                # Find start date - go backwards from target until gap
+                start_date = target_date
+                for i, date in enumerate(all_dates):
+                    # Convert to date for comparison
+                    date_val = date.date() if isinstance(date, datetime) else date
+                    if date_val == target_date:
+                        # Check backwards for consecutive dates
+                        for j in range(i - 1, -1, -1):
+                            prev_date = all_dates[j]
+                            prev_date_val = prev_date.date() if isinstance(prev_date, datetime) else prev_date
+                            current_date_val = all_dates[j + 1].date() if isinstance(all_dates[j + 1], datetime) else all_dates[j + 1]
+                            expected_date = current_date_val - timedelta(days=1)
+                            if prev_date_val == expected_date:
+                                start_date = prev_date_val
+                            else:
+                                break
+                        break
+                
+                # Find end date - go forwards from target until gap
+                end_date = target_date
+                for i, date in enumerate(all_dates):
+                    # Convert to date for comparison
+                    date_val = date.date() if isinstance(date, datetime) else date
+                    if date_val == target_date:
+                        # Check forwards for consecutive dates
+                        for j in range(i + 1, len(all_dates)):
+                            next_date = all_dates[j]
+                            next_date_val = next_date.date() if isinstance(next_date, datetime) else next_date
+                            current_date_val = all_dates[j - 1].date() if isinstance(all_dates[j - 1], datetime) else all_dates[j - 1]
+                            expected_date = current_date_val + timedelta(days=1)
+                            if next_date_val == expected_date:
+                                end_date = next_date_val
+                            else:
+                                break
+                        break
+            
+        return jsonify({
+            'success': True,
+            'start_date': start_date.strftime('%Y-%m-%d') if start_date else None,
+            'end_date': end_date.strftime('%Y-%m-%d') if end_date else None
+        })
+    except Exception as e:
+        print(f"Error fetching off day range: {e}")
+        return jsonify({'success': False, 'message': 'Error fetching off day range'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/<int:off_day_id>', methods=['PUT'])
+def update_off_day(off_day_id):
+    """Update a single off day (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    data = request.get_json() or {}
+    required = ['off_date', 'off_type', 'status']
+    for field in required:
+        if field not in data or data[field] in [None, '']:
+            return jsonify({'success': False, 'message': f'Missing field: {field}'}), 400
+    
+    off_date = str(data.get('off_date'))
+    off_type = str(data.get('off_type'))
+    status = str(data.get('status'))
+    reason = data.get('reason') or None
+    approved_by = session.get('employee_id')
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verify off day exists
+            cursor.execute("SELECT id, employee_id FROM off_days WHERE id = %s", (off_day_id,))
+            off_day = cursor.fetchone()
+            
+            if not off_day:
+                return jsonify({'success': False, 'message': 'Off day not found'}), 404
+            
+            # Check if date conflicts with another off day for the same employee
+            cursor.execute("""
+                SELECT id FROM off_days
+                WHERE employee_id = %s AND off_date = %s AND id != %s
+            """, (off_day[1], off_date, off_day_id))
+            
+            if cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Another off day already exists for this employee on this date'}), 400
+            
+            # Update the off day
+            cursor.execute("""
+                UPDATE off_days
+                SET off_date = %s, off_type = %s, status = %s, reason = %s, 
+                    approved_by = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (off_date, off_type, status, reason, approved_by, off_day_id))
+            
+        connection.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Off day updated successfully'
+        })
+    except Exception as e:
+        print(f"Error updating off day: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': f'Error updating off day: {str(e)}'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/<int:off_day_id>', methods=['DELETE'])
+def delete_off_day(off_day_id):
+    """Delete a single off day (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verify off day exists
+            cursor.execute("SELECT id FROM off_days WHERE id = %s", (off_day_id,))
+            if not cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Off day not found'}), 404
+            
+            # Delete the off day
+            cursor.execute("DELETE FROM off_days WHERE id = %s", (off_day_id,))
+            
+        connection.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Off day deleted successfully'
+        })
+    except Exception as e:
+        print(f"Error deleting off day: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Error deleting off day'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/<int:off_day_id>/approve', methods=['POST'])
+def approve_off_day(off_day_id):
+    """Approve an off day (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verify off day exists
+            cursor.execute("SELECT id FROM off_days WHERE id = %s", (off_day_id,))
+            if not cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Off day not found'}), 404
+            
+            # Update status to approved
+            approved_by = session.get('employee_id')
+            cursor.execute("""
+                UPDATE off_days
+                SET status = 'approved', approved_by = %s, approved_at = NOW(), updated_at = NOW()
+                WHERE id = %s
+            """, (approved_by, off_day_id))
+            
+        connection.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Off day approved successfully'
+        })
+    except Exception as e:
+        print(f"Error approving off day: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Error approving off day'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/off-days/<int:off_day_id>/decline', methods=['POST'])
+def decline_off_day(off_day_id):
+    """Decline (reject) an off day (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verify off day exists
+            cursor.execute("SELECT id FROM off_days WHERE id = %s", (off_day_id,))
+            if not cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Off day not found'}), 404
+            
+            # Update status to rejected
+            approved_by = session.get('employee_id')
+            cursor.execute("""
+                UPDATE off_days
+                SET status = 'rejected', approved_by = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (approved_by, off_day_id))
+            
+        connection.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Off day declined successfully'
+        })
+    except Exception as e:
+        print(f"Error declining off day: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Error declining off day'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/employee/off-days/stats', methods=['GET'])
+def get_employee_off_days_stats_self():
+    """Get off days statistics for the logged-in employee"""
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_id = session.get('employee_id')
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Get off days statistics from the database
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as total_off_days,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_off_days,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_off_days,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_off_days,
+                    SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_off_days,
+                    SUM(CASE WHEN off_type = 'vacation' THEN 1 ELSE 0 END) as vacation_days
+                FROM off_days
+                WHERE employee_id = %s
+            """, (employee_id,))
+            
+            stats_result = cursor.fetchone()
+            
+            # Get recent off days (last 10)
+            cursor.execute("""
+                SELECT id, off_date, off_type, status, reason, created_at
+                FROM off_days
+                WHERE employee_id = %s
+                ORDER BY off_date DESC, created_at DESC
+                LIMIT 10
+            """, (employee_id,))
+            
+            recent_off_days = cursor.fetchall()
+            
+            # Helper function to safely convert to int (handles None values)
+            def safe_int(value):
+                if value is None:
+                    return 0
+                try:
+                    return int(value)
+                except (ValueError, TypeError):
+                    return 0
+            
+            stats = {
+                'total_off_days': safe_int(stats_result['total_off_days']) if stats_result else 0,
+                'approved_off_days': safe_int(stats_result['approved_off_days']) if stats_result else 0,
+                'pending_off_days': safe_int(stats_result['pending_off_days']) if stats_result else 0,
+                'rejected_off_days': safe_int(stats_result['rejected_off_days']) if stats_result else 0,
+                'cancelled_off_days': safe_int(stats_result['cancelled_off_days']) if stats_result else 0,
+                'vacation_days': safe_int(stats_result['vacation_days']) if stats_result else 0
+            }
+            
+            # Format recent off days
+            formatted_recent = []
+            for off_day in recent_off_days:
+                formatted_recent.append({
+                    'id': off_day['id'],
+                    'off_date': off_day['off_date'].strftime('%Y-%m-%d') if off_day['off_date'] else None,
+                    'off_type': off_day['off_type'],
+                    'status': off_day['status'],
+                    'reason': off_day['reason'],
+                    'created_at': off_day['created_at'].strftime('%Y-%m-%d %I:%M %p') if off_day.get('created_at') else None
+                })
+            
+            return jsonify({
+                'success': True,
+                'stats': stats,
+                'recent_off_days': formatted_recent
+            })
+            
+    except Exception as e:
+        print(f"Error fetching employee off-days stats: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'An error occurred while fetching employee stats: {str(e)}'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/employee/off-days', methods=['GET'])
+def get_employee_off_days_calendar():
+    """Get off days calendar data for the logged-in employee"""
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_id = session.get('employee_id')
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+    
+    if not month or not year:
+        return jsonify({'success': False, 'message': 'Month and year are required'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Get all off days for the specified month
+            cursor.execute("""
+                SELECT 
+                    id,
+                    off_date,
+                    off_type,
+                    status,
+                    reason,
+                    created_at
+                FROM off_days
+                WHERE employee_id = %s AND YEAR(off_date) = %s AND MONTH(off_date) = %s
+                ORDER BY off_date
+            """, (employee_id, year, month))
+            
+            off_days = cursor.fetchall()
+            
+            # Format off days for calendar display
+            formatted_off_days = []
+            for off_day in off_days:
+                formatted_off_days.append({
+                    'id': off_day['id'],
+                    'off_date': off_day['off_date'].strftime('%Y-%m-%d') if off_day['off_date'] else None,
+                    'off_type': off_day['off_type'],
+                    'status': off_day['status'],
+                    'reason': off_day['reason'],
+                    'created_at': off_day['created_at'].strftime('%Y-%m-%d %I:%M %p') if off_day.get('created_at') else None
+                })
+            
+            return jsonify({
+                'success': True,
+                'off_days': formatted_off_days
+            })
+            
+    except Exception as e:
+        print(f"Error fetching employee off-days calendar: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'An error occurred while fetching calendar data: {str(e)}'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/employee/off-days/request', methods=['POST'])
+def request_employee_off_day():
+    """Request off days for the logged-in employee"""
+    if 'employee_id' not in session:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    employee_id = session.get('employee_id')
+    data = request.get_json() or {}
+    required = ['start_date', 'end_date', 'off_type']
+    
+    for field in required:
+        if field not in data or data[field] in [None, '']:
+            return jsonify({'success': False, 'message': f'Missing field: {field}'}), 400
+    
+    start_date = str(data.get('start_date'))
+    end_date = str(data.get('end_date'))
+    off_type = str(data.get('off_type'))
+    reason = data.get('reason') or None
+    
+    # Validate date range
+    if start_date > end_date:
+        return jsonify({'success': False, 'message': 'End date must be after start date'}), 400
+    
+    # Validate that dates are not in the past
+    from datetime import datetime, timedelta
+    today = datetime.now().date()
+    start = datetime.strptime(start_date, '%Y-%m-%d').date()
+    
+    if start < today:
+        return jsonify({'success': False, 'message': 'Cannot request off days for past dates'}), 400
+    
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+    
+    try:
+        with connection.cursor() as cursor:
+            # Verify employee exists and is active
+            cursor.execute("SELECT id FROM employees WHERE id = %s AND status = 'active'", (employee_id,))
+            if not cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Employee not found or inactive'}), 404
+            
+            # Check for existing off days in the range
+            cursor.execute("""
+                SELECT off_date
+                FROM off_days
+                WHERE employee_id = %s
+                AND off_date BETWEEN %s AND %s
+                AND status != 'cancelled'
+            """, (employee_id, start_date, end_date))
+            existing_off_days = cursor.fetchall()
+            
+            if existing_off_days:
+                existing_dates = [row[0].strftime('%Y-%m-%d') for row in existing_off_days]
+                return jsonify({
+                    'success': False,
+                    'message': f'You already have off days requested for these dates: {", ".join(existing_dates[:5])}',
+                    'existing_dates': existing_dates
+                }), 400
+            
+            # Generate all dates in the range
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+            current_date = start_dt
+            dates_to_process = []
+            
+            while current_date <= end_dt:
+                dates_to_process.append(current_date.strftime('%Y-%m-%d'))
+                current_date += timedelta(days=1)
+            
+            # Insert new off day requests (status = 'pending' for employees)
+            created_count = 0
+            
+            for date_str in dates_to_process:
+                cursor.execute("""
+                    INSERT INTO off_days (employee_id, off_date, off_type, status, reason, created_at)
+                    VALUES (%s, %s, %s, 'pending', %s, NOW())
+                """, (employee_id, date_str, off_type, reason))
+                created_count += 1
+            
+        connection.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully requested {created_count} off day(s). Your request is pending approval.',
+            'dates_requested': created_count
+        })
+    except Exception as e:
+        print(f"Error requesting off days: {e}")
+        import traceback
+        traceback.print_exc()
+        connection.rollback()
+        return jsonify({'success': False, 'message': f'Error requesting off days: {str(e)}'}), 500
+    finally:
+        connection.close()
+
 @app.route('/api/hr/stats', methods=['GET'])
 def get_hr_stats():
     """Get HR statistics"""
@@ -6457,6 +7579,7 @@ def get_receipts():
         # Get filters from query parameters
         date_filter = request.args.get('date')
         status_filter = request.args.get('status')
+        receipt_number_filter = request.args.get('receipt_number')
         
         # Build the query with optional filters
         where_conditions = []
@@ -6470,6 +7593,10 @@ def get_receipts():
             where_conditions.append("s.cashier_confirmed = 1")
         elif status_filter == 'unconfirmed':
             where_conditions.append("(s.cashier_confirmed = 0 OR s.cashier_confirmed IS NULL)")
+        
+        if receipt_number_filter:
+            where_conditions.append("s.receipt_number = %s")
+            params.append(receipt_number_filter)
         
         where_clause = ""
         if where_conditions:
@@ -9968,7 +11095,7 @@ def remove_receipt_logo():
 
 @app.route('/api/pos/receipt-settings', methods=['GET'])
 def get_pos_receipt_settings():
-    """Get receipt settings for POS (public endpoint)"""
+    """Get receipt settings for POS (public endpoint) - includes both receipt and printing settings"""
     connection = get_db_connection()
     if not connection:
         return jsonify({'success': False, 'message': 'Database connection failed'}), 500
@@ -9981,7 +11108,8 @@ def get_pos_receipt_settings():
                        receipt_header_subtitle, receipt_header_message, receipt_show_logo,
                        receipt_show_address, receipt_show_contact, receipt_footer_message,
                        receipt_show_datetime, receipt_show_cashier, 
-                       receipt_show_qr, receipt_address, receipt_phone, receipt_email, receipt_logo_url
+                       receipt_show_qr, receipt_address, receipt_phone, receipt_email, receipt_logo_url,
+                       double_print, show_till, include_tax, show_images
                 FROM hotel_settings 
                 ORDER BY id DESC 
                 LIMIT 1
@@ -9989,27 +11117,53 @@ def get_pos_receipt_settings():
             result = cursor.fetchone()
             
             if result:
+                # Helper function to safely get boolean values (handles NULL)
+                def safe_bool(val, default=False):
+                    if val is None:
+                        return default
+                    return bool(val)
+                
+                # Helper function to safely get string values (handles NULL)
+                def safe_str(val, default=''):
+                    if val is None:
+                        return default
+                    return str(val) if val else default
+                
+                # Helper function to safely get int values (handles NULL)
+                def safe_int(val, default=0):
+                    if val is None:
+                        return default
+                    try:
+                        return int(val)
+                    except (ValueError, TypeError):
+                        return default
+                
                 settings = {
-                    'receipt_width': result[0] or '58mm',
-                    'receipt_font_size': result[1] or 'medium',
-                    'receipt_bold_headers': bool(result[2]),
-                    'receipt_number_format': result[3] or 'sequential',
-                    'receipt_number_prefix': result[4] or 'POS',
-                    'receipt_starting_number': result[5] or 1001,
-                    'receipt_header_title': result[6] or '',
-                    'receipt_header_subtitle': result[7] or '',
-                    'receipt_header_message': result[8] or '',
-                    'receipt_show_logo': bool(result[9]),
-                    'receipt_show_address': bool(result[10]),
-                    'receipt_show_contact': bool(result[11]),
-                    'receipt_footer_message': result[12] or '',
-                    'receipt_show_datetime': bool(result[13]),
-                    'receipt_show_cashier': bool(result[14]),
-                    'receipt_show_qr': bool(result[15]) if len(result) > 15 else False,
-                    'receipt_address': result[16] or '' if len(result) > 16 else '',
-                    'receipt_phone': result[17] or '' if len(result) > 17 else '',
-                    'receipt_email': result[18] or '' if len(result) > 18 else '',
-                    'receipt_logo_url': result[19] or '' if len(result) > 19 else ''
+                    'receipt_width': safe_str(result[0], '58mm'),
+                    'receipt_font_size': safe_str(result[1], 'medium'),
+                    'receipt_bold_headers': safe_bool(result[2], True),
+                    'receipt_number_format': safe_str(result[3], 'sequential'),
+                    'receipt_number_prefix': safe_str(result[4], 'POS'),
+                    'receipt_starting_number': safe_int(result[5], 1001),
+                    'receipt_header_title': safe_str(result[6], ''),
+                    'receipt_header_subtitle': safe_str(result[7], ''),
+                    'receipt_header_message': safe_str(result[8], ''),
+                    'receipt_show_logo': safe_bool(result[9], False),
+                    'receipt_show_address': safe_bool(result[10], True),
+                    'receipt_show_contact': safe_bool(result[11], True),
+                    'receipt_footer_message': safe_str(result[12], ''),
+                    'receipt_show_datetime': safe_bool(result[13], True),
+                    'receipt_show_cashier': safe_bool(result[14], True),
+                    'receipt_show_qr': safe_bool(result[15] if len(result) > 15 else None, False),
+                    'receipt_address': safe_str(result[16] if len(result) > 16 else None, ''),
+                    'receipt_phone': safe_str(result[17] if len(result) > 17 else None, ''),
+                    'receipt_email': safe_str(result[18] if len(result) > 18 else None, ''),
+                    'receipt_logo_url': safe_str(result[19] if len(result) > 19 else None, ''),
+                    # Printing settings - properly handle NULL values
+                    'double_print': safe_bool(result[20] if len(result) > 20 else None, False),
+                    'show_till': safe_bool(result[21] if len(result) > 21 else None, True),
+                    'include_tax': safe_bool(result[22] if len(result) > 22 else None, True),
+                    'show_images': safe_bool(result[23] if len(result) > 23 else None, True)
                 }
             else:
                 # Default values if no settings found
@@ -10034,7 +11188,12 @@ def get_pos_receipt_settings():
                     'receipt_address': '',
                     'receipt_phone': '',
                     'receipt_email': '',
-                    'receipt_logo_url': ''
+                    'receipt_logo_url': '',
+                    # Printing settings defaults
+                    'double_print': False,
+                    'show_till': True,
+                    'include_tax': True,
+                    'show_images': True
                 }
             
             return jsonify({'success': True, 'settings': settings})
@@ -10437,121 +11596,142 @@ def scan_wifi_thermal_printers():
             'azure' in os.environ.get('AZURE_REGION', ''),
             'gcp' in os.environ.get('GOOGLE_CLOUD_PROJECT', ''),
             'digitalocean' in os.environ.get('DIGITALOCEAN_REGION', ''),
-            'localhost' not in request.host and '127.0.0.1' not in request.host
+            'cpanel' in request.host.lower() or 'cpanel' in request.headers.get('Host', '').lower(),
+            ('localhost' not in request.host and '127.0.0.1' not in request.host and 
+             '192.168' not in request.host and '10.' not in request.host and '172.' not in request.host)
         ])
         
         if is_hosted:
-            print("🌐 Detected hosted environment - using limited scanning")
-            # In hosted environments, we can't scan the local network
-            # Return empty results but suggest manual setup
-            return jsonify({
-                'success': True,
-                'printers': [],
-                'scan_methods': ['Hosted Environment'],
-                'total_found': 0,
-                'message': 'Hosted environment detected. Use manual printer setup.',
-                'manual_setup_available': True
-            })
+            print("🌐 Detected hosted environment - client-side scanning recommended")
+            # In hosted environments, server can't scan the user's local network
+            # Return response indicating client-side scanning should be used
+            # But still attempt limited server-side scanning if network range is provided
+            network_range_provided = network_range and network_range != '192.168.1'
+            
+            if not network_range_provided:
+                # No network range provided, suggest client-side scanning
+                return jsonify({
+                    'success': True,
+                    'printers': [],
+                    'scan_methods': ['Hosted Environment'],
+                    'total_found': 0,
+                    'message': 'Hosted environment detected. Use client-side scanning or manual printer setup.',
+                    'manual_setup_available': True,
+                    'client_side_scan_required': True
+                })
+            else:
+                # Network range provided, try to scan it (might work if server has access)
+                print(f"🌐 Attempting server-side scan with provided range: {network_range}")
+                # Continue with scanning below
         
         # Method 1: Network Range Scan for Thermal Printers
         if 'network' in scan_methods:
-            print("📡 Method 1: Network range scan for thermal printers...")
-            thermal_ports = [9100, 9101, 9102, 515, 631]  # Common thermal printer ports
-            
-            def test_thermal_printer(ip, port):
-                sock = None
-                test_sock = None
-                try:
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    sock.settimeout(1)  # Reduced timeout
-                    result = sock.connect_ex((ip, port))
-                    
-                    if result == 0:
-                        # Test if it responds to ESC/POS commands (thermal printer test)
+            try:
+                print("📡 Method 1: Network range scan for thermal printers...")
+                thermal_ports = [9100, 9101, 9102, 515, 631]  # Common thermal printer ports
+                
+                def test_thermal_printer(ip, port):
+                    sock = None
+                    test_sock = None
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.settimeout(1)  # Reduced timeout
+                        result = sock.connect_ex((ip, port))
+                        
+                        if result == 0:
+                            # Test if it responds to ESC/POS commands (thermal printer test)
+                            try:
+                                test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                test_sock.settimeout(0.5)  # Very short timeout
+                                test_sock.connect((ip, port))
+                                
+                                # Send ESC/POS initialization command
+                                test_sock.send(b'\x1B\x40')  # ESC @ - Initialize printer
+                                
+                                return {
+                                    'name': f'Thermal Printer at {ip}:{port}',
+                                    'ip': ip,
+                                    'port': port,
+                                    'model': 'ESC/POS Thermal Printer',
+                                    'type': 'thermal',
+                                    'discovery_method': 'Network Scan',
+                                    'status': 'available'
+                                }
+                            except:
+                                # Still might be a printer, but not responding to ESC/POS
+                                return {
+                                    'name': f'Printer at {ip}:{port}',
+                                    'ip': ip,
+                                    'port': port,
+                                    'model': 'Unknown Printer',
+                                    'type': 'unknown',
+                                    'discovery_method': 'Network Scan',
+                                    'status': 'available'
+                                }
+                    except Exception as e:
+                        # Skip this IP/port combination
+                        pass
+                    finally:
+                        # Ensure sockets are properly closed
                         try:
-                            test_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                            test_sock.settimeout(0.5)  # Very short timeout
-                            test_sock.connect((ip, port))
-                            
-                            # Send ESC/POS initialization command
-                            test_sock.send(b'\x1B\x40')  # ESC @ - Initialize printer
-                            
-                            return {
-                                'name': f'Thermal Printer at {ip}:{port}',
-                                'ip': ip,
-                                'port': port,
-                                'model': 'ESC/POS Thermal Printer',
-                                'type': 'thermal',
-                                'discovery_method': 'Network Scan',
-                                'status': 'available'
-                            }
+                            if sock:
+                                sock.close()
                         except:
-                            # Still might be a printer, but not responding to ESC/POS
-                            return {
-                                'name': f'Printer at {ip}:{port}',
-                                'ip': ip,
-                                'port': port,
-                                'model': 'Unknown Printer',
-                                'type': 'unknown',
-                                'discovery_method': 'Network Scan',
-                                'status': 'available'
-                            }
-                except Exception as e:
-                    # Skip this IP/port combination
-                    pass
-                finally:
-                    # Ensure sockets are properly closed
-                    try:
-                        if sock:
-                            sock.close()
-                    except:
-                        pass
-                    try:
-                        if test_sock:
-                            test_sock.close()
-                    except:
-                        pass
-                return None
-            
-            # Scan the network range
-            base_ip = network_range.split('.')
-            if len(base_ip) == 3:
-                print(f"🔍 Scanning {network_range}.1-254 for thermal printers...")
-                
-            # Use threading for faster scanning with proper timeout handling
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                futures = []
-                
-                # Limit IP range to prevent server overload
-                ip_range = list(range(1, 51)) + list(range(100, 201))  # Common printer IP ranges
-                for i in ip_range:
-                    ip = f"{network_range}.{i}"
-                    for port in thermal_ports:
-                        futures.append(executor.submit(test_thermal_printer, ip, port))
-                
-                try:
-                    for future in as_completed(futures, timeout=timeout):
+                            pass
                         try:
-                            result = future.result(timeout=1)  # Individual future timeout
-                            if result:
-                                discovered_printers.append(result)
-                                print(f"✅ Found thermal printer: {result['name']}")
-                        except Exception as e:
-                            # Skip failed futures
-                            continue
-                except Exception as e:
-                    print(f"[WARNING] Some futures didn't complete in time: {e}")
-                    # Cancel remaining futures
-                    for future in futures:
-                        if not future.done():
-                            future.cancel()
-            
-            scan_methods_used.append('Network Scan')
+                            if test_sock:
+                                test_sock.close()
+                        except:
+                            pass
+                    return None
+                
+                # Scan the network range
+                base_ip = network_range.split('.')
+                if len(base_ip) == 3:
+                    print(f"🔍 Scanning {network_range}.1-254 for thermal printers...")
+                    
+                # Use threading for faster scanning with proper timeout handling
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    futures = []
+                    
+                    # Limit IP range to prevent server overload
+                    ip_range = list(range(1, 51)) + list(range(100, 201))  # Common printer IP ranges
+                    for i in ip_range:
+                        ip = f"{network_range}.{i}"
+                        for port in thermal_ports:
+                            futures.append(executor.submit(test_thermal_printer, ip, port))
+                    
+                    try:
+                        for future in as_completed(futures, timeout=timeout):
+                            try:
+                                result = future.result(timeout=1)  # Individual future timeout
+                                if result:
+                                    discovered_printers.append(result)
+                                    print(f"✅ Found thermal printer: {result['name']}")
+                            except Exception as e:
+                                # Skip failed futures
+                                continue
+                    except Exception as e:
+                        print(f"[WARNING] Some futures didn't complete in time: {e}")
+                        # Cancel remaining futures
+                        for future in futures:
+                            if not future.done():
+                                future.cancel()
+                
+                scan_methods_used.append('Network Scan')
+            except Exception as e:
+                print(f"⚠️ Network scan failed: {e}")
+                import traceback
+                traceback.print_exc()
+                # If network scan fails, it's likely because we're in a hosted environment
+                # Don't add to scan_methods_used if it failed
         
         # Method 2: ARP Table Scan for Active Devices
         if 'arp' in scan_methods:
             print("📡 Method 2: ARP table scan for active devices...")
             try:
+                thermal_ports = [9100, 9101, 9102, 515, 631]  # Common thermal printer ports
+                
                 # Get ARP table
                 if os.name == 'nt':  # Windows
                     result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=10)
@@ -10625,21 +11805,67 @@ def scan_wifi_thermal_printers():
                 print(f"⚠️ mDNS discovery failed: {e}")
         
         print(f"🎯 Scan completed: {len(discovered_printers)} thermal printers found")
-        print(f"📊 Methods used: {', '.join(scan_methods_used)}")
+        print(f"📊 Methods used: {', '.join(scan_methods_used) if scan_methods_used else 'None'}")
+        
+        # If no printers found and we're in a hosted environment, suggest client-side scanning
+        if len(discovered_printers) == 0 and is_hosted:
+            return jsonify({
+                'success': True,
+                'printers': [],
+                'scan_methods': scan_methods_used if scan_methods_used else ['Hosted Environment'],
+                'total_found': 0,
+                'message': 'Server-side scanning not available in hosted environment. Please use client-side scanning.',
+                'client_side_scan_required': True,
+                'manual_setup_available': True
+            })
         
         return jsonify({
             'success': True,
             'printers': discovered_printers,
-            'scan_methods': scan_methods_used,
+            'scan_methods': scan_methods_used if scan_methods_used else [],
             'total_found': len(discovered_printers)
         })
         
     except Exception as e:
         print(f"[ERROR] WiFi thermal printer scan error: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        import traceback
+        traceback.print_exc()
+        
+        # Check if we're in a hosted environment
+        is_hosted_error = any([
+            'heroku' in os.environ.get('DYNO', ''),
+            'railway' in os.environ.get('RAILWAY_ENVIRONMENT', ''),
+            'vercel' in os.environ.get('VERCEL', ''),
+            'render' in os.environ.get('RENDER', ''),
+            'aws' in os.environ.get('AWS_REGION', ''),
+            'azure' in os.environ.get('AZURE_REGION', ''),
+            'gcp' in os.environ.get('GOOGLE_CLOUD_PROJECT', ''),
+            'digitalocean' in os.environ.get('DIGITALOCEAN_REGION', ''),
+            'cpanel' in request.host.lower() or 'cpanel' in request.headers.get('Host', '').lower(),
+            ('localhost' not in request.host and '127.0.0.1' not in request.host and 
+             '192.168' not in request.host and '10.' not in request.host and '172.' not in request.host)
+        ])
+        
+        # Return a proper response instead of 500 error
+        if is_hosted_error or 'Permission denied' in str(e) or 'Network is unreachable' in str(e):
+            return jsonify({
+                'success': True,
+                'printers': [],
+                'scan_methods': ['Hosted Environment'],
+                'total_found': 0,
+                'message': 'Server-side scanning not available. Please use client-side scanning from your browser.',
+                'client_side_scan_required': True,
+                'manual_setup_available': True,
+                'error': f'Server-side scan failed: {str(e)}'
+            })
+        else:
+            # For other errors, return 500 but with better message
+            return jsonify({
+                'success': False,
+                'error': str(e),
+                'message': 'Server-side scanning failed. Please try client-side scanning or manual setup.',
+                'client_side_scan_required': True
+            }), 500
 
 @app.route('/api/wifi-thermal/connect', methods=['POST'])
 def connect_wifi_thermal_printer():
@@ -11183,6 +12409,306 @@ def get_all_payrolls():
     except Exception as e:
         print(f"Error fetching payrolls: {e}")
         return jsonify({'success': False, 'message': 'Error fetching payrolls'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/payroll/record-payment', methods=['POST'])
+def record_payroll_payment():
+    """Record a salary payment for an employee (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+    required = ['employee_id', 'amount', 'payment_date']
+    for field in required:
+        if field not in data or data[field] in [None, '']:
+            return jsonify({'success': False, 'message': f'Missing field: {field}'}), 400
+
+    employee_id = int(data.get('employee_id'))
+    amount = float(data.get('amount'))
+    payment_date = str(data.get('payment_date'))
+    processed_by = session.get('employee_id')
+
+    if amount <= 0:
+        return jsonify({'success': False, 'message': 'Payment amount must be greater than 0'}), 400
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor() as cursor:
+            # Ensure payroll_payments table exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS payroll_payments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL,
+                    amount DECIMAL(12,2) NOT NULL,
+                    payment_date DATE NOT NULL,
+                    processed_by INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+                    FOREIGN KEY (processed_by) REFERENCES employees(id) ON DELETE CASCADE,
+                    INDEX idx_employee_date (employee_id, payment_date),
+                    INDEX idx_payment_date (payment_date)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """)
+
+            # Verify employee exists and is active
+            cursor.execute("SELECT id, full_name, employee_code FROM employees WHERE id = %s AND status = 'active'", (employee_id,))
+            employee = cursor.fetchone()
+            if not employee:
+                return jsonify({'success': False, 'message': 'Employee not found or inactive'}), 404
+
+            # Insert payment record
+            cursor.execute("""
+                INSERT INTO payroll_payments (employee_id, amount, payment_date, processed_by)
+                VALUES (%s, %s, %s, %s)
+            """, (employee_id, amount, payment_date, processed_by))
+
+            payment_id = cursor.lastrowid
+
+        connection.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Payment recorded successfully',
+            'payment_id': payment_id,
+            'employee_name': employee[1],
+            'employee_code': employee[2],
+            'amount': amount,
+            'payment_date': payment_date
+        })
+    except Exception as e:
+        print(f"Error recording payroll payment: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Error recording payroll payment'}), 500
+    finally:
+        connection.close()
+
+@app.route('/admin/payroll-transactions/<int:employee_id>')
+def view_payroll_transactions(employee_id):
+    """View payroll payment transactions for a specific employee"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return redirect(url_for('index'))
+    
+    hotel_settings = get_hotel_settings()
+    employee_profile_photo = get_employee_profile_photo(session.get('employee_id'))
+    
+    # Get employee details for the header
+    connection = get_db_connection()
+    employee_info = None
+    if connection:
+        try:
+            with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+                cursor.execute("""
+                    SELECT id, full_name, employee_code, role, email, profile_photo
+                    FROM employees
+                    WHERE id = %s AND status = 'active'
+                """, (employee_id,))
+                employee_info = cursor.fetchone()
+        except Exception as e:
+            print(f"Error fetching employee info: {e}")
+        finally:
+            connection.close()
+    
+    if not employee_info:
+        return redirect(url_for('admin_payroll'))
+    
+    return render_template('admin/payroll_transactions.html',
+                         employee_name=session.get('employee_name'),
+                         employee_role=session.get('employee_role'),
+                         employee_profile_photo=employee_profile_photo,
+                         hotel_settings=hotel_settings,
+                         employee_info=employee_info)
+
+@app.route('/api/payroll/transactions/<int:employee_id>', methods=['GET'])
+def get_payroll_transactions(employee_id):
+    """Get all payroll payment transactions for an employee"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Ensure payroll_payments table exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS payroll_payments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL,
+                    amount DECIMAL(12,2) NOT NULL,
+                    payment_date DATE NOT NULL,
+                    processed_by INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+                    FOREIGN KEY (processed_by) REFERENCES employees(id) ON DELETE CASCADE,
+                    INDEX idx_employee_date (employee_id, payment_date),
+                    INDEX idx_payment_date (payment_date)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """)
+
+            # Verify employee exists
+            cursor.execute("SELECT id FROM employees WHERE id = %s AND status = 'active'", (employee_id,))
+            if not cursor.fetchone():
+                return jsonify({'success': False, 'message': 'Employee not found or inactive'}), 404
+
+            # Get payroll profile for this employee
+            cursor.execute("""
+                SELECT basic_salary, allowances, deductions
+                FROM payroll_profiles
+                WHERE employee_id = %s
+            """, (employee_id,))
+            payroll_profile = cursor.fetchone()
+            
+            # Fetch all payments for this employee with processed_by info
+            cursor.execute("""
+                SELECT 
+                    pp.id,
+                    pp.amount,
+                    pp.payment_date,
+                    pp.created_at,
+                    pp.processed_by,
+                    e.full_name as processed_by_name,
+                    e.employee_code as processed_by_code
+                FROM payroll_payments pp
+                LEFT JOIN employees e ON pp.processed_by = e.id
+                WHERE pp.employee_id = %s
+                ORDER BY pp.payment_date DESC, pp.created_at DESC
+            """, (employee_id,))
+            
+            transactions = cursor.fetchall()
+            
+            # Get current month's payments
+            current_month = datetime.now().strftime('%Y-%m')
+            cursor.execute("""
+                SELECT COALESCE(SUM(amount), 0) as total_month_payments
+                FROM payroll_payments
+                WHERE employee_id = %s
+                AND DATE_FORMAT(payment_date, '%%Y-%%m') = %s
+            """, (employee_id, current_month))
+            month_payments_result = cursor.fetchone()
+            total_month_payments = float(month_payments_result['total_month_payments']) if month_payments_result else 0
+            
+            # Calculate outstanding balance for this month and salary amount
+            # Outstanding = (basic_salary + allowances - deductions) - payments made this month
+            outstanding_balance = 0
+            salary_amount = 0  # Net salary (basic_salary + allowances - deductions)
+            if payroll_profile:
+                monthly_salary = float(payroll_profile['basic_salary'] or 0)
+                allowances = float(payroll_profile['allowances'] or 0)
+                deductions = float(payroll_profile['deductions'] or 0)
+                salary_amount = monthly_salary + allowances - deductions
+                expected_payment = salary_amount
+                outstanding_balance = expected_payment - total_month_payments
+                if outstanding_balance < 0:
+                    outstanding_balance = 0  # Can't have negative outstanding
+            
+            # Convert to list and format dates
+            result = []
+            total_amount = 0
+            for trans in transactions:
+                total_amount += float(trans['amount'])
+                result.append({
+                    'id': trans['id'],
+                    'amount': float(trans['amount']),
+                    'payment_date': trans['payment_date'].strftime('%Y-%m-%d') if trans['payment_date'] else '',
+                    'payment_date_formatted': trans['payment_date'].strftime('%B %d, %Y') if trans['payment_date'] else '',
+                    'created_at': trans['created_at'].strftime('%Y-%m-%d %I:%M %p') if trans['created_at'] else '',
+                    'processed_by': trans['processed_by'],
+                    'processed_by_name': trans['processed_by_name'] or 'Unknown',
+                    'processed_by_code': trans['processed_by_code'] or ''
+                })
+            
+        return jsonify({
+            'success': True,
+            'transactions': result,
+            'total_amount': total_amount,
+            'count': len(result),
+            'outstanding_balance': outstanding_balance,
+            'salary_amount': salary_amount
+        })
+    except Exception as e:
+        print(f"Error fetching payroll transactions: {e}")
+        return jsonify({'success': False, 'message': 'Error fetching transactions'}), 500
+    finally:
+        connection.close()
+
+@app.route('/api/payroll/transactions/<int:transaction_id>', methods=['PUT'])
+def update_payroll_transaction(transaction_id):
+    """Update a payroll payment transaction (admin/manager only)"""
+    if 'employee_id' not in session or session.get('employee_role') not in ['admin', 'manager']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    data = request.get_json() or {}
+    required = ['amount', 'payment_date']
+    for field in required:
+        if field not in data or data[field] in [None, '']:
+            return jsonify({'success': False, 'message': f'Missing field: {field}'}), 400
+
+    amount = float(data.get('amount'))
+    payment_date = str(data.get('payment_date'))
+    updated_by = session.get('employee_id')
+
+    if amount <= 0:
+        return jsonify({'success': False, 'message': 'Payment amount must be greater than 0'}), 400
+
+    connection = get_db_connection()
+    if not connection:
+        return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Ensure payroll_payments table exists
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS payroll_payments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    employee_id INT NOT NULL,
+                    amount DECIMAL(12,2) NOT NULL,
+                    payment_date DATE NOT NULL,
+                    processed_by INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+                    FOREIGN KEY (processed_by) REFERENCES employees(id) ON DELETE CASCADE,
+                    INDEX idx_employee_date (employee_id, payment_date),
+                    INDEX idx_payment_date (payment_date)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            """)
+
+            # Get the current transaction to verify it exists
+            cursor.execute("""
+                SELECT id, employee_id, amount, payment_date, processed_by
+                FROM payroll_payments
+                WHERE id = %s
+            """, (transaction_id,))
+            
+            current_transaction = cursor.fetchone()
+            if not current_transaction:
+                return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+
+            # Update the transaction
+            cursor.execute("""
+                UPDATE payroll_payments
+                SET amount = %s, payment_date = %s
+                WHERE id = %s
+            """, (amount, payment_date, transaction_id))
+
+            if cursor.rowcount == 0:
+                return jsonify({'success': False, 'message': 'Transaction not updated'}), 400
+
+        connection.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Payment transaction updated successfully',
+            'transaction_id': transaction_id,
+            'amount': amount,
+            'payment_date': payment_date
+        })
+    except Exception as e:
+        print(f"Error updating payroll transaction: {e}")
+        connection.rollback()
+        return jsonify({'success': False, 'message': 'Error updating transaction'}), 500
     finally:
         connection.close()
 

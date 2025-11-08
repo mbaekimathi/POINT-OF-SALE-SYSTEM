@@ -198,209 +198,24 @@
 </div>
 
 <!-- Analytics Content -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    
-    <!-- Main Analytics Area -->
-    <div class="lg:col-span-8 space-y-6">
-        
-        <!-- Employee Performance Chart -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-line text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800" id="chartTitle">Employee Performance Analytics</h2>
-                    </div>
-                    <div class="text-sm text-gray-600" id="analyticsPeriod">All Time</div>
+<div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-white text-xs sm:text-sm"></i>
                 </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">All Employees</h2>
             </div>
-            <div class="p-4 sm:p-6">
-                <div class="relative">
-                    <canvas id="employeeChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Employee Analytics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Top Performers -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-trophy text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Top Performers</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="topPerformersContent">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sales Leaders -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-dollar-sign text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Sales Leaders</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="salesLeadersContent">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Employee Activity -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-bar text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Activity Levels</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="text-sm font-semibold text-green-600 mb-2">🔥 Most Active</h4>
-                            <div id="mostActiveEmployeesContent">
-                                <!-- Content will be loaded here -->
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-600 mb-2">😴 Least Active</h4>
-                            <div id="leastActiveEmployeesContent">
-                                <!-- Content will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Insights -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                            <i class="fas fa-lightbulb text-white text-xs sm:text-sm"></i>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Performance Insights</h3>
-                    </div>
-                </div>
-                <div class="p-4 sm:p-6">
-                    <div id="performanceInsightsContent">
-                        <!-- Content will be loaded here -->
-                    </div>
-                </div>
-            </div>
+            <div class="text-sm text-gray-600" id="analyticsPeriod">All Time</div>
         </div>
     </div>
-
-    <!-- Sidebar -->
-    <div class="lg:col-span-4 space-y-6">
-        
-        <!-- Employee Statistics -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tachometer-alt text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Employee Statistics</h2>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-users text-blue-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Total Employees</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalEmployees">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user-check text-green-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Active Staff</p>
-                                <p class="text-lg font-bold text-gray-800" id="activeEmployees">0</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-dollar-sign text-purple-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Avg. Sales/Employee</p>
-                                <p class="text-lg font-bold text-gray-800" id="avgSalesPerEmployee">KSh 0.00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-receipt text-orange-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">Total Transactions</p>
-                                <p class="text-lg font-bold text-gray-800" id="totalTransactions">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Employee Roles -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-user-tag text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Employee Roles</h2>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div id="employeeRolesContent">
-                    <!-- Content will be loaded here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Trends -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
-            <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
-                <div class="flex items-center space-x-3">
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                        <i class="fas fa-trending-up text-white text-xs sm:text-sm"></i>
-                    </div>
-                    <h2 class="text-lg sm:text-xl font-bold text-gray-800">Performance Trends</h2>
-                </div>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div id="performanceTrendsContent">
-                    <!-- Content will be loaded here -->
-                </div>
+    <div class="p-4 sm:p-6 overflow-x-auto">
+        <div id="employeesTableContainer">
+            <!-- Table will be loaded here -->
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-gray-400 text-2xl"></i>
+                <p class="text-gray-500 mt-2">Loading employees...</p>
             </div>
         </div>
     </div>
@@ -409,13 +224,10 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Global variables
     let currentDataType = 'general'; // 'general' or 'verified'
     let currentFilterType = 'single';
-    let employeeChart = null;
 
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
@@ -560,7 +372,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                updateAnalyticsDisplay(data.analytics);
+                updateAnalyticsDisplay(data);
             } else {
                 console.error('Error loading analytics:', data.message);
                 showErrorState();
@@ -600,225 +412,62 @@
     }
 
     // Update analytics display
-    function updateAnalyticsDisplay(analytics) {
-        // Update summary statistics
-        document.getElementById('totalEmployees').textContent = analytics.summary.totalEmployees || 0;
-        document.getElementById('activeEmployees').textContent = analytics.summary.activeEmployees || 0;
-        document.getElementById('avgSalesPerEmployee').textContent = (analytics.summary.avgSalesPerEmployee || 0).toFixed(1);
-        document.getElementById('totalTransactions').textContent = analytics.summary.totalTransactions || 0;
-        
-        // Update chart
-        updateEmployeeChart(analytics.chartData);
-        
-        // Update content sections
-        updateTopPerformers(analytics.topPerformers);
-        updateSalesLeaders(analytics.salesLeaders);
-        updateEmployeeActivity(analytics.mostActiveEmployees, analytics.leastActiveEmployees);
-        updatePerformanceInsights(analytics.performanceInsights);
-        updateEmployeeRoles(analytics.employeeRoles);
-        updatePerformanceTrends(analytics.performanceTrends);
+    function updateAnalyticsDisplay(data) {
+        // Update employees table
+        updateEmployeesTable(data.employees || []);
         
         // Update period display
         updateAnalyticsPeriod();
     }
 
-    // Update employee chart
-    function updateEmployeeChart(chartData) {
-        const ctx = document.getElementById('employeeChart');
-        if (!ctx) return;
+    // Update employees table
+    function updateEmployeesTable(employees) {
+        const container = document.getElementById('employeesTableContainer');
         
-        // Destroy existing chart
-        if (employeeChart) {
-            employeeChart.destroy();
-        }
-        
-        const isMultiDay = currentFilterType === 'range' || currentFilterType === 'month' || currentFilterType === 'year';
-        const chartType = isMultiDay ? 'line' : 'bar';
-        
-        // Update chart title
-        document.getElementById('chartTitle').textContent = isMultiDay ? 'Employee Performance Trends' : 'Employee Performance Distribution';
-        
-        employeeChart = new Chart(ctx, {
-            type: chartType,
-            data: {
-                labels: chartData.labels || [],
-                datasets: [{
-                    label: 'Sales Revenue',
-                    data: chartData.revenue || [],
-                    backgroundColor: isMultiDay ? 'rgba(147, 51, 234, 0.1)' : 'rgba(147, 51, 234, 0.8)',
-                    borderColor: 'rgba(147, 51, 234, 1)',
-                    borderWidth: 2,
-                    fill: isMultiDay,
-                    tension: isMultiDay ? 0.4 : 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'KSh ' + value.toFixed(0);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Update top performers content
-    function updateTopPerformers(performers) {
-        const container = document.getElementById('topPerformersContent');
-        if (!performers || performers.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
+        if (!employees || employees.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
+                    <p class="text-gray-500 text-lg">No employees found</p>
+                </div>
+            `;
             return;
         }
         
-        container.innerHTML = performers.slice(0, 5).map((employee, index) => `
-            <div class="flex items-center justify-between p-2 bg-green-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                        <span class="text-xs font-bold text-green-600">${index + 1}</span>
-                    </div>
-                    <div class="text-sm">
-                        <div class="font-medium text-gray-800">${employee.name}</div>
-                        <div class="text-xs text-gray-500">${employee.role}</div>
-                    </div>
-                </div>
-                <span class="text-sm font-bold text-green-600">${employee.sales}</span>
-            </div>
-        `).join('');
-    }
-
-    // Update sales leaders content
-    function updateSalesLeaders(leaders) {
-        const container = document.getElementById('salesLeadersContent');
-        if (!leaders || leaders.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
-            return;
-        }
+        // Create table HTML
+        const tableHTML = `
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee Name</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Transactions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${employees.map((employee, index) => {
+                        const statusColor = employee.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+                        return `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${employee.full_name || '-'}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 capitalize">${employee.role || '-'}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor} capitalize">
+                                        ${employee.status || '-'}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-right font-semibold">${employee.total_transactions || 0}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
         
-        container.innerHTML = leaders.slice(0, 5).map((employee, index) => `
-            <div class="flex items-center justify-between p-2 bg-blue-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span class="text-xs font-bold text-blue-600">${index + 1}</span>
-                    </div>
-                    <div class="text-sm">
-                        <div class="font-medium text-gray-800">${employee.name}</div>
-                        <div class="text-xs text-gray-500">${employee.role}</div>
-                    </div>
-                </div>
-                <span class="text-sm font-bold text-blue-600">${employee.sales} transactions</span>
-            </div>
-        `).join('');
-    }
-
-    // Update employee activity content
-    function updateEmployeeActivity(mostActive, leastActive) {
-        const mostContainer = document.getElementById('mostActiveEmployeesContent');
-        const leastContainer = document.getElementById('leastActiveEmployeesContent');
-        
-        if (!mostActive || mostActive.length === 0) {
-            mostContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
-        } else {
-            mostContainer.innerHTML = mostActive.slice(0, 3).map((employee, index) => `
-                <div class="flex items-center justify-between p-2 bg-green-50 rounded-lg mb-2">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold text-green-600">${index + 1}</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">${employee.name}</span>
-                    </div>
-                    <span class="text-sm font-bold text-green-600">${employee.sales}</span>
-                </div>
-            `).join('');
-        }
-        
-        if (!leastActive || leastActive.length === 0) {
-            leastContainer.innerHTML = '<p class="text-gray-500 text-sm">No data available</p>';
-        } else {
-            leastContainer.innerHTML = leastActive.slice(0, 3).map((employee, index) => `
-                <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                            <span class="text-xs font-bold text-gray-600">${index + 1}</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-800">${employee.name}</span>
-                    </div>
-                    <span class="text-sm font-bold text-gray-600">${employee.sales}</span>
-                </div>
-            `).join('');
-        }
-    }
-
-    // Update performance insights content
-    function updatePerformanceInsights(insights) {
-        const container = document.getElementById('performanceInsightsContent');
-        if (!insights || insights.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No insights available</p>';
-            return;
-        }
-        
-        container.innerHTML = insights.map(insight => `
-            <div class="p-3 bg-yellow-50 rounded-lg mb-2 border border-yellow-200">
-                <div class="flex items-start space-x-2">
-                    <div class="w-5 h-5 bg-yellow-100 rounded-full flex items-center justify-center mt-0.5">
-                        <i class="fas fa-lightbulb text-yellow-600 text-xs"></i>
-                    </div>
-                    <p class="text-sm text-gray-700">${insight}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Update employee roles content
-    function updateEmployeeRoles(roles) {
-        const container = document.getElementById('employeeRolesContent');
-        if (!roles || roles.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No data available</p>';
-            return;
-        }
-        
-        container.innerHTML = roles.map(role => `
-            <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-2">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-user-tag text-teal-600 text-sm"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-800 capitalize">${role.role}</span>
-                </div>
-                <span class="text-sm font-bold text-teal-600">${role.count}</span>
-            </div>
-        `).join('');
-    }
-
-    // Update performance trends content
-    function updatePerformanceTrends(trends) {
-        const container = document.getElementById('performanceTrendsContent');
-        if (!trends || trends.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No trends available</p>';
-            return;
-        }
-        
-        container.innerHTML = trends.map(trend => `
-            <div class="p-3 bg-pink-50 rounded-lg mb-2 border border-pink-200">
-                <div class="flex items-start space-x-2">
-                    <div class="w-5 h-5 bg-pink-100 rounded-full flex items-center justify-center mt-0.5">
-                        <i class="fas fa-trending-up text-pink-600 text-xs"></i>
-                    </div>
-                    <p class="text-sm text-gray-700">${trend}</p>
-                </div>
-            </div>
-        `).join('');
+        container.innerHTML = tableHTML;
     }
 
     // Update analytics period display
@@ -870,28 +519,28 @@
 
     // Show loading state
     function showLoadingState() {
-        const containers = ['topPerformersContent', 'salesLeadersContent', 'mostActiveEmployeesContent', 
-                          'leastActiveEmployeesContent', 'performanceInsightsContent', 'employeeRolesContent', 
-                          'performanceTrendsContent'];
-        containers.forEach(id => {
-            const container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-gray-400"></i></div>';
-            }
-        });
+        const container = document.getElementById('employeesTableContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-gray-400 text-2xl"></i>
+                    <p class="text-gray-500 mt-2">Loading employees...</p>
+                </div>
+            `;
+        }
     }
 
     // Show error state
     function showErrorState() {
-        const containers = ['topPerformersContent', 'salesLeadersContent', 'mostActiveEmployeesContent', 
-                          'leastActiveEmployeesContent', 'performanceInsightsContent', 'employeeRolesContent', 
-                          'performanceTrendsContent'];
-        containers.forEach(id => {
-            const container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '<p class="text-red-500 text-center">Error loading data</p>';
-            }
-        });
+        const container = document.getElementById('employeesTableContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-4"></i>
+                    <p class="text-red-500 text-lg">Error loading data</p>
+                </div>
+            `;
+        }
     }
 </script>
 {% endblock %}

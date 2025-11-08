@@ -1,0 +1,935 @@
+{% extends "role_base.html" %}
+
+{% block title %}Inventory Management - Stock Analytics{% endblock %}
+
+{% block sidebar_icon %}chart-line{% endblock %}
+{% block sidebar_title %}Analytics{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Stock Analytics Overview -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Overview</p>
+        <p class="text-xs text-white/70">Main dashboard</p>
+    </div>
+</a>
+
+<!-- Stock Inventory -->
+<a href="/analytics/stock/inventory" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Inventory Management</p>
+        <p class="text-xs text-white/70">Stock levels & alerts</p>
+    </div>
+</a>
+
+<!-- Stock Charts -->
+<a href="/analytics/stock/charts" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-chart-bar text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics Charts</p>
+        <p class="text-xs text-white/70">Visual data analysis</p>
+    </div>
+</a>
+
+<!-- Stock Reports -->
+<a href="/analytics/stock/reports" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-file-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Reports</p>
+        <p class="text-xs text-white/70">Detailed reports</p>
+    </div>
+</a>
+
+<!-- Stock Recommendations -->
+<a href="/analytics/stock/recommendations" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-robot text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Smart Recommendations</p>
+        <p class="text-xs text-white/70">Reorder suggestions</p>
+    </div>
+</a>
+
+<!-- Stock Audits -->
+<a href="/stock-audits" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-clipboard-check text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Audits</p>
+        <p class="text-xs text-white/70">Transaction history</p>
+    </div>
+</a>
+
+<!-- Back to Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Analytics</p>
+        <p class="text-xs text-white/70">Return to main analytics</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-home text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Enhanced Inventory Management Header -->
+<div class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8 shadow-2xl">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 sm:space-y-6 lg:space-y-0">
+            <div class="text-white">
+                <div class="flex items-center space-x-3 mb-3">
+                    <a href="/analytics/stock" class="text-white/70 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-boxes text-white text-sm"></i>
+                    </div>
+                    <!-- Manager Role Badge -->
+                    <div class="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-3 py-1.5">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-user-tie text-white text-sm"></i>
+                            <span class="text-white text-sm font-medium">Manager</span>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                    Inventory Management
+                </h1>
+                <p class="text-blue-100 text-base sm:text-lg lg:text-xl font-medium">Comprehensive inventory tracking and stock level management</p>
+            </div>
+            
+            <!-- Enhanced Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                <button id="refreshInventoryBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh Data
+                </button>
+                <button id="exportInventoryBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Data
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Date Filter Controls -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-sm"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Date Filter</h2>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full" id="dateFilterStatus">All Time</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="resetDateFilterBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-undo mr-1"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Filter Type Selection -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Filter Type</label>
+                <select id="dateFilterType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="day">Single Day</option>
+                    <option value="range">Date Range</option>
+                    <option value="month">Month</option>
+                    <option value="preset">Preset Periods</option>
+                </select>
+            </div>
+            
+            <!-- Single Day Filter -->
+            <div id="singleDayFilter" class="date-filter-section">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Date</label>
+                <input type="date" id="singleDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div id="dateRangeFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
+                <div class="space-y-2">
+                    <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Start Date">
+                    <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="End Date">
+                </div>
+            </div>
+            
+            <!-- Month Filter -->
+            <div id="monthFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Month</label>
+                <input type="month" id="monthSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <!-- Preset Periods -->
+            <div id="presetFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Preset Periods</label>
+                <select id="presetPeriod" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="last7days">Last 7 Days</option>
+                    <option value="last30days">Last 30 Days</option>
+                    <option value="last90days">Last 90 Days</option>
+                    <option value="thisMonth">This Month</option>
+                    <option value="lastMonth">Last Month</option>
+                    <option value="thisYear">This Year</option>
+                    <option value="lastYear">Last Year</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Apply Filter Button -->
+        <div class="mt-4 flex justify-end">
+            <button id="applyDateFilterBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-filter mr-2"></i>Apply Filter
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Overview Table -->
+<div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-list text-white text-xs sm:text-sm"></i>
+                </div>
+                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Inventory Overview</h2>
+            </div>
+            
+            <!-- Filters -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-4">
+                <select id="categoryFilter" class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">All Categories</option>
+                </select>
+                <select id="statusFilter" class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">All Status</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="Overstocked">Overstocked</option>
+                </select>
+                <input type="text" id="searchFilter" placeholder="Search items..." class="px-2 py-1.5 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Desktop Table View -->
+    <div class="hidden lg:block overflow-x-auto max-h-96 overflow-y-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In Stock</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Low Stock Threshold</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Mobile/Tablet List View -->
+    <div class="lg:hidden max-h-96 overflow-y-auto">
+        <div id="inventoryListBody" class="divide-y divide-gray-200">
+            <!-- Data will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-red-50 to-pink-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white text-xs sm:text-sm"></i>
+                </div>
+                <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Low Stock Alerts</h2>
+                <span id="alertCount" class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">0</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="markAllReadBtn" class="bg-red-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-check mr-1"></i>Mark All Read
+                </button>
+                <button id="refreshAlertsBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-sync-alt mr-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-3 sm:p-4 lg:p-6">
+        <div id="lowStockAlertsContent" class="max-h-64 sm:max-h-80 overflow-y-auto">
+            <div class="text-center py-6 sm:py-8">
+                <i class="fas fa-spinner fa-spin text-2xl sm:text-3xl mb-2 sm:mb-3 text-gray-300"></i>
+                <p class="text-sm sm:text-base text-gray-500">Loading alerts...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Global function for updating item threshold
+    function updateItemThreshold(itemId, threshold) {
+        if (!itemId || !threshold || threshold < 1) {
+            showNotification('Invalid threshold value', 'error');
+            return;
+        }
+        
+        fetch('/api/stock/item-threshold', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                threshold: parseInt(threshold)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Item threshold updated successfully!', 'success');
+                loadInventoryData();
+            } else {
+                showNotification('Error updating threshold: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating item threshold:', error);
+            showNotification('Error updating threshold', 'error');
+        });
+    }
+
+    // Global function for showing notifications
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>
+                ${message}
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Wait for page to be fully loaded
+    window.addEventListener('load', function() {
+        let currentInventoryData = null;
+
+        // Initialize page
+        function initInventoryManagement() {
+            console.log('Inventory Management page loaded');
+            
+            // Initialize date filters
+            initializeDateFilters();
+            
+            // Initialize buttons
+            initializeButtons();
+            
+            // Load initial data
+            loadInventoryData();
+        }
+
+        // Initialize date filters (same as main analytics page)
+        function initializeDateFilters() {
+            const dateFilterType = document.getElementById('dateFilterType');
+            const applyDateFilterBtn = document.getElementById('applyDateFilterBtn');
+            const resetDateFilterBtn = document.getElementById('resetDateFilterBtn');
+            
+            if (dateFilterType) {
+                dateFilterType.addEventListener('change', handleDateFilterTypeChange);
+            }
+            
+            if (applyDateFilterBtn) {
+                applyDateFilterBtn.addEventListener('click', applyDateFilter);
+            }
+            
+            if (resetDateFilterBtn) {
+                resetDateFilterBtn.addEventListener('click', resetDateFilter);
+            }
+            
+            // Set default values
+            const today = new Date().toISOString().split('T')[0];
+            const singleDateInput = document.getElementById('singleDate');
+            if (singleDateInput) {
+                singleDateInput.value = today;
+            }
+            
+            // Set default month to current month
+            const monthSelect = document.getElementById('monthSelect');
+            if (monthSelect) {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                monthSelect.value = currentMonth;
+            }
+            
+            // Set default filter type to month and apply current month filter
+            if (dateFilterType) {
+                dateFilterType.value = 'month';
+                handleDateFilterTypeChange();
+                
+                // Apply current month filter by default
+                setTimeout(() => {
+                    window.isDefaultLoad = true;
+                    applyDateFilter();
+                }, 100);
+            }
+        }
+
+        // Handle date filter type change
+        function handleDateFilterTypeChange() {
+            const filterType = document.getElementById('dateFilterType').value;
+            const sections = document.querySelectorAll('.date-filter-section');
+            
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            switch(filterType) {
+                case 'day':
+                    document.getElementById('singleDayFilter').classList.remove('hidden');
+                    break;
+                case 'range':
+                    document.getElementById('dateRangeFilter').classList.remove('hidden');
+                    break;
+                case 'month':
+                    document.getElementById('monthFilter').classList.remove('hidden');
+                    break;
+                case 'preset':
+                    document.getElementById('presetFilter').classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // Apply date filter
+        function applyDateFilter() {
+            const filterType = document.getElementById('dateFilterType').value;
+            let filterData = {};
+            
+            switch(filterType) {
+                case 'day':
+                    const singleDate = document.getElementById('singleDate').value;
+                    if (!singleDate) {
+                        showNotification('Please select a date', 'error');
+                        return;
+                    }
+                    filterData = {
+                        filterType: 'day',
+                        date: singleDate
+                    };
+                    updateDateFilterStatus(`Single Day: ${formatDate(singleDate)}`);
+                    break;
+                    
+                case 'range':
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    if (!startDate || !endDate) {
+                        showNotification('Please select both start and end dates', 'error');
+                        return;
+                    }
+                    if (new Date(startDate) > new Date(endDate)) {
+                        showNotification('Start date cannot be after end date', 'error');
+                        return;
+                    }
+                    filterData = {
+                        filterType: 'range',
+                        startDate: startDate,
+                        endDate: endDate
+                    };
+                    updateDateFilterStatus(`Range: ${formatDate(startDate)} - ${formatDate(endDate)}`);
+                    break;
+                    
+                case 'month':
+                    const monthSelect = document.getElementById('monthSelect').value;
+                    if (!monthSelect) {
+                        const currentMonth = new Date().toISOString().slice(0, 7);
+                        document.getElementById('monthSelect').value = currentMonth;
+                        filterData = {
+                            filterType: 'month',
+                            month: currentMonth
+                        };
+                        updateDateFilterStatus(`Month: ${formatMonth(currentMonth)}`);
+                    } else {
+                        filterData = {
+                            filterType: 'month',
+                            month: monthSelect
+                        };
+                        updateDateFilterStatus(`Month: ${formatMonth(monthSelect)}`);
+                    }
+                    break;
+                    
+                case 'preset':
+                    const presetPeriod = document.getElementById('presetPeriod').value;
+                    filterData = {
+                        filterType: 'preset',
+                        period: presetPeriod
+                    };
+                    updateDateFilterStatus(`Preset: ${presetPeriod.replace(/([A-Z])/g, ' $1').trim()}`);
+                    break;
+            }
+            
+            window.currentDateFilter = filterData;
+            loadInventoryData();
+            
+            if (!window.isDefaultLoad) {
+                showNotification('Date filter applied successfully!', 'success');
+            }
+            window.isDefaultLoad = false;
+        }
+
+        // Reset date filter
+        function resetDateFilter() {
+            document.getElementById('singleDate').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('monthSelect').value = '';
+            document.getElementById('presetPeriod').value = 'today';
+            
+            document.getElementById('dateFilterType').value = 'day';
+            handleDateFilterTypeChange();
+            
+            window.currentDateFilter = null;
+            updateDateFilterStatus('All Time');
+            loadInventoryData();
+            
+            showNotification('Date filter reset successfully!', 'success');
+        }
+
+        // Update date filter status display
+        function updateDateFilterStatus(status) {
+            const statusElement = document.getElementById('dateFilterStatus');
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Format month for display
+        function formatMonth(monthString) {
+            const date = new Date(monthString + '-01');
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long' 
+            });
+        }
+
+        // Initialize buttons
+        function initializeButtons() {
+            const refreshBtn = document.getElementById('refreshInventoryBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    const icon = refreshBtn.querySelector('i');
+                    icon.classList.add('fa-spin');
+                    refreshBtn.disabled = true;
+                    
+                    loadInventoryData();
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-spin');
+                        refreshBtn.disabled = false;
+                    }, 2000);
+                });
+            }
+            
+            const exportBtn = document.getElementById('exportInventoryBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportInventoryData);
+            }
+            
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', markAllAlertsRead);
+            }
+            
+            const refreshAlertsBtn = document.getElementById('refreshAlertsBtn');
+            if (refreshAlertsBtn) {
+                refreshAlertsBtn.addEventListener('click', refreshAlerts);
+            }
+            
+            // Filter inputs
+            const categoryFilter = document.getElementById('categoryFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const searchFilter = document.getElementById('searchFilter');
+            
+            [categoryFilter, statusFilter].forEach(filter => {
+                if (filter) {
+                    filter.addEventListener('change', applyFilters);
+                }
+            });
+            if (searchFilter) {
+                searchFilter.addEventListener('input', applyFilters);
+            }
+        }
+
+        // Load inventory data
+        function loadInventoryData() {
+            console.log('Loading inventory data...');
+            
+            let requestData = {
+                dataType: 'general'
+            };
+            
+            if (window.currentDateFilter) {
+                requestData = {
+                    ...requestData,
+                    ...window.currentDateFilter
+                };
+            } else {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                requestData = {
+                    ...requestData,
+                    filterType: 'month',
+                    month: currentMonth
+                };
+            }
+            
+            console.log('Request data:', requestData);
+            
+            fetch('/api/analytics/stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Inventory data received:', data);
+                if (data.success) {
+                    currentInventoryData = data.analytics;
+                    updateInventoryDisplay(data.analytics);
+                } else {
+                    console.error('Error loading inventory:', data.message);
+                    showErrorState(data.message || 'Failed to load inventory data');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading inventory:', error);
+                showErrorState('Network error: ' + error.message);
+            });
+        }
+
+        // Update inventory display
+        function updateInventoryDisplay(analytics) {
+            console.log('Updating inventory display:', analytics);
+            
+            // Update inventory table
+            updateInventoryTable(analytics.inventoryOverview);
+            
+            // Update low stock alerts
+            updateLowStockAlerts(analytics.lowStockAlerts);
+            
+            // Update category filter
+            updateCategoryFilter(analytics.inventoryOverview);
+        }
+
+        // Update inventory table
+        function updateInventoryTable(data) {
+            const tbody = document.getElementById('inventoryTableBody');
+            const listBody = document.getElementById('inventoryListBody');
+            
+            if (!data || data.length === 0) {
+                const emptyMessage = '<tr><td colspan="8" class="px-4 py-4 text-center text-gray-500">No inventory data available</td></tr>';
+                const emptyListMessage = '<div class="p-4 text-center text-gray-500">No inventory data available</div>';
+                
+                if (tbody) tbody.innerHTML = emptyMessage;
+                if (listBody) listBody.innerHTML = emptyListMessage;
+                return;
+            }
+            
+            // Desktop table view
+            if (tbody) {
+                tbody.innerHTML = data.map(item => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${item.name}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${item.category}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900">${item.currentStock}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${item.unit}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(item.status)}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex items-center space-x-2">
+                                <input type="number" 
+                                       class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                       value="${item.lowStockThreshold || 10}" 
+                                       min="1" 
+                                       max="1000"
+                                       onchange="updateItemThreshold(${item.id}, this.value)"
+                                       data-item-id="${item.id}">
+                                <button onclick="updateItemThreshold(${item.id}, document.querySelector('input[data-item-id=\"${item.id}\"]').value)" 
+                                        class="text-indigo-600 hover:text-indigo-800 text-xs">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-900">$${(item.buyingPrice || 0).toFixed(2)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${item.supplier}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Mobile/tablet list view
+            if (listBody) {
+                listBody.innerHTML = data.map(item => `
+                    <div class="p-4 hover:bg-gray-50">
+                        <div class="flex flex-col space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">${item.name}</h3>
+                                    <p class="text-xs text-gray-500">${item.category}</p>
+                                </div>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeClass(item.status)}">
+                                    ${item.status}
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <span class="text-gray-500">In Stock:</span>
+                                    <span class="font-medium">${item.currentStock} ${item.unit}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Price:</span>
+                                    <span class="font-medium">$${(item.buyingPrice || 0).toFixed(2)}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <label class="text-xs text-gray-500">Threshold:</label>
+                                    <input type="number" 
+                                           class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                           value="${item.lowStockThreshold || 10}" 
+                                           min="1" 
+                                           max="1000"
+                                           onchange="updateItemThreshold(${item.id}, this.value)"
+                                           data-item-id="${item.id}">
+                                    <button onclick="updateItemThreshold(${item.id}, document.querySelector('input[data-item-id=\"${item.id}\"]').value)" 
+                                            class="text-indigo-600 hover:text-indigo-800 text-xs">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    Supplier: ${item.supplier}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update low stock alerts
+        function updateLowStockAlerts(data) {
+            const container = document.getElementById('lowStockAlertsContent');
+            const alertCount = document.getElementById('alertCount');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 sm:py-8 text-green-600">
+                        <i class="fas fa-check-circle text-2xl sm:text-3xl mb-2 sm:mb-3"></i>
+                        <p class="text-sm sm:text-base font-medium">All Stock Levels Good</p>
+                        <p class="text-xs sm:text-sm">No low stock alerts at this time.</p>
+                    </div>
+                `;
+                if (alertCount) alertCount.textContent = '0';
+                return;
+            }
+            
+            if (alertCount) alertCount.textContent = data.length;
+            
+            container.innerHTML = data.map(item => `
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-red-50 rounded-lg mb-2 sm:mb-3 border border-red-200 hover:bg-red-100 transition-colors">
+                    <div class="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-sm sm:text-base"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm sm:text-base font-medium text-gray-800 truncate">${item.name}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Min: ${item.minStock} | Supplier: ${item.supplier}</p>
+                        </div>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <div class="text-lg sm:text-xl font-bold text-red-600">${item.currentStock}</div>
+                        <div class="text-xs text-gray-500">units left</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update category filter
+        function updateCategoryFilter(data) {
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (!categoryFilter || !data) return;
+            
+            const categories = [...new Set(data.map(item => item.category))].sort();
+            categoryFilter.innerHTML = '<option value="">All Categories</option>' + 
+                categories.map(category => `<option value="${category}">${category}</option>`).join('');
+        }
+
+        // Apply filters
+        function applyFilters() {
+            if (!currentInventoryData || !currentInventoryData.inventoryOverview) return;
+            
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            
+            let filteredData = currentInventoryData.inventoryOverview.filter(item => {
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                const matchesStatus = !statusFilter || item.status === statusFilter;
+                const matchesSearch = !searchFilter || item.name.toLowerCase().includes(searchFilter);
+                
+                return matchesCategory && matchesStatus && matchesSearch;
+            });
+            
+            updateInventoryTable(filteredData);
+        }
+
+        // Get status badge class
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Normal': return 'bg-green-100 text-green-800';
+                case 'Low Stock': return 'bg-yellow-100 text-yellow-800';
+                case 'Out of Stock': return 'bg-red-100 text-red-800';
+                case 'Overstocked': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Export inventory data
+        function exportInventoryData() {
+            if (!currentInventoryData) {
+                showNotification('No data to export', 'error');
+                return;
+            }
+            
+            let csvContent = "Item Name,Category,Current Stock,Unit,Status,Price,Supplier\n";
+            currentInventoryData.inventoryOverview.forEach(item => {
+                csvContent += `"${item.name}","${item.category}",${item.currentStock},"${item.unit}","${item.status}",${item.buyingPrice},"${item.supplier}"\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inventory_data_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Inventory data exported successfully!', 'success');
+        }
+
+        // Mark all alerts as read
+        function markAllAlertsRead() {
+            fetch('/api/stock/mark-alerts-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('All alerts marked as read', 'success');
+                    loadInventoryData();
+                } else {
+                    showNotification('Error marking alerts as read: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error marking alerts as read:', error);
+                showNotification('Error marking alerts as read', 'error');
+            });
+        }
+
+        // Refresh alerts
+        function refreshAlerts() {
+            loadInventoryData();
+            showNotification('Alerts refreshed', 'success');
+        }
+
+        // Show error state
+        function showErrorState(message = 'Error loading data') {
+            const containers = ['inventoryTableBody', 'lowStockAlertsContent'];
+            containers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container) {
+                    container.innerHTML = `
+                        <tr><td colspan="7" class="px-6 py-4 text-center text-red-500">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>${message}
+                        </td></tr>
+                    `;
+                }
+            });
+        }
+
+        // Initialize inventory management
+        initInventoryManagement();
+    });
+</script>
+{% endblock %}

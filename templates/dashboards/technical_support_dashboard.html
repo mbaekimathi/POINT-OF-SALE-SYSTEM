@@ -1,0 +1,354 @@
+{% extends "role_base.html" %}
+
+{% block title %}Technical Support Dashboard - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}wrench{% endblock %}
+{% block sidebar_title %}Technical Support{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Dashboard -->
+<a href="/technical-support/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+
+<!-- Support Tickets -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-ticket-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Support Tickets</p>
+        <p class="text-xs text-white/70">Manage issues</p>
+    </div>
+</a>
+
+<!-- System Status -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-server text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">System Status</p>
+        <p class="text-xs text-white/70">Monitor systems</p>
+    </div>
+</a>
+
+<!-- Maintenance -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tools text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Maintenance</p>
+        <p class="text-xs text-white/70">System maintenance</p>
+    </div>
+</a>
+
+<!-- Knowledge Base -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-book text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Knowledge Base</p>
+        <p class="text-xs text-white/70">Documentation</p>
+    </div>
+</a>
+
+<!-- Profile -->
+<a href="#" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-user text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Profile</p>
+        <p class="text-xs text-white/70">Personal info</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Technical Support Dashboard Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Technical Support Dashboard</h1>
+            <p class="text-gray-600 text-lg">Welcome back, {{ employee_name }}! Monitor system health and manage support requests.</p>
+        </div>
+        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
+            <i class="fas fa-wrench text-xl"></i>
+            <span class="font-bold text-lg">Technical Support</span>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Support Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Open Tickets -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Open Tickets</p>
+                <p class="text-2xl font-bold text-gray-800">8</p>
+                <p class="text-orange-600 text-sm">3 urgent</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-ticket-alt text-orange-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolved Today -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Resolved Today</p>
+                <p class="text-2xl font-bold text-gray-800">12</p>
+                <p class="text-green-600 text-sm">+3 from yesterday</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">System Health</p>
+                <p class="text-2xl font-bold text-gray-800">98%</p>
+                <p class="text-green-600 text-sm">All systems operational</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-heartbeat text-blue-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avg Response Time -->
+    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-600 text-sm font-medium">Avg Response Time</p>
+                <p class="text-2xl font-bold text-gray-800">15m</p>
+                <p class="text-purple-600 text-sm">Target: 20m</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-clock text-purple-600 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Tickets -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Recent Support Tickets</h2>
+                    <a href="#" class="text-primary-orange hover:text-secondary-orange font-medium">
+                        View All
+                    </a>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Ticket Item 1 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-exclamation text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">POS System Error - Printer Issue</p>
+                                <p class="text-sm text-gray-600">Reported by: Cashier #001 • 10 minutes ago</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Urgent
+                        </span>
+                    </div>
+
+                    <!-- Ticket Item 2 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-wrench text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Network Connectivity Issue</p>
+                                <p class="text-sm text-gray-600">Reported by: Manager • 25 minutes ago</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            In Progress
+                        </span>
+                    </div>
+
+                    <!-- Ticket Item 3 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Password Reset Request</p>
+                                <p class="text-sm text-gray-600">Reported by: Employee • 1 hour ago</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Resolved
+                        </span>
+                    </div>
+
+                    <!-- Ticket Item 4 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-question text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">User Training Request</p>
+                                <p class="text-sm text-gray-600">Reported by: Manager • 2 hours ago</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Pending
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & System Status -->
+    <div class="space-y-8">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <a href="#" class="flex items-center p-3 bg-primary-orange text-white rounded-lg hover:bg-secondary-orange transition-colors duration-200">
+                        <i class="fas fa-plus mr-3"></i>
+                        Create New Ticket
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-primary-blue text-white rounded-lg hover:bg-secondary-blue transition-colors duration-200">
+                        <i class="fas fa-server mr-3"></i>
+                        System Status
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                        <i class="fas fa-tools mr-3"></i>
+                        Maintenance Mode
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                        <i class="fas fa-book mr-3"></i>
+                        Knowledge Base
+                    </a>
+                    <a href="#" class="flex items-center p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                        <i class="fas fa-user mr-3"></i>
+                        My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">System Status</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Database</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-circle text-green-500 mr-1" style="font-size: 8px;"></i>
+                            Online
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">POS System</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-circle text-green-500 mr-1" style="font-size: 8px;"></i>
+                            Online
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Printers</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            <i class="fas fa-circle text-orange-500 mr-1" style="font-size: 8px;"></i>
+                            Warning
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Network</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-circle text-green-500 mr-1" style="font-size: 8px;"></i>
+                            Online
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Summary -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Performance</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">This Week</span>
+                        <span class="font-semibold text-green-600">Excellent</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Tickets Resolved</span>
+                        <span class="font-semibold text-gray-800">45/48</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Avg Resolution Time</span>
+                        <span class="font-semibold text-green-600">1.2h</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Customer Satisfaction</span>
+                        <span class="font-semibold text-green-600">4.9/5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handlers for technical support actions
+        document.querySelectorAll('button, a[href="#"]').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Technical support action clicked:', this.textContent.trim());
+                // Add your technical support functionality here
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+

@@ -1,0 +1,263 @@
+{% extends "role_base.html" %}
+
+{% block title %}Expenses Incurred{% endblock %}
+
+{% block sidebar_icon %}crown{% endblock %}
+{% block sidebar_title %}Admin Panel{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/admin/cashiers" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+  <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+    <i class="fas fa-cash-register text-white text-lg"></i>
+  </div>
+  <div>
+    <p class="font-semibold">Cashiers</p>
+    <p class="text-xs text-white/70">Manage & monitor</p>
+  </div>
+</a>
+<a href="/admin/expenses-incurred" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+  <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+    <i class="fas fa-file-invoice-dollar text-white text-lg"></i>
+  </div>
+  <div>
+    <p class="font-semibold">Expenses Incurred</p>
+    <p class="text-xs text-white/70">Cash outs & safe drops</p>
+  </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <div class="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Expenses Incurred</h1>
+      <p class="text-gray-600 mt-1">View all Cash Outs and Safe Drops across cashiers.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+      <div class="flex items-center gap-2">
+        <select id="period-mode" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          <option value="day">Day</option>
+          <option value="month">Month</option>
+          <option value="range">Range</option>
+        </select>
+        <input id="day-input" type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <input id="month-input" type="month" class="border border-gray-300 rounded-lg px-3 py-2 text-sm hidden">
+        <input id="start-date" type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm hidden">
+        <input id="end-date" type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm hidden">
+      </div>
+      <select id="filter-cashier" class="border border-gray-300 rounded-lg px-3 py-2 text-sm min-w-[220px]">
+        <option value="">All Cashiers</option>
+      </select>
+      <select id="type-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <option value="">All Types</option>
+        <option value="cash_out">Cash Outs</option>
+        <option value="safe_drop">Safe Drops</option>
+        <option value="end_shift">End Shift</option>
+      </select>
+      <button id="apply-filter" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"><i class="fas fa-filter mr-1"></i> Filter</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div class="bg-white rounded-xl border border-gray-200 p-4">
+      <div class="text-gray-600 text-sm">Cash Outs</div>
+      <div id="stat-cash-outs" class="text-2xl font-bold text-red-600">shs 0.00</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-4">
+      <div class="text-gray-600 text-sm">Safe Drops</div>
+      <div id="stat-safe-drops" class="text-2xl font-bold text-purple-600">shs 0.00</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-4">
+      <div class="text-gray-600 text-sm">End Shift</div>
+      <div id="stat-end-shift" class="text-2xl font-bold text-gray-600">shs 0.00</div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-4">
+      <div class="text-gray-600 text-sm">Total</div>
+      <div id="stat-overall" class="text-2xl font-bold text-gray-900">shs 0.00</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-gray-700 font-medium">Cash Outs</div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Time</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Cashier</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Type</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Description</th>
+            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600">Amount</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows-cashouts" class="divide-y divide-gray-100"></tbody>
+      </table>
+    </div>
+    <div id="empty-cashouts" class="hidden px-4 py-6 text-center text-gray-500">No cash outs found.</div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-gray-700 font-medium">Safe Drops</div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Time</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Cashier</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Type</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Description</th>
+            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600">Amount</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows-safedrops" class="divide-y divide-gray-100"></tbody>
+      </table>
+    </div>
+    <div id="empty-safedrops" class="hidden px-4 py-6 text-center text-gray-500">No safe drops found.</div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden mt-4">
+    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 text-gray-700 font-medium">End Shift</div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Time</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Cashier</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Type</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Description</th>
+            <th class="px-4 py-2 text-right text-xs font-semibold text-gray-600">Amount</th>
+            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-600">Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows-endshift" class="divide-y divide-gray-100"></tbody>
+      </table>
+    </div>
+    <div id="empty-endshift" class="hidden px-4 py-6 text-center text-gray-500">No end shift records found.</div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  populateCashiers();
+  setupPeriodMode();
+  loadData();
+  document.getElementById('apply-filter').addEventListener('click', loadData);
+  document.getElementById('period-mode').addEventListener('change', setupPeriodMode);
+});
+
+function setupPeriodMode(){
+  const mode = document.getElementById('period-mode').value;
+  const day = document.getElementById('day-input');
+  const mon = document.getElementById('month-input');
+  const sd = document.getElementById('start-date');
+  const ed = document.getElementById('end-date');
+  day.classList.add('hidden'); mon.classList.add('hidden'); sd.classList.add('hidden'); ed.classList.add('hidden');
+  if(mode==='day') day.classList.remove('hidden');
+  if(mode==='month') mon.classList.remove('hidden');
+  if(mode==='range'){ sd.classList.remove('hidden'); ed.classList.remove('hidden'); }
+}
+
+async function populateCashiers(){
+  try{
+    const res = await fetch('/api/admin/cashiers');
+    const data = await res.json();
+    if(!data.success) return;
+    const sel = document.getElementById('filter-cashier');
+    (data.cashiers||[]).forEach(c=>{
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.full_name} (${c.employee_code})`;
+      sel.appendChild(opt);
+    });
+  }catch(e){ console.error('Failed to load cashiers', e); }
+}
+
+async function loadData(){
+  const qs = new URLSearchParams();
+  const mode = document.getElementById('period-mode').value;
+  const ca = document.getElementById('filter-cashier').value || '';
+  const type = document.getElementById('type-filter').value || '';
+  if(ca) qs.append('cashier_id', ca);
+  if(type) qs.append('type', type);
+  if(mode==='day'){
+    const d = document.getElementById('day-input').value || '';
+    if(d){ qs.append('start_date', d); qs.append('end_date', d); }
+  }else if(mode==='month'){
+    const m = document.getElementById('month-input').value || '';
+    if(m){
+      // m is YYYY-MM; compute first and last day of month (approx; let backend include <= end)
+      const [yy,mm] = m.split('-').map(n=>parseInt(n,10));
+      if(yy && mm){
+        const first = new Date(yy, mm-1, 1);
+        const last = new Date(yy, mm, 0);
+        const toISO = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        qs.append('start_date', toISO(first));
+        qs.append('end_date', toISO(last));
+      }
+    }
+  }else{
+    const sd = document.getElementById('start-date').value || '';
+    const ed = document.getElementById('end-date').value || '';
+    if(sd) qs.append('start_date', sd);
+    if(ed) qs.append('end_date', ed);
+  }
+  try{
+    const res = await fetch('/api/admin/expenses-incurred'+(qs.toString()?('?'+qs.toString()):''));
+    const data = await res.json();
+    if(!data.success) return render([], {cash_out:0,safe_drop:0,overall:0});
+    render(data.items||[], data.totals||{cash_out:0,safe_drop:0,overall:0});
+  }catch(e){ console.error(e); render([], {cash_out:0,safe_drop:0,overall:0}); }
+}
+
+function render(rows, totals){
+  document.getElementById('stat-cash-outs').textContent = `shs ${Number(totals.cash_out||0).toFixed(2)}`;
+  document.getElementById('stat-safe-drops').textContent = `shs ${Number(totals.safe_drop||0).toFixed(2)}`;
+  document.getElementById('stat-overall').textContent = `shs ${Number(totals.overall||0).toFixed(2)}`;
+  document.getElementById('stat-end-shift').textContent = `shs ${Number(totals.end_shift||0).toFixed(2)}`;
+
+  const cashouts = rows.filter(r=> (r.category||categorize(r))==='cash_out');
+  const safedrops = rows.filter(r=> (r.category||categorize(r))==='safe_drop');
+  const endshift = rows.filter(r=> (r.category||categorize(r))==='end_shift');
+
+  renderTable('rows-cashouts','empty-cashouts', cashouts);
+  renderTable('rows-safedrops','empty-safedrops', safedrops);
+  renderTable('rows-endshift','empty-endshift', endshift);
+}
+
+function categorize(r){
+  const d = (r.description||'').toLowerCase();
+  if(d.startsWith('safe drop')) return 'safe_drop';
+  if(d.startsWith('end shift')) return 'end_shift';
+  return 'cash_out';
+}
+
+function renderTable(bodyId, emptyId, rows){
+  const body = document.getElementById(bodyId);
+  const empty = document.getElementById(emptyId);
+  body.innerHTML = '';
+  if(!rows.length){ empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  body.innerHTML = rows.map(r=>{
+    const d = (r.description||'').toLowerCase();
+    const isSafeDrop = d.startsWith('safe drop');
+    const isEndShift = d.startsWith('end shift');
+    const color = isSafeDrop ? 'text-purple-600' : (isEndShift ? 'text-gray-700' : 'text-red-600');
+    const icon = isSafeDrop ? 'fa-shield-alt' : (isEndShift ? 'fa-stop-circle' : 'fa-arrow-up');
+    return `
+      <tr>
+        <td class="px-4 py-2 text-sm text-gray-700 whitespace-nowrap">${r.created_at||''}</td>
+        <td class="px-4 py-2 text-sm text-gray-700 whitespace-nowrap">${r.cashier_name||''} <span class="text-gray-400">#${r.employee_code||''}</span></td>
+        <td class="px-4 py-2 text-sm whitespace-nowrap ${color}"><i class="fas ${icon} mr-1"></i>${isSafeDrop? 'safe_drop' : (isEndShift? 'end_shift' : (r.transaction_type||''))}</td>
+        <td class="px-4 py-2 text-sm text-gray-700">${r.description||''}</td>
+        <td class="px-4 py-2 text-sm text-right font-semibold ${color}">shs ${Number(r.amount||0).toFixed(2)}</td>
+        <td class="px-4 py-2 text-sm text-gray-600">${r.status||''}</td>
+      </tr>`;
+  }).join('');
+}
+</script>
+{% endblock %}
+
+

@@ -365,7 +365,7 @@ class WiFiThermalPrinterManager {
     // Print receipt with thermal formatting
     async printReceipt(printerId, receiptData) {
         try {
-            const receiptContent = this.generateReceiptContent(receiptData);
+            const receiptContent = await this.generateReceiptContent(receiptData);
             
             const printOptions = {
                 align: 'center',
@@ -383,35 +383,123 @@ class WiFiThermalPrinterManager {
         }
     }
 
+    // Function to generate ESC/POS QR code commands
+    generateQRCodeESC_POS(data) {
+        // ESC/POS QR code commands for thermal printers
+        // Model: 2, Error Correction: L (48), Size: 6
+        
+        // Step 1: Set QR code model (Model 2)
+        let qrCommand = '\x1D\x28\x6B\x04\x00\x31\x41\x32\x00';
+        
+        // Step 2: Set QR code size (1-16, we use 6 for good visibility)
+        qrCommand += '\x1D\x28\x6B\x03\x00\x31\x43\x06';
+        
+        // Step 3: Set error correction level (L=48, M=49, Q=50, H=51)
+        // L level (7% recovery) is fastest and sufficient for URLs
+        qrCommand += '\x1D\x28\x6B\x03\x00\x31\x45\x30';
+        
+        // Step 4: Store QR code data
+        // pL pH fn a m nL nH d1...dk
+        const dataLength = data.length + 3;
+        const pL = dataLength & 0xFF;
+        const pH = (dataLength >> 8) & 0xFF;
+        qrCommand += '\x1D\x28\x6B' + String.fromCharCode(pL) + String.fromCharCode(pH) + '\x31\x50\x30';
+        qrCommand += data;
+        
+        // Step 5: Print the QR code
+        qrCommand += '\x1D\x28\x6B\x03\x00\x31\x51\x30';
+        
+        return qrCommand;
+    }
+
     // Generate receipt content
-    generateReceiptContent(receiptData) {
+    async generateReceiptContent(receiptData) {
         const now = new Date();
         const timestamp = now.toLocaleString();
         
         let content = '';
         
-        // Header
-        content += '================================\n';
-        content += '        RECEIPT\n';
-        content += '================================\n\n';
+        // ESC/POS commands for thermal printer
+        content += '\x1B\x40'; // ESC @ - Initialize printer
         
-        // Company info
-        if (receiptData.company) {
-            content += `${receiptData.company}\n`;
+        // Fetch receipt settings
+        let receiptSettings = {};
+        try {
+            const response = await fetch('/api/pos/receipt-settings');
+            const data = await response.json();
+            if (data.success) {
+                receiptSettings = data.settings;
+            }
+        } catch (error) {
+            console.error('Error fetching receipt settings:', error);
         }
         
+        // Header
+        content += '\x1B\x61\x01'; // Center alignment
+        content += '\x1B\x21\x30'; // Double height and width
+        
+        // Company name
+        const companyName = receiptData.company || receiptSettings.receipt_header_title || 'RECEIPT';
+        content += `${companyName}\n`;
+        
+        // Subtitle
+        if (receiptSettings.receipt_header_subtitle) {
+            content += '\x1B\x21\x00'; // Normal text
+            content += `${receiptSettings.receipt_header_subtitle}\n`;
+        }
+        
+        content += '\x1B\x21\x00'; // Normal text
+        content += '\x1B\x61\x00'; // Left alignment
+        
+        // Address
+        if (receiptSettings.receipt_show_address) {
+            const address = receiptSettings.receipt_address || receiptData.address;
+            if (address) {
+                content += `${address}\n`;
+            }
+        }
+        
+        // Contact info
+        if (receiptSettings.receipt_show_contact) {
+            if (receiptSettings.receipt_phone || receiptData.phone) {
+                content += `Phone: ${receiptSettings.receipt_phone || receiptData.phone}\n`;
+            }
+            if (receiptSettings.receipt_email || receiptData.email) {
+                content += `Email: ${receiptSettings.receipt_email || receiptData.email}\n`;
+            }
+        }
+        
+        // Header message
+        if (receiptSettings.receipt_header_message) {
+            content += `${receiptSettings.receipt_header_message}\n`;
+        }
+        
+        content += '================================\n';
+        
+        // Receipt number
+        const receiptNumber = receiptData.receiptNumber || 'N/A';
+        content += `Receipt #: ${receiptNumber}\n`;
+        
         // Date and time
-        content += `Date: ${timestamp}\n`;
-        content += `Receipt #: ${receiptData.receiptNumber || 'N/A'}\n\n`;
+        if (receiptSettings.receipt_show_datetime) {
+            content += `Date: ${now.toLocaleDateString()}\n`;
+            content += `Time: ${now.toLocaleTimeString()}\n`;
+        }
+        
+        // Cashier
+        if (receiptSettings.receipt_show_cashier && receiptData.cashier) {
+            content += `Served by: ${receiptData.cashier}\n`;
+        }
+        
+        content += '--------------------------------\n';
         
         // Items
         if (receiptData.items && receiptData.items.length > 0) {
-            content += 'Items:\n';
-            content += '--------------------------------\n';
+            content += 'ITEMS:\n';
             
             receiptData.items.forEach(item => {
                 content += `${item.name}\n`;
-                content += `Qty: ${item.quantity} x $${item.price} = $${item.total}\n\n`;
+                content += `  ${item.quantity} x KSh ${item.price} = KSh ${item.total}\n`;
             });
             
             content += '--------------------------------\n';
@@ -419,12 +507,43 @@ class WiFiThermalPrinterManager {
         
         // Total
         if (receiptData.total) {
-            content += `TOTAL: $${receiptData.total}\n\n`;
+            content += `TOTAL: KSh ${receiptData.total}\n`;
         }
         
         // Footer
-        content += 'Thank you for your business!\n';
+        content += '\x1B\x61\x01'; // Center alignment
+        
+        if (receiptSettings.receipt_footer_message) {
+            content += `${receiptSettings.receipt_footer_message}\n`;
+        } else {
+            content += 'Thank you for your business!\n';
+            content += 'Visit us again soon!\n';
+        }
+        
+        // QR Code
+        if (receiptSettings.receipt_show_qr) {
+            // Generate QR code URL for this specific receipt
+            // window.location.origin automatically adapts to:
+            // - Localhost: http://127.0.0.1:5000 or http://localhost:5000
+            // - Production: https://yourdomain.com or http://yourdomain.com
+            // This ensures the QR code works on any domain where the app is hosted
+            const baseUrl = window.location.origin;
+            const qrUrl = `${baseUrl}/receipt/${receiptData.receiptNumber || receiptData.id}`;
+            
+            // Generate and add ESC/POS QR code commands
+            content += '\n';
+            content += '\x1B\x61\x01'; // Center alignment for QR code
+            content += this.generateQRCodeESC_POS(qrUrl);
+            content += '\n\n'; // Add some space after QR code
+            content += '\x1B\x61\x00'; // Reset to left alignment
+        }
+        
+        content += '\x1B\x61\x00'; // Left alignment
         content += '================================\n';
+        
+        // Cut paper
+        content += '\n\n\n';
+        content += '\x1D\x56\x00'; // GS V 0 - Full cut
         
         return content;
     }
@@ -559,4 +678,5 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
     window.WiFiThermalPrinterManager = WiFiThermalPrinterManager;
 }
+
 

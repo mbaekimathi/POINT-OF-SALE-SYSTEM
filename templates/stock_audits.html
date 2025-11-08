@@ -1,0 +1,686 @@
+{% extends "role_base.html" %}
+
+{% block title %}Stock Audits - Hotel POS System{% endblock %}
+
+{% block sidebar_icon %}{% if employee_role == 'admin' %}crown{% elif employee_role == 'manager' %}user-tie{% else %}cash-register{% endif %}{% endblock %}
+{% block sidebar_title %}{% if employee_role == 'admin' %}Admin Panel{% elif employee_role == 'manager' %}Manager Panel{% else %}Cashier Panel{% endif %}{% endblock %}
+
+{% block sidebar_nav %}
+{% if employee_role == 'admin' %}
+<!-- Dashboard -->
+<a href="/admin/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+
+<!-- Human Resource -->
+<a href="/admin/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resource</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+
+<!-- Item Management -->
+<a href="/admin/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Analytics -->
+<a href="/admin/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+
+<!-- Stock Audits -->
+<a href="/stock-audits" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-clipboard-check text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Audits</p>
+        <p class="text-xs text-white/70">Transaction history</p>
+    </div>
+</a>
+
+<!-- Settings -->
+<a href="/admin/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System configuration</p>
+    </div>
+</a>
+
+{% elif employee_role == 'manager' %}
+<!-- Dashboard -->
+<a href="/manager/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+
+<!-- Human Resource -->
+<a href="/manager/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resource</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+
+<!-- Item Management -->
+<a href="/manager/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Analytics -->
+<a href="/manager/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+
+<!-- Stock Audits -->
+<a href="/stock-audits" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-clipboard-check text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Audits</p>
+        <p class="text-xs text-white/70">Transaction history</p>
+    </div>
+</a>
+
+<!-- Settings -->
+<a href="/manager/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System configuration</p>
+    </div>
+</a>
+
+{% else %}
+<!-- Point of Sale -->
+<a href="/cashier/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process orders</p>
+    </div>
+</a>
+
+<!-- Stock Management -->
+<a href="/cashier/stock-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Stock Audits -->
+<a href="/stock-audits" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-clipboard-check text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Audits</p>
+        <p class="text-xs text-white/70">Transaction history</p>
+    </div>
+</a>
+
+<!-- Receipt Confirmation -->
+<a href="/cashier/receipt-confirmation" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipt Confirmation</p>
+        <p class="text-xs text-white/70">Confirm receipts</p>
+    </div>
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Stock Audits Header -->
+<div class="mb-4 sm:mb-6 md:mb-8 animate-fade-in">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex-1">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-1 sm:mb-2 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                Stock Audits
+            </h1>
+            <p class="text-gray-600 text-sm sm:text-base md:text-lg">View all stock transactions (stock-in and stock-out)</p>
+        </div>
+        <div class="flex items-center space-x-2 sm:space-x-3 role-badge text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl shadow-lg">
+            <i class="fas fa-clipboard-check text-lg sm:text-xl"></i>
+            <span class="font-bold text-sm sm:text-base md:text-lg">{{ employee_role|title }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Section -->
+<div class="bg-white rounded-xl shadow-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 md:mb-8 animate-slide-up">
+    <div class="flex items-center justify-between mb-4 sm:mb-5">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+            <i class="fas fa-filter text-primary-blue mr-2"></i>
+            Filters
+        </h2>
+        <div class="flex items-center text-xs sm:text-sm text-gray-600 px-2 sm:px-3 py-1 bg-green-50 rounded-full">
+            <i class="fas fa-bolt text-green-500 mr-1"></i>
+            <span class="hidden sm:inline">Auto-applied</span>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Date Filter Type -->
+        <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Date Filter</label>
+            <select id="date-filter-type" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+                <option value="all">All Dates</option>
+                <option value="day">Specific Day</option>
+                <option value="range">Date Range</option>
+                <option value="month">Month</option>
+            </select>
+        </div>
+
+        <!-- Specific Day -->
+        <div id="date-day-container" class="hidden">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Select Day</label>
+            <input type="date" id="date-day" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+        </div>
+
+        <!-- Date Range From -->
+        <div id="date-range-from-container" class="hidden">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">From Date</label>
+            <input type="date" id="date-from" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+        </div>
+
+        <!-- Date Range To -->
+        <div id="date-range-to-container" class="hidden">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">To Date</label>
+            <input type="date" id="date-to" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+        </div>
+
+        <!-- Month Selector -->
+        <div id="date-month-container" class="hidden">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Select Month</label>
+            <input type="month" id="date-month" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+        </div>
+
+        <!-- Employee Filter (All users can filter by employee) -->
+        <div>
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Employee</label>
+            <select id="employee-filter" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+            <option value="">All Employees</option>
+        </select>
+    </div>
+
+    <!-- Item Filter (Admin and Manager only) -->
+    {% if employee_role == 'admin' or employee_role == 'manager' %}
+    <div>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Item</label>
+        <select id="item-filter" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+            <option value="">All Items</option>
+        </select>
+    </div>
+
+    <!-- Transaction Type Filter (Admin and Manager only) -->
+    <div>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Transaction Type</label>
+        <select id="transaction-type-filter" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all">
+            <option value="all">All Types</option>
+            <option value="stock_in">Stock In</option>
+            <option value="stock_out">Stock Out</option>
+        </select>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="col-span-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-2 pt-2 sm:pt-0 border-t border-gray-200 sm:border-t-0 mt-2 sm:mt-0">
+        <button onclick="resetFilters()" class="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 active:scale-95 transition-all duration-200 font-medium text-sm sm:text-base">
+            <i class="fas fa-redo mr-2"></i>Reset All Filters
+        </button>
+    </div>
+</div>
+
+<!-- Transactions Section -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden animate-slide-up">
+    <div class="p-4 sm:p-5 md:p-6 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+            <i class="fas fa-list-alt text-primary-blue mr-2"></i>
+            Transactions
+        </h2>
+        <span id="transaction-count" class="text-xs sm:text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full font-medium">Loading...</span>
+    </div>
+    
+    <!-- Desktop Table View -->
+    <div class="hidden md:block overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 sticky top-0">
+                <tr>
+                    <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                    <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                    <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                    <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                </tr>
+            </thead>
+            <tbody id="transactions-tbody" class="bg-white divide-y divide-gray-200">
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p class="text-sm">Loading transactions...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Mobile Card View -->
+    <div id="transactions-cards" class="md:hidden p-4 space-y-3">
+        <div class="text-center py-8 text-gray-500">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p class="text-sm">Loading transactions...</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+    
+    .animate-slide-up {
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    /* Responsive scrollbar */
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+    
+    /* Smooth transitions */
+    select, input[type="date"], input[type="month"] {
+        transition: all 0.2s ease;
+    }
+    
+    select:focus, input[type="date"]:focus, input[type="month"]:focus {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+</style>
+<script>
+let currentFilters = {};
+
+// Debounce function to limit API calls
+let filterTimeout;
+function debounceFilter(func, delay = 500) {
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(func, delay);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial data
+    loadEmployees();
+    {% if employee_role == 'admin' or employee_role == 'manager' %}
+    loadItems();
+    {% endif %}
+    loadTransactions();
+
+    // Date filter type change handler
+    const dateFilterType = document.getElementById('date-filter-type');
+    dateFilterType.addEventListener('change', function() {
+        const type = this.value;
+        document.getElementById('date-day-container').classList.toggle('hidden', type !== 'day');
+        document.getElementById('date-range-from-container').classList.toggle('hidden', type !== 'range');
+        document.getElementById('date-range-to-container').classList.toggle('hidden', type !== 'range');
+        document.getElementById('date-month-container').classList.toggle('hidden', type !== 'month');
+        // Auto-apply when filter type changes
+        applyFilters();
+    });
+
+    // Date input handlers - auto-apply with debounce
+    const dateDay = document.getElementById('date-day');
+    const dateFrom = document.getElementById('date-from');
+    const dateTo = document.getElementById('date-to');
+    const dateMonth = document.getElementById('date-month');
+
+    if (dateDay) {
+        dateDay.addEventListener('change', function() {
+            debounceFilter(applyFilters, 300);
+        });
+    }
+
+    if (dateFrom) {
+        dateFrom.addEventListener('change', function() {
+            debounceFilter(applyFilters, 300);
+        });
+    }
+
+    if (dateTo) {
+        dateTo.addEventListener('change', function() {
+            debounceFilter(applyFilters, 300);
+        });
+    }
+
+    if (dateMonth) {
+        dateMonth.addEventListener('change', function() {
+            debounceFilter(applyFilters, 300);
+        });
+    }
+
+    // Employee filter - auto-apply
+    const employeeFilter = document.getElementById('employee-filter');
+    if (employeeFilter) {
+        employeeFilter.addEventListener('change', function() {
+            applyFilters();
+        });
+    }
+
+    {% if employee_role == 'admin' or employee_role == 'manager' %}
+    // Item filter - auto-apply
+    const itemFilter = document.getElementById('item-filter');
+    if (itemFilter) {
+        itemFilter.addEventListener('change', function() {
+            applyFilters();
+        });
+    }
+
+    // Transaction type filter - auto-apply
+    const transactionTypeFilter = document.getElementById('transaction-type-filter');
+    if (transactionTypeFilter) {
+        transactionTypeFilter.addEventListener('change', function() {
+            applyFilters();
+        });
+    }
+    {% endif %}
+    
+    // Handle window resize to switch between card and table views
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            // Reload transactions on resize to update view
+            if (Object.keys(currentFilters).length > 0) {
+                loadTransactions(currentFilters);
+            } else {
+                loadTransactions();
+            }
+        }, 300);
+    });
+});
+
+function loadEmployees() {
+    fetch('/api/stock-audits/employees')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('employee-filter');
+                select.innerHTML = '<option value="">All Employees</option>';
+                data.employees.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = emp.name;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading employees:', error);
+        });
+}
+
+{% if employee_role == 'admin' or employee_role == 'manager' %}
+function loadItems() {
+    fetch('/api/stock-audits/items')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('item-filter');
+                select.innerHTML = '<option value="">All Items</option>';
+                data.items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading items:', error);
+        });
+}
+{% endif %}
+
+function applyFilters() {
+    const filters = {
+        date_filter: document.getElementById('date-filter-type').value,
+        date_from: null,
+        date_to: null,
+        month: null,
+        employee_id: document.getElementById('employee-filter').value || null,
+        {% if employee_role == 'admin' or employee_role == 'manager' %}
+        item_id: document.getElementById('item-filter').value || null,
+        transaction_type: document.getElementById('transaction-type-filter').value || null,
+        {% endif %}
+    };
+
+    const dateFilterType = filters.date_filter;
+    if (dateFilterType === 'day') {
+        filters.date_from = document.getElementById('date-day').value;
+    } else if (dateFilterType === 'range') {
+        filters.date_from = document.getElementById('date-from').value;
+        filters.date_to = document.getElementById('date-to').value;
+    } else if (dateFilterType === 'month') {
+        const monthInput = document.getElementById('date-month').value;
+        filters.month = monthInput ? monthInput.substring(0, 7) : null; // Extract YYYY-MM
+    }
+
+    currentFilters = filters;
+    loadTransactions(filters);
+}
+
+function resetFilters() {
+    document.getElementById('date-filter-type').value = 'all';
+    document.getElementById('date-day').value = '';
+    document.getElementById('date-from').value = '';
+    document.getElementById('date-to').value = '';
+    document.getElementById('date-month').value = '';
+    document.getElementById('employee-filter').value = '';
+    {% if employee_role == 'admin' or employee_role == 'manager' %}
+    document.getElementById('item-filter').value = '';
+    document.getElementById('transaction-type-filter').value = 'all';
+    {% endif %}
+    document.getElementById('date-day-container').classList.add('hidden');
+    document.getElementById('date-range-from-container').classList.add('hidden');
+    document.getElementById('date-range-to-container').classList.add('hidden');
+    document.getElementById('date-month-container').classList.add('hidden');
+    currentFilters = {};
+    loadTransactions();
+}
+
+function loadTransactions(filters = {}) {
+    const tbody = document.getElementById('transactions-tbody');
+    const cardsContainer = document.getElementById('transactions-cards');
+    
+    const loadingHtml = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p class="text-sm">Loading transactions...</p></td></tr>';
+    const loadingCardHtml = '<div class="text-center py-8 text-gray-500"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p class="text-sm">Loading transactions...</p></div>';
+    
+    if (tbody) tbody.innerHTML = loadingHtml;
+    if (cardsContainer) cardsContainer.innerHTML = loadingCardHtml;
+
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+        if (value !== null && value !== '' && value !== 'all') {
+            params.append(key, value);
+        }
+    }
+
+    fetch(`/api/stock-audits?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('transaction-count').textContent = `${data.count} transaction(s)`;
+                displayTransactions(data.transactions);
+            } else {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Failed to load transactions</td></tr>';
+                if (cardsContainer) cardsContainer.innerHTML = '<div class="text-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p class="text-sm">Failed to load transactions</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading transactions:', error);
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Error loading transactions</td></tr>';
+            if (cardsContainer) cardsContainer.innerHTML = '<div class="text-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p class="text-sm">Error loading transactions</p></div>';
+        });
+}
+
+function displayTransactions(transactions) {
+    const tbody = document.getElementById('transactions-tbody');
+    const cardsContainer = document.getElementById('transactions-cards');
+    const isMobile = window.innerWidth < 768;
+    
+    if (transactions.length === 0) {
+        const emptyMessage = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p class="text-sm font-medium">No transactions found</p><p class="text-xs text-gray-400 mt-1">Try adjusting your filters</p></td></tr>';
+        tbody.innerHTML = emptyMessage;
+        if (cardsContainer) {
+            cardsContainer.innerHTML = '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p class="text-sm font-medium">No transactions found</p><p class="text-xs text-gray-400 mt-1">Try adjusting your filters</p></div>';
+        }
+        return;
+    }
+
+    // Desktop table view
+    tbody.innerHTML = transactions.map((trans, index) => {
+        const actionClass = trans.action === 'stock_in' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+        const actionIcon = trans.action === 'stock_in' ? 'fa-arrow-down' : 'fa-arrow-up';
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors duration-150 animate-fade-in" style="animation-delay: ${index * 50}ms">
+                <td class="px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">${trans.created_at_formatted || trans.created_at}</td>
+                <td class="px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-gray-900">${trans.item_name}</td>
+                <td class="px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900 font-semibold">${trans.quantity}</td>
+                <td class="px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${actionClass}">
+                        <i class="fas ${actionIcon} mr-1"></i>${trans.action_label}
+                    </span>
+                </td>
+                <td class="px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">${trans.employee_name}</td>
+                <td class="px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 max-w-xs truncate" title="${trans.reason || '-'}">${trans.reason || '-'}</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Mobile card view
+    if (cardsContainer) {
+        cardsContainer.innerHTML = transactions.map((trans, index) => {
+            const actionClass = trans.action === 'stock_in' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
+            const actionIcon = trans.action === 'stock_in' ? 'fa-arrow-down' : 'fa-arrow-up';
+            const dateFormatted = new Date(trans.created_at).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            return `
+                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in" style="animation-delay: ${index * 50}ms">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">${trans.item_name}</h3>
+                            <p class="text-xs text-gray-500">${dateFormatted}</p>
+                        </div>
+                        <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${actionClass} border">
+                            <i class="fas ${actionIcon} mr-1"></i>${trans.action_label}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-0.5">Quantity</p>
+                            <p class="text-sm font-semibold text-gray-900">${trans.quantity}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-0.5">Employee</p>
+                            <p class="text-sm text-gray-900">${trans.employee_name}</p>
+                        </div>
+                    </div>
+                    ${trans.reason ? `<div class="mt-3 pt-3 border-t border-gray-100"><p class="text-xs text-gray-500 mb-0.5">Notes</p><p class="text-sm text-gray-700">${trans.reason}</p></div>` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+}
+</script>
+{% endblock %}

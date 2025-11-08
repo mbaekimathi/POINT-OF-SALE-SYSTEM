@@ -64,45 +64,52 @@
 
 {% block content %}
 <!-- Settings Header -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">System Settings</h1>
-            <p class="text-gray-600 text-lg">Configure your hotel POS system, manage preferences, and customize operations.</p>
+<div class="mb-6 md:mb-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex-1">
+            <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-2">System Settings</h1>
+            <p class="text-gray-600 text-sm md:text-lg">Configure your hotel POS system, manage preferences, and customize operations.</p>
         </div>
-        <div class="flex items-center space-x-3 role-badge text-white px-6 py-3 rounded-2xl">
-            <i class="fas fa-cog text-xl"></i>
-            <span class="font-bold text-lg">System Configuration</span>
+        <div class="flex items-center space-x-3 role-badge text-white px-4 md:px-6 py-2 md:py-3 rounded-2xl">
+            <i class="fas fa-cog text-lg md:text-xl"></i>
+            <span class="font-bold text-sm md:text-lg">System Configuration</span>
         </div>
     </div>
 </div>
 
 <!-- Settings Navigation Tabs -->
-<div class="mb-8">
-    <div class="flex space-x-2 bg-gray-100 p-2 rounded-2xl">
-        <button class="settings-tab active bg-white text-primary-orange px-6 py-3 rounded-xl font-semibold shadow-lg" data-tab="hotel">
+<div class="mb-6 md:mb-8">
+    <div class="flex flex-wrap md:flex-nowrap gap-2 bg-gray-100 p-2 rounded-2xl overflow-x-auto">
+        <button class="settings-tab active bg-white text-primary-orange px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold shadow-lg whitespace-nowrap text-sm md:text-base" data-tab="hotel">
             <i class="fas fa-hotel mr-2"></i>
-            Hotel Information
+            <span class="hidden sm:inline">Hotel Information</span>
+            <span class="sm:hidden">Hotel</span>
         </button>
-        <button class="settings-tab bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-white transition-all duration-200" data-tab="printing">
+        <button class="settings-tab bg-gray-200 text-gray-700 px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-white transition-all duration-200 whitespace-nowrap text-sm md:text-base" data-tab="printing-receipt">
             <i class="fas fa-print mr-2"></i>
-            Printing Settings
+            <span class="hidden sm:inline">Printing & Receipt Settings</span>
+            <span class="sm:hidden">Printing</span>
+        </button>
+        <button class="settings-tab bg-gray-200 text-gray-700 px-4 md:px-6 py-2 md:py-3 rounded-xl font-semibold hover:bg-white transition-all duration-200 whitespace-nowrap text-sm md:text-base" data-tab="permissions">
+            <i class="fas fa-user-shield mr-2"></i>
+            <span class="hidden sm:inline">Permissions Settings</span>
+            <span class="sm:hidden">Permissions</span>
         </button>
     </div>
 </div>
 
 <!-- Hotel Information Settings -->
 <div id="hotel-settings" class="settings-content">
-    <div class="max-w-4xl mx-auto">
-        <form id="hotelSettingsForm" class="space-y-8">
+    <div class="max-w-4xl mx-auto px-4 md:px-0">
+        <form id="hotelSettingsForm" class="space-y-6 md:space-y-8">
             <!-- Basic Information -->
-            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
-                <div class="p-8 border-b border-gray-200">
-                    <h2 class="text-2xl font-bold text-gray-800">Basic Information</h2>
-                    <p class="text-gray-600 mt-2">Configure your hotel's basic details</p>
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-4 md:p-8 border-b border-gray-200">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Basic Information</h2>
+                    <p class="text-gray-600 mt-2 text-sm md:text-base">Configure your hotel's basic details</p>
                 </div>
-                <div class="p-8">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="p-4 md:p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">Hotel Name *</label>
                             <input type="text" id="hotelName" name="hotel_name" required
@@ -138,7 +145,7 @@
             </div>
 
             <!-- Payment Information -->
-            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
                 <div class="p-8 border-b border-gray-200">
                     <h2 class="text-2xl font-bold text-gray-800">Payment Information</h2>
                     <p class="text-gray-600 mt-2">Configure payment method for receipts and transactions</p>
@@ -201,28 +208,56 @@
             </div>
 
             <!-- Save Button -->
-            <div class="text-center">
-                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
-                    <i class="fas fa-save mr-3"></i>
+            <div class="text-center px-4 md:px-0">
+                <button type="submit" class="bg-primary-orange text-white px-6 md:px-12 py-3 md:py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-sm md:text-lg shadow-2xl w-full sm:w-auto">
+                    <i class="fas fa-save mr-2 md:mr-3"></i>
                     Save Hotel Settings
                 </button>
+            </div>
+            
+            <!-- Settings Preview -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl md:rounded-3xl shadow-2xl border border-blue-100">
+                <div class="p-4 md:p-8 border-b border-blue-200">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Settings Preview</h2>
+                    <p class="text-gray-600 mt-2 text-sm md:text-base">Preview your current hotel settings</p>
+                </div>
+                <div class="p-4 md:p-8">
+                    <div id="hotel-settings-preview" class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                        <div class="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4">Business Information</h3>
+                            <div class="space-y-2 text-sm">
+                                <div><span class="font-semibold">Name:</span> <span id="preview-hotel-name">Not set</span></div>
+                                <div><span class="font-semibold">Type:</span> <span id="preview-business-type">Not set</span></div>
+                                <div><span class="font-semibold">Email:</span> <span id="preview-email">Not set</span></div>
+                                <div><span class="font-semibold">Phone:</span> <span id="preview-phone">Not set</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 md:p-6 shadow-lg">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4">Payment Configuration</h3>
+                            <div class="space-y-2 text-sm">
+                                <div><span class="font-semibold">Method:</span> <span id="preview-payment-method">Not set</span></div>
+                                <div><span class="font-semibold">Till/Paybill:</span> <span id="preview-payment-details">Not set</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Printing Settings -->
-<div id="printing-settings" class="settings-content hidden">
-    <div class="max-w-4xl mx-auto">
-        <form id="printingSettingsForm" class="space-y-8">
+<!-- Printing & Receipt Settings -->
+<div id="printing-receipt-settings" class="settings-content hidden">
+    <div class="max-w-4xl mx-auto px-4 md:px-0">
+        <form id="printingReceiptSettingsForm" class="space-y-6 md:space-y-8">
             <!-- Display Settings -->
-            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
-                <div class="p-8 border-b border-gray-200">
-                    <h2 class="text-2xl font-bold text-gray-800">Display Settings</h2>
-                    <p class="text-gray-600 mt-2">Configure how information is displayed in the system</p>
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-4 md:p-8 border-b border-gray-200">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Display Settings</h2>
+                    <p class="text-gray-600 mt-2 text-sm md:text-base">Configure how information is displayed in the system</p>
                 </div>
-                <div class="p-8">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="p-4 md:p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                         <div class="space-y-6">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -260,7 +295,7 @@
             </div>
 
             <!-- Printer Settings -->
-            <div class="bg-white rounded-3xl shadow-2xl border border-gray-100">
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
                 <div class="p-8 border-b border-gray-200">
                     <h2 class="text-2xl font-bold text-gray-800">Printer Settings</h2>
                     <p class="text-gray-600 mt-2">Configure receipt printing behavior</p>
@@ -283,11 +318,407 @@
                 </div>
             </div>
 
+            <!-- Receipt Format Settings -->
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Receipt Format</h2>
+                    <p class="text-gray-600 mt-2">Customize the appearance and layout of your receipts</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Receipt Width</label>
+                                <select name="receipt_width" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent">
+                                    <option value="58mm">58mm (Standard)</option>
+                                    <option value="80mm">80mm (Wide)</option>
+                                    <option value="custom">Custom Width</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Font Size</label>
+                                <select name="receipt_font_size" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent">
+                                    <option value="small">Small (8pt)</option>
+                                    <option value="medium" selected>Medium (10pt)</option>
+                                    <option value="large">Large (12pt)</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Bold Headers</h3>
+                                    <p class="text-sm text-gray-600">Make receipt headers bold</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="receipt_bold_headers" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Receipt Number Format</label>
+                                <select name="receipt_number_format" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent">
+                                    <option value="sequential">Sequential (0001, 0002, ...)</option>
+                                    <option value="date_time">Date + Time (202401011200)</option>
+                                    <option value="custom">Custom Format</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Receipt Number Prefix</label>
+                                <input type="text" name="receipt_number_prefix" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="e.g., POS, INV, RCP">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Starting Number</label>
+                                <input type="number" name="receipt_starting_number" min="1" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="1001" value="1001">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipt Header Settings -->
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Receipt Header</h2>
+                    <p class="text-gray-600 mt-2">Customize what appears at the top of your receipts</p>
+                </div>
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Header Title</label>
+                                <input type="text" name="receipt_header_title" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Your Business Name">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">Header Subtitle</label>
+                                <input type="text" name="receipt_header_subtitle" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                       placeholder="Tagline or description">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Header Message</label>
+                            <textarea name="receipt_header_message" rows="3"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                      placeholder="Welcome message, thank you note, etc."></textarea>
+                        </div>
+                        
+                        <!-- Receipt Contact Information -->
+                        <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
+                            <h3 class="font-bold text-lg text-gray-800 mb-3">Receipt Contact Information</h3>
+                            <p class="text-sm text-gray-600 mb-4">Set address and contact details to display on receipts (leave empty to use hotel information from Hotel Information settings)</p>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Receipt Address</label>
+                                    <textarea name="receipt_address" id="receipt_address" rows="3"
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                              placeholder="Business address for receipts"></textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Leave empty to use address from Hotel Information</p>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-700 font-semibold mb-2">Receipt Phone</label>
+                                        <input type="tel" name="receipt_phone" id="receipt_phone"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                               placeholder="Phone number for receipts">
+                                        <p class="text-xs text-gray-500 mt-1">Leave empty to use phone from Hotel Information</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 font-semibold mb-2">Receipt Email</label>
+                                        <input type="email" name="receipt_email" id="receipt_email"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                               placeholder="Email for receipts">
+                                        <p class="text-xs text-gray-500 mt-1">Leave empty to use email from Hotel Information</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Logo Upload -->
+                        <div class="bg-blue-50 rounded-2xl p-4 md:p-6 border border-blue-200">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4">
+                                <i class="fas fa-image mr-2 text-primary-orange"></i>
+                                Receipt Logo
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Upload Logo</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center hover:border-primary-orange transition-colors cursor-pointer" onclick="document.getElementById('receipt_logo_upload').click()">
+                                        <input type="file" id="receipt_logo_upload" name="receipt_logo" accept="image/*" class="hidden" onchange="handleLogoPreview(this)">
+                                        <div id="logo-upload-area" class="space-y-2">
+                                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                            <p class="text-sm font-semibold text-gray-700">Click to upload logo</p>
+                                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                        </div>
+                                        <div id="logo-preview-container" class="hidden mt-4">
+                                            <img id="logo-preview" src="" alt="Logo Preview" class="max-w-full max-h-32 mx-auto rounded-lg border-2 border-gray-300">
+                                            <button type="button" onclick="removeLogoPreview()" class="mt-2 text-red-600 hover:text-red-700 text-sm font-semibold">
+                                                <i class="fas fa-times mr-1"></i>Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="receipt_logo_url" name="receipt_logo_url">
+                                </div>
+                                <div id="current-logo-display" class="hidden">
+                                    <p class="text-sm font-semibold text-gray-700 mb-2">Current Logo:</p>
+                                    <img id="current-logo" src="" alt="Current Logo" class="max-w-full max-h-32 rounded-lg border-2 border-gray-300">
+                                    <button type="button" onclick="removeCurrentLogo()" class="mt-2 text-red-600 hover:text-red-700 text-sm font-semibold">
+                                        <i class="fas fa-trash mr-1"></i>Remove Current Logo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Logo</h3>
+                                    <p class="text-sm text-gray-600">Display business logo on receipt</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="receipt_show_logo" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Address</h3>
+                                    <p class="text-sm text-gray-600">Include business address</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="receipt_show_address" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Contact</h3>
+                                    <p class="text-sm text-gray-600">Include phone and email</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="receipt_show_contact" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipt Footer Settings -->
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-8 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800">Receipt Footer</h2>
+                    <p class="text-gray-600 mt-2">Customize what appears at the bottom of your receipts</p>
+                </div>
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Footer Message</label>
+                            <textarea name="receipt_footer_message" rows="3"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                      placeholder="Thank you for your business! Visit us again soon."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Date & Time</h3>
+                                    <p class="text-sm text-gray-600">Display transaction timestamp</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="receipt_show_datetime" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Show Cashier</h3>
+                                    <p class="text-sm text-gray-600">Display cashier name</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="receipt_show_cashier" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Show QR Code</h3>
+                                <p class="text-sm text-gray-600">Display QR code on receipt that links to receipt details</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="receipt_show_qr" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Save Button -->
-            <div class="text-center">
-                <button type="submit" class="bg-primary-orange text-white px-12 py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-lg shadow-2xl">
-                    <i class="fas fa-save mr-3"></i>
-                    Save Settings
+            <div class="text-center px-4 md:px-0">
+                <button type="submit" class="bg-primary-orange text-white px-6 md:px-12 py-3 md:py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-sm md:text-lg shadow-2xl w-full sm:w-auto">
+                    <i class="fas fa-save mr-2 md:mr-3"></i>
+                    Save Printing & Receipt Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Permissions Settings -->
+<div id="permissions-settings" class="settings-content hidden">
+    <div class="max-w-4xl mx-auto px-4 md:px-0">
+        <form id="permissionsSettingsForm" class="space-y-6 md:space-y-8">
+            <!-- Receipt Confirmation Permissions -->
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100">
+                <div class="p-4 md:p-8 border-b border-gray-200">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Receipt Confirmation Settings</h2>
+                    <p class="text-gray-600 mt-2 text-sm md:text-base">Control how receipt status is updated when cashiers confirm transactions</p>
+                </div>
+                <div class="p-4 md:p-8">
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-6 border border-blue-100">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-base md:text-lg text-gray-800 mb-2">
+                                        <i class="fas fa-receipt mr-2 text-primary-orange"></i>
+                                        Auto-Update Receipt Status on Confirmation
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mb-2">
+                                        When enabled, cashier confirmation will automatically update the receipt status to "Confirmed". 
+                                        When disabled, only the cashier confirmation status is updated, not the overall receipt status.
+                                    </p>
+                                    <div class="mt-4 p-4 bg-white rounded-xl border border-gray-200">
+                                        <div class="flex items-start space-x-3">
+                                            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                                            <div class="text-sm text-gray-700">
+                                                <strong>Enabled (ON):</strong> Changes receipt status to "Confirmed" when cashier confirms<br>
+                                                <strong>Disabled (OFF):</strong> Only updates the cashier confirmation flag without changing receipt status
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer sm:ml-6 mt-4 sm:mt-0">
+                                    <input type="checkbox" name="enable_receipt_status_update" class="sr-only peer">
+                                    <div class="w-16 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-primary-orange"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Settings Preview -->
+                        <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4">Current Status</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-700">Auto-Update Status:</span>
+                                        <span id="preview-status-update" class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700">Not Set</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold text-gray-700">Behavior:</span>
+                                        <span id="preview-behavior" class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700">Pending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Receipt Reset by Date -->
+                        <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-4 md:p-6 border border-red-100">
+                            <h3 class="font-bold text-base md:text-lg text-gray-800 mb-3 md:mb-4">
+                                <i class="fas fa-redo mr-2 text-primary-orange"></i>
+                                Reset Receipts by Date
+                            </h3>
+                            <p class="text-xs md:text-sm text-gray-600 mb-4">
+                                Select a date to reset all receipts for that date. This will reset receipt status to "Pending" and/or reset cashier confirmations.
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Select Date *</label>
+                                    <input type="date" id="reset-date-input" 
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-primary-orange focus:border-transparent"
+                                           required>
+                                </div>
+                                
+                                <!-- Receipt Count Display -->
+                                <div id="receipt-count-display" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-4 md:p-6">
+                                    <div class="mb-4">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                                            <div class="flex items-center space-x-3">
+                                                <i class="fas fa-receipt text-blue-600 text-lg md:text-xl"></i>
+                                                <div>
+                                                    <p class="text-xs md:text-sm font-semibold text-gray-700">Total Receipts Found</p>
+                                                    <p class="text-xl md:text-2xl font-bold text-blue-600" id="receipt-count-number">0</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-left sm:text-right">
+                                                <p class="text-xs text-gray-600">For Date</p>
+                                                <p class="text-sm font-semibold text-gray-800" id="receipt-count-date"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Status Breakdown -->
+                                    <div class="bg-white rounded-xl p-3 md:p-4 border border-gray-200">
+                                        <p class="text-xs md:text-sm font-semibold text-gray-700 mb-3">Current Status Breakdown:</p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                                            <div class="text-center p-2 md:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                                <p class="text-xs text-gray-600 mb-1">Pending</p>
+                                                <p class="text-lg md:text-xl font-bold text-yellow-700" id="receipt-pending-count">0</p>
+                                            </div>
+                                            <div class="text-center p-2 md:p-3 bg-green-50 rounded-lg border border-green-200">
+                                                <p class="text-xs text-gray-600 mb-1">Confirmed</p>
+                                                <p class="text-lg md:text-xl font-bold text-green-700" id="receipt-confirmed-count">0</p>
+                                            </div>
+                                            <div class="text-center p-2 md:p-3 bg-red-50 rounded-lg border border-red-200">
+                                                <p class="text-xs text-gray-600 mb-1">Cancelled</p>
+                                                <p class="text-lg md:text-xl font-bold text-red-700" id="receipt-cancelled-count">0</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 pt-3 border-t border-gray-200">
+                                            <p class="text-xs text-gray-600 text-center">
+                                                <i class="fas fa-info-circle mr-1"></i>
+                                                All <span id="receipt-count-affected" class="font-semibold">0</span> receipt(s) will be reset to "Pending" status
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                                    <button type="button" id="reset-status-btn" 
+                                            class="bg-red-500 text-white px-4 md:px-6 py-2 md:py-3 rounded-2xl hover:bg-red-600 transition-colors duration-200 font-semibold shadow-lg flex items-center justify-center text-sm md:text-base w-full">
+                                        <i class="fas fa-undo mr-2"></i>
+                                        <span class="text-center">Reset Status to Pending</span>
+                                    </button>
+                                    <button type="button" id="reset-cashier-confirmation-btn" 
+                                            class="bg-orange-500 text-white px-4 md:px-6 py-2 md:py-3 rounded-2xl hover:bg-orange-600 transition-colors duration-200 font-semibold shadow-lg flex items-center justify-center text-sm md:text-base w-full">
+                                        <i class="fas fa-redo mr-2"></i>
+                                        <span class="text-center">Reset Cashier Confirmation</span>
+                                    </button>
+                                </div>
+                                
+                                <div id="reset-status-message" class="hidden mt-4 p-4 rounded-xl"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-center px-4 md:px-0">
+                <button type="submit" class="bg-primary-orange text-white px-6 md:px-12 py-3 md:py-4 rounded-2xl hover:bg-secondary-orange transition-colors duration-200 font-bold text-sm md:text-lg shadow-2xl w-full sm:w-auto">
+                    <i class="fas fa-save mr-2 md:mr-3"></i>
+                    Save Permissions Settings
                 </button>
             </div>
         </form>
@@ -302,7 +733,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Load existing settings
         loadHotelSettings();
-        loadPrintingSettings();
+        loadPrintingReceiptSettings();
+        loadPermissionsSettings();
 
         // Tab switching functionality
         const settingsTabs = document.querySelectorAll('.settings-tab');
@@ -357,11 +789,273 @@
             saveHotelSettings();
         });
 
-        const printingSettingsForm = document.getElementById('printingSettingsForm');
-        printingSettingsForm.addEventListener('submit', function(e) {
+        const printingReceiptSettingsForm = document.getElementById('printingReceiptSettingsForm');
+        printingReceiptSettingsForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            savePrintingSettings();
+            savePrintingReceiptSettings();
         });
+        
+        // Add real-time preview updates for hotel settings
+        const hotelForm = document.getElementById('hotelSettingsForm');
+        if (hotelForm) {
+            const inputs = hotelForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateHotelSettingsPreview);
+                input.addEventListener('change', updateHotelSettingsPreview);
+            });
+        }
+        
+        // Add real-time preview updates for printing & receipt settings
+        const printingReceiptForm = document.getElementById('printingReceiptSettingsForm');
+        if (printingReceiptForm) {
+            const inputs = printingReceiptForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                // Update printing preview for printing-related fields
+                if (input.name === 'show_till' || input.name === 'include_tax' || 
+                    input.name === 'show_images' || input.name === 'double_print') {
+                    input.addEventListener('input', updatePrintingSettingsPreview);
+                    input.addEventListener('change', updatePrintingSettingsPreview);
+                }
+                // Update receipt preview for receipt-related fields
+                if (input.name && input.name.startsWith('receipt_')) {
+                    input.addEventListener('input', function() {
+                        const formData = new FormData(printingReceiptForm);
+                        const settings = Object.fromEntries(formData.entries());
+                        updateReceiptPreview(settings);
+                    });
+                    input.addEventListener('change', function() {
+                        const formData = new FormData(printingReceiptForm);
+                        const settings = Object.fromEntries(formData.entries());
+                        updateReceiptPreview(settings);
+                    });
+                }
+            });
+        }
+
+        // Permissions Settings form handler
+        const permissionsSettingsForm = document.getElementById('permissionsSettingsForm');
+        if (permissionsSettingsForm) {
+            permissionsSettingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                savePermissionsSettings();
+            });
+
+            // Add real-time preview updates for permissions settings
+            const enableStatusUpdate = document.querySelector('input[name="enable_receipt_status_update"]');
+            if (enableStatusUpdate) {
+                enableStatusUpdate.addEventListener('change', function() {
+                    updatePermissionsPreview();
+                });
+            }
+        }
+
+        // Update receipt count display when date is selected
+        const dateInput = document.getElementById('reset-date-input');
+        const receiptCountDisplay = document.getElementById('receipt-count-display');
+        const receiptCountNumber = document.getElementById('receipt-count-number');
+        const receiptCountDate = document.getElementById('receipt-count-date');
+        
+        if (dateInput) {
+            dateInput.addEventListener('change', async function() {
+                const selectedDate = this.value;
+                
+                if (!selectedDate) {
+                    receiptCountDisplay.classList.add('hidden');
+                    return;
+                }
+                
+                try {
+                    const countResponse = await fetch(`/api/receipts/count-by-date?date=${selectedDate}`);
+                    const countResult = await countResponse.json();
+                    
+                    if (countResult.success) {
+                        const totalCount = countResult.total_count || 0;
+                        const pendingCount = countResult.pending_count || 0;
+                        const confirmedCount = countResult.confirmed_count || 0;
+                        const cancelledCount = countResult.cancelled_count || 0;
+                        
+                        // Update all count displays
+                        receiptCountNumber.textContent = totalCount;
+                        receiptCountDate.textContent = selectedDate;
+                        
+                        // Update status breakdown if elements exist
+                        const receiptPendingCount = document.getElementById('receipt-pending-count');
+                        const receiptConfirmedCount = document.getElementById('receipt-confirmed-count');
+                        const receiptCancelledCount = document.getElementById('receipt-cancelled-count');
+                        const receiptCountAffected = document.getElementById('receipt-count-affected');
+                        
+                        if (receiptPendingCount) receiptPendingCount.textContent = pendingCount;
+                        if (receiptConfirmedCount) receiptConfirmedCount.textContent = confirmedCount;
+                        if (receiptCancelledCount) receiptCancelledCount.textContent = cancelledCount;
+                        if (receiptCountAffected) receiptCountAffected.textContent = totalCount;
+                        
+                        if (totalCount > 0) {
+                            receiptCountDisplay.classList.remove('hidden');
+                            receiptCountDisplay.classList.remove('bg-gray-50', 'border-gray-200');
+                            receiptCountDisplay.classList.add('bg-blue-50', 'border-blue-200');
+                        } else {
+                            receiptCountDisplay.classList.remove('hidden');
+                            receiptCountDisplay.classList.remove('bg-blue-50', 'border-blue-200');
+                            receiptCountDisplay.classList.add('bg-gray-50', 'border-gray-200');
+                        }
+                    } else {
+                        receiptCountDisplay.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error fetching receipt count:', error);
+                    receiptCountDisplay.classList.add('hidden');
+                }
+            });
+        }
+
+        // Reset Receipt Status and Cashier Confirmation Handlers
+        // Status Reset Button Handler
+        const resetStatusBtn = document.getElementById('reset-status-btn');
+        if (resetStatusBtn) {
+            resetStatusBtn.addEventListener('click', async function() {
+                const dateInput = document.getElementById('reset-date-input');
+                const selectedDate = dateInput.value;
+                
+                if (!selectedDate) {
+                    showNotification('Please select a date first', 'error');
+                    return;
+                }
+                
+                // Get count of receipts that will be affected
+                const originalText = resetStatusBtn.innerHTML;
+                resetStatusBtn.disabled = true;
+                resetStatusBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+                
+                try {
+                    // First, get the count of receipts for this date
+                    const countResponse = await fetch(`/api/receipts/count-by-date?date=${selectedDate}`);
+                    const countResult = await countResponse.json();
+                    
+                    resetStatusBtn.disabled = false;
+                    resetStatusBtn.innerHTML = originalText;
+                    
+                    if (!countResult.success) {
+                        showNotification('Failed to get receipt count', 'error');
+                        return;
+                    }
+                    
+                    const totalCount = countResult.total_count || 0;
+                    
+                    if (totalCount === 0) {
+                        showNotification(`No receipts found for ${selectedDate}`, 'error');
+                        return;
+                    }
+                    
+                    if (!confirm(`${totalCount} receipt(s) will be reset to "Pending" status for ${selectedDate}. Are you sure you want to continue? This action cannot be undone.`)) {
+                        return;
+                    }
+                    
+                    // Proceed with reset
+                    resetStatusBtn.disabled = true;
+                    resetStatusBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Resetting...';
+                    
+                    const response = await fetch('/api/receipts/reset-status-by-date', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ date: selectedDate })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification(`Successfully reset ${result.updated_count} receipt(s) status to "Pending" for ${selectedDate}`, 'success');
+                        // Refresh the receipt count display
+                        const dateInputEl = document.getElementById('reset-date-input');
+                        if (dateInputEl && dateInputEl.value === selectedDate) {
+                            dateInputEl.dispatchEvent(new Event('change'));
+                        }
+                    } else {
+                        showNotification(result.message || 'Failed to reset receipt status', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error resetting receipt status:', error);
+                    showNotification('Error resetting receipt status. Please try again.', 'error');
+                } finally {
+                    resetStatusBtn.disabled = false;
+                    resetStatusBtn.innerHTML = originalText;
+                }
+            });
+        }
+        
+        // Cashier Confirmation Reset Button Handler
+        const resetCashierConfirmationBtn = document.getElementById('reset-cashier-confirmation-btn');
+        if (resetCashierConfirmationBtn) {
+            resetCashierConfirmationBtn.addEventListener('click', async function() {
+                const dateInput = document.getElementById('reset-date-input');
+                const selectedDate = dateInput.value;
+                
+                if (!selectedDate) {
+                    showNotification('Please select a date first', 'error');
+                    return;
+                }
+                
+                // Get count of receipts that will be affected
+                const originalText = resetCashierConfirmationBtn.innerHTML;
+                resetCashierConfirmationBtn.disabled = true;
+                resetCashierConfirmationBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+                
+                try {
+                    // First, get the count of receipts for this date
+                    const countResponse = await fetch(`/api/receipts/count-by-date?date=${selectedDate}`);
+                    const countResult = await countResponse.json();
+                    
+                    resetCashierConfirmationBtn.disabled = false;
+                    resetCashierConfirmationBtn.innerHTML = originalText;
+                    
+                    if (!countResult.success) {
+                        showNotification('Failed to get receipt count', 'error');
+                        return;
+                    }
+                    
+                    const totalCount = countResult.total_count || 0;
+                    
+                    if (totalCount === 0) {
+                        showNotification(`No receipts found for ${selectedDate}`, 'error');
+                        return;
+                    }
+                    
+                    if (!confirm(`${totalCount} receipt(s) will have their cashier confirmation reset for ${selectedDate}. Are you sure you want to continue? This action cannot be undone.`)) {
+                        return;
+                    }
+                    
+                    // Proceed with reset
+                    resetCashierConfirmationBtn.disabled = true;
+                    resetCashierConfirmationBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Resetting...';
+                    
+                    const response = await fetch('/api/receipts/reset-cashier-confirmation-by-date', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ date: selectedDate })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification(`Successfully reset cashier confirmation for ${result.updated_count} receipt(s) for ${selectedDate}`, 'success');
+                        // Refresh the receipt count display
+                        const dateInputForRefresh = document.getElementById('reset-date-input');
+                        if (dateInputForRefresh && dateInputForRefresh.value === selectedDate) {
+                            dateInputForRefresh.dispatchEvent(new Event('change'));
+                        }
+                    } else {
+                        showNotification(result.message || 'Failed to reset cashier confirmation', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error resetting cashier confirmation:', error);
+                    showNotification('Error resetting cashier confirmation. Please try again.', 'error');
+                } finally {
+                    resetCashierConfirmationBtn.disabled = false;
+                    resetCashierConfirmationBtn.innerHTML = originalText;
+                }
+            });
+        }
     });
 
     async function loadHotelSettings() {
@@ -408,6 +1102,39 @@
         if (settings.account_number) {
             document.getElementById('accountNumber').value = settings.account_number;
         }
+        
+        // Update preview
+        updateHotelSettingsPreview();
+    }
+    
+    function updateHotelSettingsPreview() {
+        const hotelName = document.getElementById('hotelName')?.value || 'Not set';
+        const businessType = document.getElementById('businessType')?.value || 'Not set';
+        const companyEmail = document.getElementById('companyEmail')?.value || 'Not set';
+        const companyPhone = document.getElementById('companyPhone')?.value || 'Not set';
+        
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'Not set';
+        let paymentDetails = 'Not set';
+        
+        if (paymentMethod === 'buy_goods') {
+            const tillNumber = document.getElementById('tillNumber')?.value;
+            paymentDetails = tillNumber ? `Till: ${tillNumber}` : 'Not set';
+        } else if (paymentMethod === 'paybill') {
+            const businessNumber = document.getElementById('businessNumber')?.value;
+            const accountNumber = document.getElementById('accountNumber')?.value;
+            if (businessNumber && accountNumber) {
+                paymentDetails = `Paybill: ${businessNumber} (${accountNumber})`;
+            } else {
+                paymentDetails = 'Not set';
+            }
+        }
+        
+        document.getElementById('preview-hotel-name').textContent = hotelName;
+        document.getElementById('preview-business-type').textContent = businessType;
+        document.getElementById('preview-email').textContent = companyEmail;
+        document.getElementById('preview-phone').textContent = companyPhone;
+        document.getElementById('preview-payment-method').textContent = paymentMethod === 'buy_goods' ? 'Buy Goods Till' : 'Paybill';
+        document.getElementById('preview-payment-details').textContent = paymentDetails;
     }
 
     async function saveHotelSettings() {
@@ -497,10 +1224,71 @@
                 checkbox.checked = settings[checkboxName];
             }
         });
+        
+        // Update preview
+        updatePrintingSettingsPreview();
+    }
+    
+    function updatePrintingSettingsPreview() {
+        const showTill = document.querySelector('input[name="show_till"]')?.checked || false;
+        const includeTax = document.querySelector('input[name="include_tax"]')?.checked || false;
+        const showImages = document.querySelector('input[name="show_images"]')?.checked || false;
+        const doublePrint = document.querySelector('input[name="double_print"]')?.checked || false;
+        
+        // Update preview elements only if they exist
+        const previewShowTill = document.getElementById('preview-show-till');
+        if (previewShowTill) {
+            previewShowTill.textContent = showTill ? 'Enabled' : 'Disabled';
+            previewShowTill.className = `px-2 py-1 rounded text-xs font-semibold ${showTill ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        }
+        
+        const previewIncludeTax = document.getElementById('preview-include-tax');
+        if (previewIncludeTax) {
+            previewIncludeTax.textContent = includeTax ? 'Enabled' : 'Disabled';
+            previewIncludeTax.className = `px-2 py-1 rounded text-xs font-semibold ${includeTax ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        }
+        
+        const previewShowImages = document.getElementById('preview-show-images');
+        if (previewShowImages) {
+            previewShowImages.textContent = showImages ? 'Enabled' : 'Disabled';
+            previewShowImages.className = `px-2 py-1 rounded text-xs font-semibold ${showImages ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        }
+        
+        const previewDoublePrint = document.getElementById('preview-double-print');
+        if (previewDoublePrint) {
+            previewDoublePrint.textContent = doublePrint ? 'Enabled' : 'Disabled';
+            previewDoublePrint.className = `px-2 py-1 rounded text-xs font-semibold ${doublePrint ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        }
+    }
+
+    // Combined load function for printing and receipt settings
+    async function loadPrintingReceiptSettings() {
+        try {
+            const [printingResponse, receiptResponse] = await Promise.all([
+                fetch('/api/printing-settings'),
+                fetch('/api/receipt-settings')
+            ]);
+            
+            if (printingResponse.ok && receiptResponse.ok) {
+                const printingData = await printingResponse.json();
+                const receiptData = await receiptResponse.json();
+                
+                if (printingData.success) {
+                    populatePrintingForm(printingData.settings);
+                }
+                
+                if (receiptData.success) {
+                    populateReceiptForm(receiptData.settings);
+                    updateReceiptPreview(receiptData.settings);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading printing & receipt settings:', error);
+        }
     }
 
     async function savePrintingSettings() {
-        const form = document.getElementById('printingSettingsForm');
+        const form = document.getElementById('printingReceiptSettingsForm');
         const formData = new FormData(form);
         const settings = Object.fromEntries(formData.entries());
 
@@ -607,6 +1395,497 @@
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+
+    // Receipt Settings Functions
+    async function loadReceiptSettings() {
+        try {
+            const response = await fetch('/api/receipt-settings');
+            if (response.ok) {
+                const settings = await response.json();
+                populateReceiptForm(settings);
+                updateReceiptPreview(settings);
+            }
+        } catch (error) {
+            console.error('Error loading receipt settings:', error);
+        }
+    }
+
+    function populateReceiptForm(settings) {
+        // Receipt format settings
+        if (settings.receipt_width) {
+            const widthSelect = document.querySelector('select[name="receipt_width"]');
+            if (widthSelect) widthSelect.value = settings.receipt_width;
+        }
+        if (settings.receipt_font_size) {
+            const fontSizeSelect = document.querySelector('select[name="receipt_font_size"]');
+            if (fontSizeSelect) fontSizeSelect.value = settings.receipt_font_size;
+        }
+        if (settings.receipt_number_format) {
+            const formatSelect = document.querySelector('select[name="receipt_number_format"]');
+            if (formatSelect) formatSelect.value = settings.receipt_number_format;
+        }
+        if (settings.receipt_number_prefix) {
+            document.querySelector('input[name="receipt_number_prefix"]').value = settings.receipt_number_prefix;
+        }
+        if (settings.receipt_starting_number) {
+            document.querySelector('input[name="receipt_starting_number"]').value = settings.receipt_starting_number;
+        }
+
+        // Header settings
+        if (settings.receipt_header_title) {
+            document.querySelector('input[name="receipt_header_title"]').value = settings.receipt_header_title;
+        }
+        if (settings.receipt_header_subtitle) {
+            document.querySelector('input[name="receipt_header_subtitle"]').value = settings.receipt_header_subtitle;
+        }
+        if (settings.receipt_header_message) {
+            document.querySelector('textarea[name="receipt_header_message"]').value = settings.receipt_header_message;
+        }
+        
+        // Receipt contact information
+        if (settings.receipt_address !== undefined) {
+            const addressField = document.getElementById('receipt_address');
+            if (addressField) addressField.value = settings.receipt_address || '';
+        }
+        if (settings.receipt_phone !== undefined) {
+            const phoneField = document.getElementById('receipt_phone');
+            if (phoneField) phoneField.value = settings.receipt_phone || '';
+        }
+        if (settings.receipt_email !== undefined) {
+            const emailField = document.getElementById('receipt_email');
+            if (emailField) emailField.value = settings.receipt_email || '';
+        }
+        
+        // Receipt logo
+        if (settings.receipt_logo_url) {
+            const logoUrlField = document.getElementById('receipt_logo_url');
+            if (logoUrlField) {
+                logoUrlField.value = settings.receipt_logo_url;
+            }
+            const currentLogoDisplay = document.getElementById('current-logo-display');
+            const currentLogoImg = document.getElementById('current-logo');
+            if (currentLogoDisplay && currentLogoImg) {
+                currentLogoImg.src = settings.receipt_logo_url;
+                currentLogoDisplay.classList.remove('hidden');
+            }
+        }
+
+        // Footer settings
+        if (settings.receipt_footer_message) {
+            document.querySelector('textarea[name="receipt_footer_message"]').value = settings.receipt_footer_message;
+        }
+        if (settings.receipt_qr_text) {
+            document.querySelector('input[name="receipt_qr_text"]').value = settings.receipt_qr_text;
+        }
+
+        // Checkboxes
+        const checkboxes = [
+            'receipt_bold_headers', 'receipt_show_logo', 'receipt_show_address', 
+            'receipt_show_contact', 'receipt_show_datetime', 'receipt_show_cashier', 
+            'receipt_show_qr'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            const checkbox = document.querySelector(`input[name="${checkboxName}"]`);
+            if (checkbox && settings[checkboxName] !== undefined) {
+                checkbox.checked = settings[checkboxName];
+            }
+        });
+    }
+
+    async function saveReceiptSettings() {
+        const form = document.getElementById('printingReceiptSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Convert checkbox values to boolean
+        const checkboxes = [
+            'receipt_bold_headers', 'receipt_show_logo', 'receipt_show_address', 
+            'receipt_show_contact', 'receipt_show_datetime', 'receipt_show_cashier', 
+            'receipt_show_payment', 'receipt_show_qr'
+        ];
+        
+        checkboxes.forEach(checkboxName => {
+            settings[checkboxName] = formData.has(checkboxName);
+        });
+
+        try {
+            const response = await fetch('/api/receipt-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Receipt settings saved successfully!', 'success');
+                updateReceiptPreview(settings);
+            } else {
+                showNotification(result.message || 'Failed to save receipt settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving receipt settings:', error);
+            showNotification('Error saving receipt settings. Please try again.', 'error');
+        }
+    }
+
+    // Combined save function for printing and receipt settings
+    async function savePrintingReceiptSettings() {
+        const form = document.getElementById('printingReceiptSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Convert checkbox values to boolean for printing settings
+        const printingCheckboxes = ['double_print', 'show_till', 'include_tax', 'show_images'];
+        printingCheckboxes.forEach(checkboxName => {
+            settings[checkboxName] = formData.has(checkboxName);
+        });
+
+        // Convert checkbox values to boolean for receipt settings
+        const receiptCheckboxes = [
+            'receipt_bold_headers', 'receipt_show_logo', 'receipt_show_address', 
+            'receipt_show_contact', 'receipt_show_datetime', 'receipt_show_cashier', 
+            'receipt_show_qr'
+        ];
+        receiptCheckboxes.forEach(checkboxName => {
+            settings[checkboxName] = formData.has(checkboxName);
+        });
+
+        // Separate settings into printing and receipt
+        const printingSettings = {
+            double_print: settings.double_print,
+            show_till: settings.show_till,
+            include_tax: settings.include_tax,
+            show_images: settings.show_images
+        };
+
+        // Handle logo upload first if a file is selected
+        const logoFile = document.getElementById('receipt_logo_upload').files[0];
+        let logoUrl = document.getElementById('receipt_logo_url')?.value || '';
+        
+        if (logoFile) {
+            try {
+                // Upload logo first
+                const logoFormData = new FormData();
+                logoFormData.append('logo', logoFile);
+                
+                const logoResponse = await fetch('/api/receipt-logo/upload', {
+                    method: 'POST',
+                    body: logoFormData
+                });
+                
+                const logoResult = await logoResponse.json();
+                if (logoResult.success) {
+                    logoUrl = logoResult.logo_url;
+                    document.getElementById('receipt_logo_url').value = logoUrl;
+                } else {
+                    showNotification('Failed to upload logo: ' + logoResult.message, 'error');
+                    return;
+                }
+            } catch (error) {
+                console.error('Error uploading logo:', error);
+                showNotification('Error uploading logo. Please try again.', 'error');
+                return;
+            }
+        }
+
+        const receiptSettings = {
+            receipt_width: settings.receipt_width,
+            receipt_font_size: settings.receipt_font_size,
+            receipt_bold_headers: settings.receipt_bold_headers,
+            receipt_number_format: settings.receipt_number_format,
+            receipt_number_prefix: settings.receipt_number_prefix,
+            receipt_starting_number: settings.receipt_starting_number,
+            receipt_header_title: settings.receipt_header_title,
+            receipt_header_subtitle: settings.receipt_header_subtitle,
+            receipt_header_message: settings.receipt_header_message,
+            receipt_address: settings.receipt_address || '',
+            receipt_phone: settings.receipt_phone || '',
+            receipt_email: settings.receipt_email || '',
+            receipt_logo_url: logoUrl,
+            receipt_show_logo: settings.receipt_show_logo,
+            receipt_show_address: settings.receipt_show_address,
+            receipt_show_contact: settings.receipt_show_contact,
+            receipt_footer_message: settings.receipt_footer_message,
+            receipt_show_datetime: settings.receipt_show_datetime,
+            receipt_show_cashier: settings.receipt_show_cashier,
+            receipt_show_qr: settings.receipt_show_qr
+        };
+
+        try {
+            // Save both settings in parallel
+            const [printingResponse, receiptResponse] = await Promise.all([
+                fetch('/api/printing-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(printingSettings)
+                }),
+                fetch('/api/receipt-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(receiptSettings)
+                })
+            ]);
+
+            const printingResult = await printingResponse.json();
+            const receiptResult = await receiptResponse.json();
+
+            if (printingResult.success && receiptResult.success) {
+                showNotification('Printing & Receipt settings saved successfully!', 'success');
+                updatePrintingSettingsPreview();
+                updateReceiptPreview(receiptSettings);
+            } else {
+                showNotification('Some settings failed to save. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            showNotification('Error saving settings. Please try again.', 'error');
+        }
+    }
+
+    function updateReceiptPreview(settings) {
+        const preview = document.getElementById('receipt-preview');
+        if (!preview) return;
+
+        // Get hotel settings for preview
+        const hotelName = document.getElementById('hotelName')?.value || 'Your Business Name';
+        const hotelAddress = document.getElementById('hotelAddress')?.value || 'Your Business Address';
+        const companyPhone = document.getElementById('companyPhone')?.value || '+254 700 000 000';
+        const companyEmail = document.getElementById('companyEmail')?.value || 'info@business.com';
+
+        // Build preview content
+        let previewContent = '<div class="text-center">';
+        
+        // Header
+        if (settings.receipt_header_title || hotelName) {
+            const titleClass = settings.receipt_bold_headers ? 'font-bold text-lg' : 'text-lg';
+            previewContent += `<div class="${titleClass}">${settings.receipt_header_title || hotelName}</div>`;
+        }
+        
+        if (settings.receipt_header_subtitle) {
+            previewContent += `<div class="text-sm text-gray-600">${settings.receipt_header_subtitle}</div>`;
+        }
+        
+        if (settings.receipt_show_address && hotelAddress) {
+            previewContent += `<div class="text-sm text-gray-600">${hotelAddress}</div>`;
+        }
+        
+        if (settings.receipt_show_contact) {
+            previewContent += `<div class="text-sm text-gray-600">Phone: ${companyPhone}</div>`;
+            previewContent += `<div class="text-sm text-gray-600">Email: ${companyEmail}</div>`;
+        }
+        
+        if (settings.receipt_header_message) {
+            previewContent += `<div class="text-sm text-gray-600 mt-2">${settings.receipt_header_message}</div>`;
+        }
+        
+        previewContent += '<div class="border-t border-gray-300 my-2"></div>';
+        
+        // Receipt info
+        const prefix = settings.receipt_number_prefix || 'POS';
+        const number = settings.receipt_starting_number || '0001';
+        previewContent += `<div class="text-sm">Receipt #: ${prefix}${number}</div>`;
+        
+        if (settings.receipt_show_datetime) {
+            previewContent += '<div class="text-sm">Date: 2024-01-01 12:00:00</div>';
+        }
+        
+        if (settings.receipt_show_cashier) {
+            previewContent += '<div class="text-sm">Cashier: John Doe</div>';
+        }
+        
+        previewContent += '<div class="border-t border-gray-300 my-2"></div>';
+        
+        // Items
+        previewContent += '<div class="flex justify-between text-sm"><span>Item 1</span><span>KSh 100.00</span></div>';
+        previewContent += '<div class="flex justify-between text-sm"><span>Item 2</span><span>KSh 200.00</span></div>';
+        previewContent += '<div class="border-t border-gray-300 my-2"></div>';
+        
+        // Totals
+        previewContent += '<div class="flex justify-between text-sm"><span>Subtotal:</span><span>KSh 300.00</span></div>';
+        previewContent += '<div class="flex justify-between text-sm"><span>Tax:</span><span>KSh 30.00</span></div>';
+        previewContent += '<div class="flex justify-between font-bold"><span>Total:</span><span>KSh 330.00</span></div>';
+        
+        if (settings.receipt_show_payment) {
+            previewContent += '<div class="text-sm mt-2">Payment: M-Pesa Till</div>';
+        }
+        
+        previewContent += '<div class="border-t border-gray-300 my-2"></div>';
+        
+        // Footer
+        if (settings.receipt_footer_message) {
+            previewContent += `<div class="text-sm text-center">${settings.receipt_footer_message}</div>`;
+        } else {
+            previewContent += '<div class="text-sm text-center">Thank you for your business!</div>';
+        }
+        
+        if (settings.receipt_show_qr && settings.receipt_qr_text) {
+            previewContent += '<div class="text-center mt-2">[QR Code: ' + settings.receipt_qr_text + ']</div>';
+        }
+        
+        previewContent += '</div>';
+        
+        preview.innerHTML = previewContent;
+    }
+
+    // Add event listeners for real-time preview updates
+    document.addEventListener('DOMContentLoaded', function() {
+        const receiptForm = document.getElementById('printingReceiptSettingsForm');
+        if (receiptForm) {
+            const inputs = receiptForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const formData = new FormData(receiptForm);
+                    const settings = Object.fromEntries(formData.entries());
+                    
+                    // Convert checkbox values to boolean
+                    const checkboxes = [
+                        'receipt_bold_headers', 'receipt_show_logo', 'receipt_show_address', 
+                        'receipt_show_contact', 'receipt_show_datetime', 'receipt_show_cashier', 
+                        'receipt_show_payment', 'receipt_show_qr'
+                    ];
+                    
+                    checkboxes.forEach(checkboxName => {
+                        settings[checkboxName] = formData.has(checkboxName);
+                    });
+                    
+                    updateReceiptPreview(settings);
+                });
+            });
+        }
+    });
+
+    // Permissions Settings Functions
+    async function loadPermissionsSettings() {
+        try {
+            const response = await fetch('/api/permissions-settings');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const settings = data.settings;
+                    
+                    // Populate the form
+                    const statusUpdateCheckbox = document.querySelector('input[name="enable_receipt_status_update"]');
+                    if (statusUpdateCheckbox) {
+                        statusUpdateCheckbox.checked = settings.enable_receipt_status_update || false;
+                    }
+                    
+                    updatePermissionsPreview();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading permissions settings:', error);
+        }
+    }
+
+    async function savePermissionsSettings() {
+        const form = document.getElementById('permissionsSettingsForm');
+        const formData = new FormData(form);
+        const settings = Object.fromEntries(formData.entries());
+
+        // Convert checkbox values to boolean
+        settings.enable_receipt_status_update = formData.has('enable_receipt_status_update');
+
+        try {
+            const response = await fetch('/api/permissions-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification('Permissions settings saved successfully!', 'success');
+                updatePermissionsPreview();
+            } else {
+                showNotification(result.message || 'Failed to save permissions settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving permissions settings:', error);
+            showNotification('Error saving permissions settings. Please try again.', 'error');
+        }
+    }
+
+    function updatePermissionsPreview() {
+        const statusUpdateCheckbox = document.querySelector('input[name="enable_receipt_status_update"]');
+        const isEnabled = statusUpdateCheckbox ? statusUpdateCheckbox.checked : false;
+        
+        const statusElement = document.getElementById('preview-status-update');
+        const behaviorElement = document.getElementById('preview-behavior');
+        
+        if (statusElement) {
+            statusElement.textContent = isEnabled ? 'Enabled' : 'Disabled';
+            statusElement.className = `px-3 py-1 rounded-full text-xs font-semibold ${
+                isEnabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+        }
+        
+        if (behaviorElement) {
+            behaviorElement.textContent = isEnabled 
+                ? 'Auto-update receipt status' 
+                : 'Only update confirmation flag';
+            behaviorElement.className = `px-3 py-1 rounded-full text-xs font-semibold ${
+                isEnabled ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
+            }`;
+        }
+    }
+
+    // Logo upload and preview functions
+    function handleLogoPreview(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('Logo file size must be less than 5MB', 'error');
+                input.value = '';
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                showNotification('Please select an image file', 'error');
+                input.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logo-preview').src = e.target.result;
+                document.getElementById('logo-upload-area').classList.add('hidden');
+                document.getElementById('logo-preview-container').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function removeLogoPreview() {
+        document.getElementById('receipt_logo_upload').value = '';
+        document.getElementById('logo-preview').src = '';
+        document.getElementById('logo-upload-area').classList.remove('hidden');
+        document.getElementById('logo-preview-container').classList.add('hidden');
+        document.getElementById('receipt_logo_url').value = '';
+    }
+
+    function removeCurrentLogo() {
+        document.getElementById('receipt_logo_url').value = '';
+        document.getElementById('current-logo-display').classList.add('hidden');
+        // Also remove from database via API
+        fetch('/api/receipt-logo/remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ remove: true })
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showNotification('Logo removed successfully', 'success');
+              }
+          });
     }
 </script>
 {% endblock %}

@@ -1,0 +1,1017 @@
+{% extends "role_base.html" %}
+
+{% block title %}Payments - Employee Sales Overview{% endblock %}
+
+{% block sidebar_icon %}cash-register{% endblock %}
+{% block sidebar_title %}Cashier Panel{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Point of Sale -->
+<a href="/cashier/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process orders</p>
+    </div>
+</a>
+
+<!-- Cash Drawer Management -->
+<a href="/cashier/cash-drawer" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Cash Drawer Management</p>
+        <p class="text-xs text-white/70">Manage cash drawer</p>
+    </div>
+</a>
+
+<!-- Stock Management -->
+<a href="/cashier/stock-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+
+<!-- Receipt Confirmation -->
+<a href="/cashier/receipt-confirmation" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipt Confirmation</p>
+        <p class="text-xs text-white/70">Confirm receipts</p>
+    </div>
+</a>
+
+<!-- Payment Processing -->
+<a href="/cashier/payments" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4 transition-colors duration-200">
+        <i class="fas fa-credit-card text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Payments</p>
+        <p class="text-xs text-white/70">Employee sales overview</p>
+    </div>
+</a>
+
+<!-- My Off Days -->
+<a href="/employee/off-days" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">My Off Days</p>
+        <p class="text-xs text-white/70">View time off</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+<style>
+/* Receipt Modal Animations */
+#receiptModal .bg-white {
+    transition: all 0.3s ease-out;
+}
+
+/* Responsive Design for All Screen Sizes */
+@media (max-width: 640px) {
+    /* Receipt Modal Mobile */
+    #receiptModal .relative {
+        top: 1rem !important;
+        padding: 0.5rem;
+    }
+    
+    #receiptModal .w-11\/12 {
+        width: 98%;
+    }
+    
+    /* Payment Modal Mobile */
+    #paymentModal .relative {
+        top: 1rem !important;
+        padding: 0.5rem;
+    }
+    
+    #paymentModal .w-11\/12 {
+        width: 98%;
+    }
+    
+    /* Summary Cards Mobile */
+    .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+    
+    /* Table Mobile */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Button Groups Mobile */
+    .flex.space-x-2 {
+        flex-direction: column;
+        space-x: 0;
+        gap: 0.5rem;
+    }
+    
+    .flex.space-x-2 > * {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra Small Screens */
+    .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    /* Modal Extra Small */
+    #receiptModal .relative,
+    #paymentModal .relative {
+        top: 0.5rem !important;
+        padding: 0.25rem;
+    }
+    
+    /* Text Sizes */
+    .text-2xl.sm\\:text-3xl {
+        font-size: 1.5rem;
+    }
+    
+    .text-lg {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* Large Screens */
+    #receiptModal .relative,
+    #paymentModal .relative {
+        top: 2.5rem;
+    }
+    
+    .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    /* Extra Large Screens */
+    .max-w-7xl {
+        max-width: 1280px;
+    }
+}
+
+/* Receipt Print Styles */
+@media print {
+    #receiptModal .bg-white {
+        box-shadow: none !important;
+        border: 2px solid #000 !important;
+    }
+    
+    #receiptModal .flex.space-x-3 {
+        display: none !important;
+    }
+}
+
+/* Receipt Hover Effects */
+#receiptModal .bg-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Receipt Number Animation */
+#receiptNumber {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Success Icon Animation */
+#receiptModal .fa-check {
+    animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<!-- Modern Payments Header -->
+<div class="mb-4 sm:mb-6 lg:mb-8">
+    <div class="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-center sm:text-left">
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Employee Sales Overview</h1>
+            <p class="text-sm sm:text-base text-gray-600">Track all employees and their sales performance</p>
+        </div>
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <button onclick="refreshData()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm sm:text-base">
+                <i class="fas fa-sync-alt mr-1 sm:mr-2"></i>
+                <span class="hidden sm:inline">Refresh Data</span>
+                <span class="sm:hidden">Refresh</span>
+            </button>
+            <button onclick="initEmployeeBalances()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm sm:text-base">
+                <i class="fas fa-database mr-1 sm:mr-2"></i>
+                <span class="hidden sm:inline">Init Balances</span>
+                <span class="sm:hidden">Init</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Date Filter Section -->
+<div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6 lg:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+        <div class="flex items-center space-x-3">
+            <label class="text-sm sm:text-base font-medium text-gray-700 whitespace-nowrap">Filter by:</label>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="setFilterType('all')" id="filter-all" 
+                        class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 bg-blue-600 text-white hover:bg-blue-700">
+                    <i class="fas fa-list mr-1 sm:mr-2"></i>All
+                </button>
+                <button onclick="setFilterType('day')" id="filter-day" 
+                        class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    <i class="fas fa-calendar-day mr-1 sm:mr-2"></i>Day
+                </button>
+                <button onclick="setFilterType('month')" id="filter-month" 
+                        class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    <i class="fas fa-calendar-alt mr-1 sm:mr-2"></i>Month
+                </button>
+            </div>
+        </div>
+        <div id="date-picker-container" class="hidden flex items-center space-x-2">
+            <label class="text-sm sm:text-base font-medium text-gray-700 whitespace-nowrap">Select Date:</label>
+            <input type="date" id="filter-date" 
+                   class="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                   onchange="applyFilter()">
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+    <!-- Today's Sales -->
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 truncate">Today's Sales</p>
+                <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate" id="today-sales">-</p>
+                <p class="text-xs sm:text-sm text-gray-500 truncate" id="today-revenue">KES 0</p>
+            </div>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-shopping-cart text-blue-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- This Week's Sales -->
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 truncate">Week's Sales</p>
+                <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate" id="week-sales">-</p>
+                <p class="text-xs sm:text-sm text-gray-500 truncate" id="week-revenue">KES 0</p>
+            </div>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-chart-line text-purple-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Outstanding Balance -->
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 truncate">Outstanding Balance</p>
+                <p class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate" id="total-outstanding">-</p>
+                <p class="text-xs sm:text-sm text-gray-500 truncate">All employees</p>
+            </div>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-exclamation-triangle text-red-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Actions -->
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 truncate">Quick Actions</p>
+                <p class="text-xs sm:text-sm text-gray-500 truncate">Process payments</p>
+            </div>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                <i class="fas fa-credit-card text-green-600 text-lg sm:text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Sales Table -->
+<div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200">
+    <div class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-gray-200">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 text-center sm:text-left" id="table-title">Employee Sales Performance (Last 30 Days)</h3>
+    </div>
+    
+    <!-- Loading State -->
+    <div id="loading-state" class="p-6 sm:p-8 text-center">
+        <div class="inline-flex items-center">
+            <div class="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+            <span class="ml-2 sm:ml-3 text-sm sm:text-base text-gray-600">Loading employee data...</span>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="p-6 sm:p-8 text-center hidden">
+        <div class="text-red-600 mb-4">
+            <i class="fas fa-exclamation-triangle text-3xl sm:text-4xl"></i>
+        </div>
+        <p class="text-sm sm:text-base text-gray-600 mb-4">Failed to load employee data</p>
+        <button onclick="loadEmployeeData()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors duration-200 text-sm sm:text-base">
+            Try Again
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div id="table-container" class="hidden">
+        <div class="overflow-x-auto -mx-3 sm:mx-0">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                        <th class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Total Sales</th>
+                        <th class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Total Payments</th>
+                        <th class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                        <th class="px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="employees-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- Employee rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="p-6 sm:p-8 text-center hidden">
+        <div class="text-gray-400 mb-4">
+            <i class="fas fa-users text-3xl sm:text-4xl"></i>
+        </div>
+        <p class="text-sm sm:text-base text-gray-600">No employee sales data available</p>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-4 sm:top-10 lg:top-20 mx-auto p-3 sm:p-4 lg:p-5 w-11/12 sm:w-96 lg:w-[28rem] max-w-md shadow-lg rounded-lg bg-white">
+        <div class="mt-2 sm:mt-3">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-medium text-gray-900" id="paymentModalTitle">Process Payment</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fas fa-times text-lg sm:text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="mt-3 sm:mt-4">
+                <div class="mb-3 sm:mb-4">
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Employee</label>
+                    <div class="flex items-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                            <i class="fas fa-user text-blue-600 text-sm sm:text-base"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-xs sm:text-sm font-medium text-gray-900 truncate" id="paymentEmployeeName">-</div>
+                            <div class="text-xs sm:text-sm text-gray-500 truncate" id="paymentEmployeeCode">Code: -</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3 sm:mb-4">
+                    <label for="paymentAmount" class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Payment Amount (KES)</label>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <input type="number" id="paymentAmount" step="0.01" min="0" 
+                               class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                               placeholder="Enter amount">
+                        <button type="button" onclick="fillSuggestedAmount()" 
+                                class="px-3 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-xs sm:text-sm font-medium whitespace-nowrap">
+                            Fill Suggested
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-3 sm:mb-4">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 sm:p-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-yellow-600 mr-2 text-sm"></i>
+                            <p class="text-xs sm:text-sm text-yellow-800">
+                                <strong>Outstanding Balance:</strong> <span id="currentOutstandingBalance">KES 0</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 sm:pt-4 border-t border-gray-200">
+                <button onclick="closePaymentModal()" 
+                        class="w-full sm:w-auto px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Cancel
+                </button>
+                <button onclick="processPayment()" 
+                        class="w-full sm:w-auto px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center">
+                    <i class="fas fa-credit-card mr-1"></i>
+                    Process Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div id="receiptModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-2 sm:top-4 lg:top-10 mx-auto p-2 sm:p-4 w-11/12 sm:w-96 lg:w-[28rem] max-w-md">
+        <div class="bg-white rounded-lg shadow-xl">
+            <!-- Receipt Header -->
+            <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 sm:p-4 rounded-t-lg relative">
+                <button onclick="closeReceiptModal()" class="absolute top-2 sm:top-3 right-2 sm:right-3 text-white hover:text-green-200 transition-colors duration-200 p-1">
+                    <i class="fas fa-times text-sm sm:text-lg"></i>
+                </button>
+                <div class="text-center">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-check text-lg sm:text-2xl"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold">Payment Successful</h3>
+                    <p class="text-green-100 text-xs sm:text-sm">Transaction Completed</p>
+                </div>
+            </div>
+            
+            <!-- Receipt Body -->
+            <div class="p-3 sm:p-4 lg:p-6">
+                <!-- Receipt Number -->
+                <div class="text-center mb-3 sm:mb-4">
+                    <p class="text-xs text-gray-500">Receipt No.</p>
+                    <p class="text-sm sm:text-lg font-mono font-bold text-gray-800 break-all" id="receiptNumber">-</p>
+                </div>
+                
+                <!-- Receipt Details -->
+                <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                    <div class="flex justify-between items-center py-1 sm:py-2 border-b border-gray-100">
+                        <span class="text-xs sm:text-sm text-gray-600">Employee:</span>
+                        <span class="text-xs sm:text-sm font-medium text-gray-900 text-right max-w-[60%] truncate" id="receiptEmployeeName">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 sm:py-2 border-b border-gray-100">
+                        <span class="text-xs sm:text-sm text-gray-600">Employee Code:</span>
+                        <span class="text-xs sm:text-sm font-medium text-gray-900" id="receiptEmployeeCode">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 sm:py-2 border-b border-gray-100">
+                        <span class="text-xs sm:text-sm text-gray-600">Amount Paid:</span>
+                        <span class="text-sm sm:text-lg font-bold text-green-600" id="receiptAmount">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 sm:py-2 border-b border-gray-100">
+                        <span class="text-xs sm:text-sm text-gray-600">Previous Balance:</span>
+                        <span class="text-xs sm:text-sm font-medium text-gray-900" id="receiptPreviousBalance">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 sm:py-2 border-b border-gray-100">
+                        <span class="text-xs sm:text-sm text-gray-600">New Balance:</span>
+                        <span class="text-xs sm:text-sm font-medium text-gray-900" id="receiptNewBalance">-</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1 sm:py-2">
+                        <span class="text-xs sm:text-sm text-gray-600">Date & Time:</span>
+                        <span class="text-xs sm:text-sm font-medium text-gray-900 text-right max-w-[60%] truncate" id="receiptDateTime">-</span>
+                    </div>
+                </div>
+                
+                <!-- Status Badge -->
+                <div class="text-center mb-4 sm:mb-6">
+                    <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        <span class="hidden sm:inline">Payment Processed Successfully</span>
+                        <span class="sm:hidden">Success</span>
+                    </span>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                    <button onclick="printReceipt()" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 flex items-center justify-center">
+                        <i class="fas fa-print mr-1 sm:mr-2"></i>
+                        <span class="hidden sm:inline">Print Receipt</span>
+                        <span class="sm:hidden">Print</span>
+                    </button>
+                    <button onclick="closeReceiptModal()" 
+                            class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 flex items-center justify-center">
+                        <i class="fas fa-times mr-1 sm:mr-2"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Receipt Footer -->
+            <div class="bg-gray-50 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-b-lg">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">Thank you for your business!</p>
+                    <p class="text-xs text-gray-400 mt-1">Hotel POS System</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter state
+let currentFilterType = 'all';
+let currentFilterDate = '';
+
+// Load employee sales data
+function loadEmployeeData() {
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const tableContainer = document.getElementById('table-container');
+    const emptyState = document.getElementById('empty-state');
+    
+    // Show loading state
+    loadingState.classList.remove('hidden');
+    errorState.classList.add('hidden');
+    tableContainer.classList.add('hidden');
+    emptyState.classList.add('hidden');
+    
+    // Build API URL with filter parameters
+    let apiUrl = '/api/cashier/employee-sales';
+    const params = new URLSearchParams();
+    if (currentFilterType !== 'all') {
+        params.append('filter_type', currentFilterType);
+        if (currentFilterDate) {
+            params.append('selected_date', currentFilterDate);
+        }
+    }
+    if (params.toString()) {
+        apiUrl += '?' + params.toString();
+    }
+    
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateSummaryCards(data.summary);
+                populateEmployeeTable(data.employees);
+                
+                if (data.employees.length > 0) {
+                    tableContainer.classList.remove('hidden');
+                } else {
+                    emptyState.classList.remove('hidden');
+                }
+            } else {
+                showErrorState();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading employee data:', error);
+            showErrorState();
+        })
+        .finally(() => {
+            loadingState.classList.add('hidden');
+        });
+}
+
+// Set filter type
+function setFilterType(type) {
+    currentFilterType = type;
+    
+    // Update button styles
+    document.getElementById('filter-all').classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    document.getElementById('filter-day').classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    document.getElementById('filter-month').classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    
+    document.getElementById('filter-all').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+    document.getElementById('filter-day').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+    document.getElementById('filter-month').classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+    
+    document.getElementById(`filter-${type}`).classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+    document.getElementById(`filter-${type}`).classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    
+    // Show/hide date picker
+    const datePickerContainer = document.getElementById('date-picker-container');
+    if (type === 'day' || type === 'month') {
+        datePickerContainer.classList.remove('hidden');
+        // Set default date to today if not set
+        if (!currentFilterDate) {
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            document.getElementById('filter-date').value = dateStr;
+            currentFilterDate = dateStr;
+            // Load data immediately with today's date
+            loadEmployeeData();
+        } else {
+            // Apply filter immediately if date is already selected
+            applyFilter();
+        }
+    } else {
+        // All filter - hide date picker and reload immediately
+        datePickerContainer.classList.add('hidden');
+        currentFilterDate = '';
+        loadEmployeeData();
+    }
+}
+
+// Apply filter
+function applyFilter() {
+    const dateInput = document.getElementById('filter-date');
+    currentFilterDate = dateInput.value;
+    loadEmployeeData();
+}
+
+function showErrorState() {
+    document.getElementById('error-state').classList.remove('hidden');
+}
+
+function updateSummaryCards(summary) {
+    document.getElementById('today-sales').textContent = summary.today_sales;
+    document.getElementById('today-revenue').textContent = formatCurrency(summary.today_revenue);
+    document.getElementById('week-sales').textContent = summary.week_sales;
+    document.getElementById('week-revenue').textContent = formatCurrency(summary.week_revenue);
+    document.getElementById('total-outstanding').textContent = formatCurrency(summary.total_outstanding);
+    
+    // Update table title based on filter
+    const tableTitle = document.getElementById('table-title');
+    if (currentFilterType === 'day' && currentFilterDate) {
+        const dateObj = new Date(currentFilterDate);
+        const dateStr = dateObj.toLocaleDateString('en-KE', { year: 'numeric', month: 'long', day: 'numeric' });
+        tableTitle.textContent = `Employee Sales Performance - ${dateStr}`;
+    } else if (currentFilterType === 'month' && currentFilterDate) {
+        const dateObj = new Date(currentFilterDate);
+        const monthStr = dateObj.toLocaleDateString('en-KE', { year: 'numeric', month: 'long' });
+        tableTitle.textContent = `Employee Sales Performance - ${monthStr}`;
+    } else {
+        tableTitle.textContent = 'Employee Sales Performance (Last 30 Days)';
+    }
+}
+
+function populateEmployeeTable(employees) {
+    const tbody = document.getElementById('employees-table-body');
+    tbody.innerHTML = '';
+    
+    // Store employee data globally for modal access
+    window.employeeData = employees;
+    
+    employees.forEach(employee => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        
+        const balanceColor = employee.outstanding_balance > 0 ? 'text-red-600' : 'text-green-600';
+        const balanceBg = employee.outstanding_balance > 0 ? 'bg-red-100' : 'bg-green-100';
+        
+        row.innerHTML = `
+            <td class="px-2 sm:px-4 lg:px-6 py-3 sm:py-4">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                        <i class="fas fa-user text-blue-600 text-sm sm:text-base"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">${employee.name}</div>
+                        <div class="text-xs text-gray-500 truncate">Code: ${employee.code}</div>
+                        <div class="sm:hidden text-xs text-gray-500 mt-1">
+                            Sales: ${employee.total_sales} | ${formatCurrency(employee.total_revenue)}
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-2 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-900 hidden sm:table-cell">
+                <div class="flex flex-col sm:flex-row sm:items-center">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2 mb-1 sm:mb-0">
+                        ${employee.total_sales}
+                    </span>
+                    <span class="text-xs text-gray-500">${formatCurrency(employee.total_revenue)}</span>
+                </div>
+            </td>
+            <td class="px-2 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-gray-900">${formatCurrency(employee.total_payments)}</span>
+                </div>
+            </td>
+            <td class="px-2 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-900">
+                <div class="flex items-center">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${balanceBg} ${balanceColor}">
+                        ${formatCurrency(employee.outstanding_balance)}
+                    </span>
+                </div>
+            </td>
+            <td class="px-2 sm:px-4 lg:px-6 py-3 sm:py-4 whitespace-nowrap text-center text-sm font-medium">
+                <button onclick="openPaymentModal(${employee.id}, '${employee.name}', '${employee.code}', ${employee.outstanding_balance})" 
+                        class="inline-flex items-center px-2 sm:px-3 py-1 sm:py-2 border border-transparent text-xs sm:text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                    <i class="fas fa-credit-card mr-1"></i>
+                    <span class="hidden sm:inline">Pay</span>
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-KE', {
+        style: 'currency',
+        currency: 'KES'
+    }).format(amount);
+}
+
+function refreshData() {
+    loadEmployeeData();
+}
+
+function initEmployeeBalances() {
+    if (confirm('This will initialize employee balances. Continue?')) {
+        fetch('/api/init-employee-balances', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Employee balances initialized successfully!');
+                loadEmployeeData(); // Refresh the data
+            } else {
+                alert('Error initializing balances: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error initializing balances:', error);
+            alert('Error initializing balances. Please try again.');
+        });
+    }
+}
+
+// Payment Modal Functions
+let currentEmployeeId = null;
+let currentEmployeeName = '';
+let currentEmployeeCode = '';
+let currentOutstandingBalance = 0;
+
+function openPaymentModal(employeeId, employeeName, employeeCode, outstandingBalance) {
+    currentEmployeeId = employeeId;
+    currentEmployeeName = employeeName;
+    currentEmployeeCode = employeeCode;
+    currentOutstandingBalance = outstandingBalance;
+    
+    document.getElementById('paymentEmployeeName').textContent = employeeName;
+    document.getElementById('paymentEmployeeCode').textContent = `Code: ${employeeCode}`;
+    document.getElementById('currentOutstandingBalance').textContent = formatCurrency(outstandingBalance);
+    document.getElementById('paymentAmount').value = '';
+    
+    // Set placeholder with suggested amount (outstanding balance)
+    if (outstandingBalance > 0) {
+        document.getElementById('paymentAmount').placeholder = `Suggested: KES ${outstandingBalance.toLocaleString()}`;
+    } else {
+        document.getElementById('paymentAmount').placeholder = 'Enter amount';
+    }
+    
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+    currentEmployeeId = null;
+    currentEmployeeName = '';
+    currentEmployeeCode = '';
+    currentOutstandingBalance = 0;
+}
+
+function fillSuggestedAmount() {
+    if (currentOutstandingBalance > 0) {
+        document.getElementById('paymentAmount').value = currentOutstandingBalance;
+    } else {
+        alert('No outstanding balance for this employee');
+    }
+}
+
+function processPayment() {
+    const amount = document.getElementById('paymentAmount').value;
+    
+    if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid payment amount');
+        return;
+    }
+    
+    if (parseFloat(amount) > currentOutstandingBalance) {
+        alert('Payment amount cannot exceed outstanding balance of ' + formatCurrency(currentOutstandingBalance));
+        return;
+    }
+    
+    const paymentData = {
+        employee_id: currentEmployeeId,
+        amount: parseFloat(amount)
+    };
+    
+    // Show loading state
+    const processButton = document.querySelector('button[onclick="processPayment()"]');
+    const originalText = processButton.innerHTML;
+    processButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Processing...';
+    processButton.disabled = true;
+    
+    fetch('/api/cashier/process-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showReceiptModal(data);
+            closePaymentModal();
+            loadEmployeeData(); // Refresh the data
+        } else {
+            alert('Error processing payment: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error processing payment:', error);
+        alert('Error processing payment. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        processButton.innerHTML = originalText;
+        processButton.disabled = false;
+    });
+}
+
+// Receipt Modal Functions
+function showReceiptModal(paymentData) {
+    // Generate receipt number (using payment ID)
+    const receiptNumber = `PAY-${String(paymentData.payment_id).padStart(6, '0')}`;
+    
+    // Calculate previous balance
+    const previousBalance = paymentData.new_balance + paymentData.amount;
+    
+    // Get current date and time
+    const now = new Date();
+    const dateTime = now.toLocaleString('en-KE', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    // Populate receipt data
+    document.getElementById('receiptNumber').textContent = receiptNumber;
+    document.getElementById('receiptEmployeeName').textContent = paymentData.employee_name;
+    document.getElementById('receiptEmployeeCode').textContent = paymentData.employee_code;
+    document.getElementById('receiptAmount').textContent = formatCurrency(paymentData.amount);
+    document.getElementById('receiptPreviousBalance').textContent = formatCurrency(previousBalance);
+    document.getElementById('receiptNewBalance').textContent = formatCurrency(paymentData.new_balance);
+    document.getElementById('receiptDateTime').textContent = dateTime;
+    
+    // Show the modal
+    document.getElementById('receiptModal').classList.remove('hidden');
+    
+    // Add animation
+    const modal = document.querySelector('#receiptModal .bg-white');
+    modal.style.transform = 'scale(0.9)';
+    modal.style.opacity = '0';
+    
+    setTimeout(() => {
+        modal.style.transform = 'scale(1)';
+        modal.style.opacity = '1';
+        modal.style.transition = 'all 0.3s ease-out';
+    }, 10);
+}
+
+function closeReceiptModal() {
+    const modal = document.querySelector('#receiptModal .bg-white');
+    modal.style.transform = 'scale(0.9)';
+    modal.style.opacity = '0';
+    modal.style.transition = 'all 0.2s ease-in';
+    
+    setTimeout(() => {
+        document.getElementById('receiptModal').classList.add('hidden');
+        modal.style.transform = 'scale(1)';
+        modal.style.opacity = '1';
+    }, 200);
+}
+
+function printReceipt() {
+    // Create a print-friendly version
+    const receiptContent = document.querySelector('#receiptModal .bg-white').cloneNode(true);
+    
+    // Remove action buttons for printing
+    const actionButtons = receiptContent.querySelector('.flex.space-x-3');
+    if (actionButtons) {
+        actionButtons.remove();
+    }
+    
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Payment Receipt</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 0; 
+                        padding: 20px;
+                        background: white;
+                    }
+                    .receipt { 
+                        max-width: 400px; 
+                        margin: 0 auto; 
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    .header { 
+                        background: linear-gradient(135deg, #059669, #047857);
+                        color: white; 
+                        padding: 20px; 
+                        text-align: center;
+                    }
+                    .body { 
+                        padding: 20px; 
+                    }
+                    .footer { 
+                        background: #f9fafb; 
+                        padding: 15px; 
+                        text-align: center;
+                        font-size: 12px;
+                        color: #6b7280;
+                    }
+                    .detail-row { 
+                        display: flex; 
+                        justify-content: space-between; 
+                        padding: 8px 0; 
+                        border-bottom: 1px solid #f3f4f6;
+                    }
+                    .detail-row:last-child { 
+                        border-bottom: none; 
+                    }
+                    .label { 
+                        color: #6b7280; 
+                        font-size: 14px;
+                    }
+                    .value { 
+                        font-weight: 500; 
+                        color: #111827;
+                    }
+                    .amount { 
+                        font-size: 18px; 
+                        font-weight: bold; 
+                        color: #059669;
+                    }
+                    .receipt-number { 
+                        font-family: monospace; 
+                        font-size: 18px; 
+                        font-weight: bold; 
+                        color: #111827;
+                    }
+                    .status-badge { 
+                        display: inline-flex; 
+                        align-items: center; 
+                        padding: 6px 12px; 
+                        border-radius: 20px; 
+                        background: #dcfce7; 
+                        color: #166534; 
+                        font-size: 12px; 
+                        font-weight: 500;
+                        margin: 15px 0;
+                    }
+                    @media print {
+                        body { margin: 0; padding: 10px; }
+                        .receipt { box-shadow: none; border: 1px solid #000; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="receipt">
+                    ${receiptContent.outerHTML}
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Load data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadEmployeeData();
+});
+</script>
+{% endblock %}

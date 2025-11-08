@@ -1,6 +1,223 @@
+{% if employee_role == 'admin' or employee_role == 'manager' or employee_role == 'cashier' or employee_role == 'employee' %}
+{% extends "role_base.html" %}
+{% else %}
 {% extends "base.html" %}
+{% endif %}
 
 {% block title %}Point of Sale - Hotel POS System{% endblock %}
+
+{% if employee_role == 'admin' or employee_role == 'manager' or employee_role == 'cashier' or employee_role == 'employee' %}
+{% block sidebar_icon %}{% if employee_role == 'admin' %}crown{% elif employee_role == 'manager' %}user-tie{% elif employee_role == 'cashier' %}cash-register{% else %}user{% endif %}{% endblock %}
+{% block sidebar_title %}{% if employee_role == 'admin' %}Admin Panel{% elif employee_role == 'manager' %}Manager Panel{% elif employee_role == 'cashier' %}Cashier Panel{% else %}Employee Panel{% endif %}{% endblock %}
+
+{% block sidebar_nav %}
+{% if employee_role == 'admin' %}
+<!-- Dashboard -->
+<a href="/admin/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+<!-- Point of Sale -->
+<a href="/pos" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-shopping-cart text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process sales</p>
+    </div>
+</a>
+<!-- Human Resource -->
+<a href="/admin/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resource</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+<!-- Item Management -->
+<a href="/admin/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+<!-- Off Days -->
+<a href="/admin/off-days-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Off Days</p>
+        <p class="text-xs text-white/70">Leave & off days</p>
+    </div>
+</a>
+<!-- Settings -->
+<a href="/admin/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System settings</p>
+    </div>
+</a>
+{% elif employee_role == 'manager' %}
+<!-- Dashboard -->
+<a href="/manager/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+<!-- Point of Sale -->
+<a href="/pos" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-shopping-cart text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process sales</p>
+    </div>
+</a>
+<!-- Human Resource -->
+<a href="/manager/human-resources" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-users text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Human Resource</p>
+        <p class="text-xs text-white/70">Manage employees</p>
+    </div>
+</a>
+<!-- Item Management -->
+<a href="/manager/item-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Item Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+<!-- Analytics -->
+<a href="/manager/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-chart-line text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics</p>
+        <p class="text-xs text-white/70">Reports & insights</p>
+    </div>
+</a>
+<!-- Settings -->
+<a href="/manager/settings" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cog text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Settings</p>
+        <p class="text-xs text-white/70">System settings</p>
+    </div>
+</a>
+{% elif employee_role == 'cashier' %}
+<!-- Point of Sale -->
+<a href="/pos" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-shopping-cart text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process sales</p>
+    </div>
+</a>
+<!-- Cash Drawer -->
+<a href="/cashier/cash-drawer" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-cash-register text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Cash Drawer</p>
+        <p class="text-xs text-white/70">Manage cash</p>
+    </div>
+</a>
+<!-- Stock Management -->
+<a href="/cashier/stock-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Management</p>
+        <p class="text-xs text-white/70">Manage inventory</p>
+    </div>
+</a>
+<!-- Receipt Confirmation -->
+<a href="/cashier/receipt-confirmation" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-receipt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Receipt Confirmation</p>
+        <p class="text-xs text-white/70">Confirm receipts</p>
+    </div>
+</a>
+{% elif employee_role == 'employee' %}
+<!-- Point of Sale -->
+<a href="/pos" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-shopping-cart text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Point of Sale</p>
+        <p class="text-xs text-white/70">Process sales</p>
+    </div>
+</a>
+<!-- Dashboard -->
+<a href="/employee/dashboard" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Dashboard</p>
+        <p class="text-xs text-white/70">Overview</p>
+    </div>
+</a>
+<!-- Off Days -->
+<a href="/employee/off-days" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-calendar-times text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Off Days</p>
+        <p class="text-xs text-white/70">My time off</p>
+    </div>
+</a>
+<!-- Profile -->
+<a href="/employee/profile-management" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors duration-200">
+        <i class="fas fa-user text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Profile</p>
+        <p class="text-xs text-white/70">Manage profile</p>
+    </div>
+</a>
+{% endif %}
+{% endblock %}
+{% endif %}
 
 {% block content %}
 
@@ -56,7 +273,7 @@
 </div>
 
 <!-- Printer Setup Modal -->
-<div id="printerSetupModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+<div id="printerSetupModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <!-- Modal Header -->
@@ -181,9 +398,9 @@
             </div>
         
             <!-- Mobile Cart Content -->
-            <div class="flex-1 overflow-y-auto p-3 sm:p-4">
+            <div class="flex-1 overflow-y-auto p-3 sm:p-4 scrollbar-thin">
                 <!-- Mobile Order Items -->
-                <div id="mobileOrderItems" class="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
+                <div id="mobileOrderItems" class="space-y-2 sm:space-y-3 mb-3 sm:mb-4 pr-2">
                     <!-- Empty cart state -->
                     <div id="mobileEmptyCart" class="text-center py-8 sm:py-12">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
@@ -445,9 +662,9 @@
                     </button>
                 </div>
             </div>
-            <div class="p-3 sm:p-4 md:p-6">
+            <div class="p-3 sm:p-4 md:p-6 overflow-hidden">
                 <!-- Order Items -->
-                <div id="orderItems" class="space-y-3 mb-4">
+                <div id="orderItems" class="space-y-2 sm:space-y-3 mb-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
                     <!-- Modern Empty cart state -->
                     <div id="emptyCart" class="text-center py-12">
                         <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -968,8 +1185,13 @@
         console.log('DOM elements refreshed:', Object.keys(cachedDOMElements));
     };
     
-    // Get image display setting from localStorage
+    // Get image display setting from database (via window.receiptSettings)
     function getImageDisplaySetting() {
+        // First check database settings (loaded from hotel_settings table)
+        if (window.receiptSettings && window.receiptSettings.show_images !== undefined) {
+            return window.receiptSettings.show_images;
+        }
+        // Fallback to localStorage if database settings not loaded yet
         const savedSettings = localStorage.getItem('pos-settings');
         if (savedSettings) {
             const settings = JSON.parse(savedSettings);
@@ -1082,15 +1304,208 @@
         return ''; // No special card styling
     }
 
+    // Load receipt settings on page load
+    async function loadReceiptSettings() {
+        try {
+            const response = await fetch('/api/pos/receipt-settings');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    console.log('Receipt settings loaded:', data.settings);
+                    // Store receipt settings globally for use in receipt generation
+                    window.receiptSettings = data.settings;
+                    // Update image display if menu items are already rendered
+                    if (typeof renderMenuItems === 'function') {
+                        renderMenuItems();
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading receipt settings:', error);
+        }
+    }
+
     // Initialize POS system
     document.addEventListener('DOMContentLoaded', function() {
         // Wait a bit to ensure all elements are rendered
-        setTimeout(() => {
+        setTimeout(async () => {
+            await loadReceiptSettings(); // Load receipt settings first
             initializePOS();
             updatePrinterSetupNotice();
             initializeNavigationConfirmation();
+            
+            // Auto-connect to previously paired Bluetooth printers on page load
+            setTimeout(async () => {
+                await autoConnectBluetoothPrinters();
+            }, 2000); // Wait 2 seconds for managers to initialize
+            
+            // Periodically refresh settings to pick up admin changes (every 30 seconds)
+            setInterval(async () => {
+                await loadReceiptSettings();
+            }, 30000); // Refresh every 30 seconds
         }, 100);
     });
+
+    // Track failed connection attempts to avoid retrying devices that are out of range
+    const failedDeviceCache = new Map(); // deviceId -> { lastAttempt, failureCount, errorType }
+    const FAILED_DEVICE_CACHE_TIME = 60000; // Don't retry failed devices for 60 seconds
+    const MAX_FAILURE_COUNT = 2; // Stop trying after 2 failures
+
+    // Auto-connect to previously paired Bluetooth printers on page load
+    async function autoConnectBluetoothPrinters() {
+        try {
+            // Check if Web Bluetooth is supported
+            if (!navigator.bluetooth || typeof navigator.bluetooth.requestDevice !== 'function') {
+                return false;
+            }
+
+            // Check if getDevices is supported (for auto-connect)
+            if (typeof navigator.bluetooth.getDevices !== 'function') {
+                console.log('getDevices() not supported, skipping auto-connect');
+                return false;
+            }
+
+            // Use enhanced manager if available
+            const manager = window.enhancedBluetoothPrinterManager || window.bluetoothPrinterManager;
+            if (!manager) {
+                console.log('Bluetooth manager not available yet');
+                return false;
+            }
+
+            // Check if already connected
+            const connectedPrinters = manager.getConnectedPrinters();
+            if (connectedPrinters.length > 0) {
+                console.log(`Already connected to ${connectedPrinters.length} printer(s)`);
+                updatePrinterSetupNotice();
+                return true;
+            }
+
+            // Get previously paired devices
+            const pairedDevices = await navigator.bluetooth.getDevices();
+            
+            if (pairedDevices.length === 0) {
+                console.log('No previously paired Bluetooth devices found');
+                return false;
+            }
+
+            console.log(`Found ${pairedDevices.length} previously paired device(s), attempting auto-connect...`);
+
+            // Filter out devices that have recently failed
+            const now = Date.now();
+            const availableDevices = pairedDevices.filter(device => {
+                const cached = failedDeviceCache.get(device.id);
+                if (cached) {
+                    // Check if enough time has passed since last failure
+                    const timeSinceFailure = now - cached.lastAttempt;
+                    if (timeSinceFailure < FAILED_DEVICE_CACHE_TIME) {
+                        // Device failed recently, skip it
+                        if (cached.errorType === 'out_of_range') {
+                            return false; // Skip devices that are out of range
+                        }
+                        // For other errors, check failure count
+                        if (cached.failureCount >= MAX_FAILURE_COUNT) {
+                            return false; // Too many failures
+                        }
+                    }
+                }
+                return true;
+            });
+
+            if (availableDevices.length === 0) {
+                console.log('All previously paired devices are unavailable or out of range');
+                return false;
+            }
+
+            console.log(`Attempting to connect to ${availableDevices.length} available device(s)...`);
+
+            // Try to reconnect to each available paired device (connect to all available, up to 5 to avoid spam)
+            const maxAttempts = Math.min(availableDevices.length, 5);
+            let successCount = 0;
+
+            for (let i = 0; i < maxAttempts; i++) {
+                const device = availableDevices[i];
+                try {
+                    let server;
+                    if (device.gatt.connected) {
+                        // Already connected, use existing connection
+                        server = device.gatt;
+                        console.log(`Device ${device.name || device.id} already connected`);
+                    } else {
+                        // Try to connect (with shorter timeout to fail faster)
+                        const deviceName = device.name || device.id;
+                        const connectPromise = device.gatt.connect();
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Connection timeout')), 3000)
+                        );
+                        
+                        server = await Promise.race([connectPromise, timeoutPromise]);
+                        console.log(`Successfully connected to ${deviceName}`);
+                    }
+                    
+                    // Add printer to manager
+                    const printerId = await manager.addPrinter(device, server);
+                    
+                    // Clear any failed cache for this device
+                    failedDeviceCache.delete(device.id);
+                    
+                    // Show success notification
+                    console.log(`Auto-connected to "${device.name || 'Unknown Device'}"!`);
+                    
+                    // Update UI
+                    updatePrinterSetupNotice();
+                    updatePrinterControlButtons();
+                    updateEmployeeValidationUI();
+                    
+                    // Show a subtle notification
+                    showNotification(`Auto-connected to "${device.name || 'Unknown Device'}"`, 'success');
+                    
+                    successCount++;
+                    
+                    // Continue to next device to allow multiple printer connections
+                    // Don't return early - try to connect to all available printers
+                    continue;
+                } catch (error) {
+                    const deviceName = device.name || device.id;
+                    const errorMessage = error.message || error.toString();
+                    
+                    // Check if device is out of range
+                    const isOutOfRange = errorMessage.includes('no longer in range') || 
+                                       errorMessage.includes('not in range') ||
+                                       errorMessage.includes('out of range') ||
+                                       errorMessage.includes('unreachable') ||
+                                       error.name === 'NetworkError';
+                    
+                    // Update failed device cache
+                    const cached = failedDeviceCache.get(device.id) || { failureCount: 0 };
+                    cached.lastAttempt = Date.now();
+                    cached.failureCount = (cached.failureCount || 0) + 1;
+                    cached.errorType = isOutOfRange ? 'out_of_range' : 'other';
+                    failedDeviceCache.set(device.id, cached);
+                    
+                    if (isOutOfRange) {
+                        console.log(`Skipping ${deviceName}: device is out of range`);
+                    } else {
+                        console.log(`Failed to auto-connect to ${deviceName}: ${errorMessage}`);
+                    }
+                    
+                    // Continue to next device
+                    continue;
+                }
+            }
+            
+            // Clean up old cache entries (older than cache time)
+            for (const [deviceId, cached] of failedDeviceCache.entries()) {
+                if (now - cached.lastAttempt > FAILED_DEVICE_CACHE_TIME * 2) {
+                    failedDeviceCache.delete(deviceId);
+                }
+            }
+            
+            return successCount > 0;
+        } catch (error) {
+            console.log('Auto-connect error:', error);
+            return false;
+        }
+    }
 
     // Initialize navigation confirmation to prevent accidental printer disconnection
     function initializeNavigationConfirmation() {
@@ -1681,6 +2096,11 @@
                 }, 10);
             }
         }
+        
+        // Force immediate cart badge update
+        if (window.updateMobileCartBadge) {
+            window.updateMobileCartBadge();
+        }
     }
 
     // Update order display
@@ -1752,22 +2172,22 @@
         // Render order items
         console.log('Rendering cart items:', currentOrder);
         const orderItemsHTML = currentOrder.map(item => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-item-id="${item.id}">
-                <div class="flex-1 min-w-0">
-                    <h4 class="font-medium text-gray-800 text-sm sm:text-base truncate">${item.name}</h4>
-                    <p class="text-xs sm:text-sm text-gray-600">KSh ${item.price.toFixed(2)} each</p>
+            <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors duration-200" data-item-id="${item.id}">
+                <div class="flex-1 min-w-0 pr-2">
+                    <h4 class="font-medium text-gray-800 text-xs sm:text-sm leading-tight line-clamp-2">${item.name}</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">KSh ${item.price.toFixed(2)} each</p>
                 </div>
-                <div class="flex items-center space-x-2 ml-2">
-                    <button class="remove-item w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors duration-200" data-item-id="${item.id}">
-                        <i class="fas fa-minus text-xs"></i>
+                <div class="flex items-center space-x-1.5 shrink-0">
+                    <button class="remove-item w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 active:scale-95 transition-all duration-200 touch-target" data-item-id="${item.id}" aria-label="Decrease quantity">
+                        <i class="fas fa-minus text-[10px]"></i>
                     </button>
-                    <span class="w-6 sm:w-8 text-center font-medium text-sm sm:text-base">${item.quantity}</span>
-                    <button class="add-item w-6 h-6 sm:w-8 sm:h-8 bg-primary-orange text-white rounded-full flex items-center justify-center hover:bg-secondary-orange transition-colors duration-200" data-item-id="${item.id}">
-                        <i class="fas fa-plus text-xs"></i>
+                    <span class="w-6 text-center font-semibold text-xs text-gray-800">${item.quantity}</span>
+                    <button class="add-item w-6 h-6 bg-primary-orange text-white rounded-full flex items-center justify-center hover:bg-secondary-orange active:scale-95 transition-all duration-200 touch-target" data-item-id="${item.id}" aria-label="Increase quantity">
+                        <i class="fas fa-plus text-[10px]"></i>
                     </button>
                 </div>
-                <div class="ml-2 sm:ml-4">
-                    <span class="font-semibold text-gray-800 text-sm sm:text-base">KSh ${(item.price * item.quantity).toFixed(2)}</span>
+                <div class="ml-2 w-16 sm:w-20 text-right shrink-0">
+                    <span class="font-semibold text-xs sm:text-sm text-gray-800">KSh ${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
             </div>
         `).join('');
@@ -1779,6 +2199,12 @@
         // Update order summary
         console.log('Updating order summary...');
         updateOrderSummary();
+        
+        // Update mobile cart badge immediately
+        if (window.updateMobileCartBadge) {
+            window.updateMobileCartBadge();
+        }
+        
         console.log('Order summary updated, updateOrderDisplay completed');
     }
 
@@ -1886,12 +2312,26 @@
 
     // Show printer setup modal
     function showPrinterSetupModal() {
-        document.getElementById('printerSetupModal').classList.remove('hidden');
+        const modal = document.getElementById('printerSetupModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+            console.log('Printer setup modal shown');
+        } else {
+            console.error('Printer setup modal not found');
+        }
     }
 
     // Hide printer setup modal
     function hidePrinterSetupModal() {
-        document.getElementById('printerSetupModal').classList.add('hidden');
+        const modal = document.getElementById('printerSetupModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            // Restore body scroll when modal is closed
+            document.body.style.overflow = '';
+            console.log('Printer setup modal hidden');
+        }
     }
 
     // Update printer control button states
@@ -1951,42 +2391,315 @@
         }
     }
 
-    // WiFi printer scanning function - Real thermal printer discovery
+    // Simple and efficient WiFi printer scanning function
     async function scanForWiFiPrinters() {
+        // Create single modal that will show scanning and results
+        // Use z-[150] to appear above printer setup modal (z-[100])
+        const modal = document.createElement('div');
+        modal.id = 'wifi-printer-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[150]';
+        document.body.appendChild(modal);
+        
+        const updateModal = (content) => {
+            modal.innerHTML = content;
+        };
+        
         try {
-            showNotification('Scanning for thermal printers on network...', 'info');
+            // Show scanning state
+            updateModal(`
+                <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-wifi mr-2 text-purple-500"></i>
+                            Scanning Network
+                        </h3>
+                        <button onclick="document.getElementById('wifi-printer-modal')?.remove()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="text-center py-6">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                        <p class="text-gray-600 mb-2">Scanning for available printers...</p>
+                        <p id="scan-progress-text" class="text-sm text-gray-500">Initializing...</p>
+                    </div>
+                </div>
+            `);
             
-            // Check if we're in a hosted environment
-            const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
-                            window.location.hostname.includes('github.io') || 
-                            window.location.hostname.includes('netlify.app') ||
-                            window.location.hostname.includes('vercel.app') ||
-                            window.location.hostname.includes('herokuapp.com') ||
-                            window.location.hostname.includes('railway.app') ||
-                            window.location.hostname.includes('render.com') ||
-                            window.location.hostname.includes('fly.dev') ||
-                            window.location.hostname.includes('aws.amazon.com') ||
-                            window.location.hostname.includes('azure.com') ||
-                            window.location.hostname.includes('digitalocean.com') ||
-                            (window.location.hostname !== 'localhost' && 
-                             window.location.hostname !== '127.0.0.1' &&
-                             !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/));
+            const discoveredPrinters = [];
+            const updateProgress = (text) => {
+                const progressText = document.getElementById('scan-progress-text');
+                if (progressText) progressText.textContent = text;
+            };
             
-            if (isHosted) {
-                console.log('Hosted environment detected, using client-side scanning approach');
-                // For hosted environments, use client-side scanning instead of API
-                await performClientSideWiFiScan();
-                return [];
-            } else {
-                // Use the real WiFi scanning function for local environments
-                await connectWiFiPrinter();
-                return [];
+            // Common thermal printer ports
+            const thermalPorts = [9100, 9101, 9102];
+            
+            // Detect local network range (simplified)
+            const networkRanges = await detectNetworkRanges();
+            updateProgress(`Scanning ${networkRanges.length} network range(s)...`);
+            
+            // Scan common IP addresses in each network range
+            for (const networkRange of networkRanges) {
+                updateProgress(`Scanning ${networkRange}...`);
+                
+                // Common printer IP addresses - expanded range for better detection
+                const commonIPs = [
+                    ...Array.from({length: 100}, (_, i) => i + 1),      // .1 to .100 (expanded)
+                    ...Array.from({length: 100}, (_, i) => i + 100),  // .100 to .200 (expanded)
+                    ...Array.from({length: 55}, (_, i) => i + 200)    // .200 to .254
+                ];
+                
+                // Scan in parallel batches for efficiency (smaller batches for better reliability)
+                const batchSize = 10;
+                for (let i = 0; i < commonIPs.length; i += batchSize) {
+                    const batch = commonIPs.slice(i, i + batchSize);
+                    const batchPromises = [];
+                    
+                    for (const hostNum of batch) {
+                        const ip = `${networkRange}.${hostNum}`;
+                        
+                        // Test each thermal printer port
+                        for (const port of thermalPorts) {
+                            batchPromises.push(
+                                testPrinterConnection(ip, port).then(isReachable => {
+                                    if (isReachable) {
+                                        const printerName = `Printer ${ip}:${port}`;
+                                        // Check if already discovered
+                                        if (!discoveredPrinters.find(p => p.ip === ip && p.port === port)) {
+                                            discoveredPrinters.push({
+                                                name: printerName,
+                                                ip: ip,
+                                                port: port,
+                                                type: 'thermal',
+                                                status: 'available'
+                                            });
+                                            console.log(`✅ Found printer: ${ip}:${port}`);
+                                        }
+                                    }
+                                    return isReachable;
+                                }).catch(() => false)
+                            );
+                        }
+                    }
+                    
+                    await Promise.all(batchPromises);
+                    updateProgress(`Scanned ${Math.min(i + batchSize, commonIPs.length)}/${commonIPs.length} IPs in ${networkRange}... Found ${discoveredPrinters.length} printer(s)`);
+                }
             }
+            
+            // Show results in the same modal
+            if (discoveredPrinters.length > 0) {
+                updateModal(`
+                    <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <i class="fas fa-wifi mr-2 text-purple-500"></i>
+                                Found ${discoveredPrinters.length} Printer(s)
+                            </h3>
+                            <button onclick="document.getElementById('wifi-printer-modal')?.remove()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-4">Click on any printer below to connect:</p>
+                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                ${discoveredPrinters.map(printer => `
+                                    <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all duration-200 group" 
+                                         onclick="connectToDiscoveredPrinter('${printer.name}', '${printer.ip}', ${printer.port}); document.getElementById('wifi-printer-modal')?.remove();"
+                                         title="Click to connect to this printer">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <h4 class="font-medium text-gray-800 group-hover:text-blue-700">${printer.name}</h4>
+                                                <p class="text-xs text-gray-500">${printer.ip}:${printer.port}</p>
+                                            </div>
+                                            <div class="bg-blue-500 group-hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors">
+                                                <i class="fas fa-plug mr-1"></i>
+                                                Connect
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="document.getElementById('wifi-printer-modal')?.remove()" 
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                `);
+                showNotification(`Found ${discoveredPrinters.length} printer(s)!`, 'success');
+            } else {
+                updateModal(`
+                    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                <i class="fas fa-wifi mr-2 text-purple-500"></i>
+                                No Printers Found
+                            </h3>
+                            <button onclick="document.getElementById('wifi-printer-modal')?.remove()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="text-center py-6">
+                            <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600 mb-2">No printers found on your network.</p>
+                            <p class="text-sm text-gray-500 mb-4">Make sure your printer is:</p>
+                            <ul class="text-sm text-gray-600 text-left mb-4 space-y-1">
+                                <li>• Powered on and connected to WiFi</li>
+                                <li>• On the same network as this device</li>
+                                <li>• Using a thermal printer port (9100, 9101, 9102)</li>
+                            </ul>
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                <p class="text-sm text-blue-700 mb-2"><strong>Can't find your printer?</strong></p>
+                                <p class="text-xs text-blue-600 mb-3">Add it manually using its IP address</p>
+                                <div class="space-y-2">
+                                    <input type="text" id="manual-printer-ip" placeholder="192.168.1.100" 
+                                           class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <input type="number" id="manual-printer-port" placeholder="9100" value="9100" 
+                                           class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <button onclick="addManualPrinter()" 
+                                            class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                                        <i class="fas fa-plus mr-2"></i>Add Printer Manually
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="document.getElementById('wifi-printer-modal')?.remove()" 
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                `);
+                showNotification('No printers found. Check your printer connection.', 'info');
+            }
+            
+            return discoveredPrinters;
         } catch (error) {
             console.error('WiFi scanning error:', error);
+            updateModal(`
+                <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>
+                            Scan Failed
+                        </h3>
+                        <button onclick="document.getElementById('wifi-printer-modal')?.remove()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="text-center py-6">
+                        <p class="text-gray-600 mb-4">${error.message}</p>
+                        <button onclick="document.getElementById('wifi-printer-modal')?.remove()" 
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `);
             showNotification('WiFi scanning failed: ' + error.message, 'error');
             return [];
         }
+    }
+    
+    // Detect network ranges (simplified)
+    async function detectNetworkRanges() {
+        const commonRanges = ['192.168.1', '192.168.0', '10.0.0', '172.16.0'];
+        
+        try {
+            // Try to get local IP using WebRTC (simplified)
+            const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+            pc.createDataChannel('');
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            
+            return new Promise((resolve) => {
+                let resolved = false;
+                const detectedRanges = [];
+                
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        const candidate = event.candidate.candidate;
+                        if (candidate.includes('host')) {
+                            const ipMatch = candidate.match(/(\d+\.\d+\.\d+)\.\d+/);
+                            if (ipMatch) {
+                                const ipRange = ipMatch[1];
+                                if ((ipRange.startsWith('192.168.') || ipRange.startsWith('10.') || ipRange.startsWith('172.')) 
+                                    && !detectedRanges.includes(ipRange)) {
+                                    detectedRanges.push(ipRange);
+                                }
+                            }
+                        }
+                    } else {
+                        if (!resolved && detectedRanges.length > 0) {
+                            resolved = true;
+                            pc.close();
+                            resolve(detectedRanges);
+                        }
+                    }
+                };
+                
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        pc.close();
+                        resolve(detectedRanges.length > 0 ? detectedRanges : commonRanges.slice(0, 2));
+                    }
+                }, 2000);
+            });
+        } catch (error) {
+            console.log('Network detection failed, using common ranges:', error);
+            return commonRanges.slice(0, 2);
+        }
+    }
+    
+    // Test printer connection using backend API (more reliable)
+    async function testPrinterConnection(ip, port) {
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => resolve(false), 2000); // 2 second timeout
+            
+            // Use backend API to test printer connection (more reliable than client-side)
+            fetch('/api/test-wifi-printer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: ip, port: port })
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearTimeout(timeout);
+                resolve(data.success || false);
+            })
+            .catch(() => {
+                clearTimeout(timeout);
+                // Fallback: try client-side test
+                try {
+                    const ws = new WebSocket(`ws://${ip}:${port}`);
+                    const wsTimeout = setTimeout(() => {
+                        ws.close();
+                        resolve(false);
+                    }, 1000);
+                    
+                    ws.onopen = () => {
+                        clearTimeout(timeout);
+                        clearTimeout(wsTimeout);
+                        ws.close();
+                        resolve(true);
+                    };
+                    
+                    ws.onerror = () => {
+                        clearTimeout(timeout);
+                        clearTimeout(wsTimeout);
+                        resolve(false);
+                    };
+                } catch (error) {
+                    clearTimeout(timeout);
+                    resolve(false);
+                }
+            });
+        });
     }
 
     // Display available printers in the modal
@@ -2114,7 +2827,6 @@
     // Connect WiFi printer
     async function connectWiFiPrinter() {
         try {
-            showNotification('Scanning for WiFi printers...', 'info');
             await scanForWiFiPrinters();
         } catch (error) {
             console.error('WiFi printer connection error:', error);
@@ -2122,519 +2834,7 @@
         }
     }
 
-    // Advanced WiFi printer scanning using multiple discovery methods
-    async function scanForWiFiPrinters() {
-        try {
-            showWiFiScanningModal();
-            showNotification('Starting printer discovery...', 'info');
-            
-            console.log('Attempting WiFi printer scan...');
-            
-            // Add timeout and retry logic for cross-platform compatibility
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-            
-            try {
-                // Call backend API for real thermal printer discovery
-                // Use the current host to avoid connection reset issues
-                const apiUrl = `${window.location.protocol}//${window.location.host}/api/scan-thermal-printers`;
-                console.log('Calling thermal printer scan API:', apiUrl);
-                
-                // Check if we're on a hosted domain and need to use a different approach
-                const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
-                                window.location.hostname.includes('github.io') || 
-                                window.location.hostname.includes('netlify.app') ||
-                                window.location.hostname.includes('vercel.app') ||
-                                window.location.hostname.includes('herokuapp.com') ||
-                                window.location.hostname.includes('railway.app') ||
-                                window.location.hostname.includes('render.com') ||
-                                window.location.hostname.includes('fly.dev') ||
-                                window.location.hostname.includes('aws.amazon.com') ||
-                                window.location.hostname.includes('azure.com') ||
-                                window.location.hostname.includes('digitalocean.com') ||
-                                window.location.hostname !== 'localhost' && 
-                                window.location.hostname !== '127.0.0.1' &&
-                                !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/);
-                
-                if (isHosted) {
-                    console.log('Hosted environment detected, using client-side scanning approach');
-                    // For hosted environments, use client-side scanning instead of API
-                    await performClientSideWiFiScan();
-                    return;
-                }
-                
-                // Use advanced scanning for local environments
-                await performAdvancedWiFiScan();
-                return;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
-                    },
-                    body: JSON.stringify({}),
-                    signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-                
-                console.log('Response received:', response.status, response.statusText);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Scan response data:', data);
-                
-                if (data.success) {
-                    const methods = data.scan_methods ? data.scan_methods.join(', ') : 'network scan';
-                    const count = data.total_found || data.printers?.length || 0;
-                    
-                    showNotification(`Found ${count} device(s) using ${methods}`, 'success');
-                    
-                    if (count > 0) {
-                        showDiscoveredPrinters(data.printers);
-                    } else {
-                        closeWiFiScanningModal();
-                        showNotification('No WiFi printers found. Try manual setup.', 'warning');
-                        showWiFiPrinterDiscovery();
-                    }
-                } else {
-                    throw new Error(data.error || 'Discovery failed');
-                }
-                
-            } catch (fetchError) {
-                clearTimeout(timeoutId);
-                
-                if (fetchError.name === 'AbortError') {
-                    throw new Error('Scan timeout - network may be slow or server unreachable');
-                } else if (fetchError.message.includes('ERR_CONNECTION_RESET') || fetchError.message.includes('Failed to fetch')) {
-                    console.warn('Connection reset detected, trying fallback approach...');
-                    
-                    // Final fallback: Show manual setup
-                    closeWiFiScanningModal();
-                    showNotification('Network scan failed. Please try the advanced scan again.', 'warning');
-                    showWiFiPrinterDiscovery();
-                    return;
-                } else {
-                    throw fetchError;
-                }
-            }
-            
-        } catch (error) {
-            console.error('WiFi scanning error:', error);
-            closeWiFiScanningModal();
-            
-            // Provide helpful error messages based on the error type
-            let errorMessage = 'Discovery failed. ';
-            if (error.message.includes('timeout') || error.message.includes('slow')) {
-                errorMessage += 'Network is slow or server is busy. Please try manual setup.';
-            } else if (error.message.includes('CONNECTION_RESET') || error.message.includes('Failed to fetch')) {
-                errorMessage += 'Network connection issue. Please check your connection and try manual setup.';
-            } else {
-                errorMessage += error.message + ' Please try manual setup.';
-            }
-            
-            showNotification(errorMessage, 'error');
-            showWiFiPrinterDiscovery();
-        }
-    }
 
-    // Get local network range
-    async function getLocalNetworkRange() {
-        try {
-            // Get the actual local network range
-            const response = await fetch('/api/get-network-info');
-            const data = await response.json();
-            
-            if (data.success && data.network_range) {
-                // Return only the detected network range
-                return [data.network_range];
-            }
-            
-            // If detection fails, show error
-            throw new Error('Unable to detect network range');
-        } catch (error) {
-            console.error('Network detection failed:', error);
-            showNotification('Unable to detect your network. Please check your WiFi connection.', 'error');
-            throw error;
-        }
-    }
-
-    // Show WiFi scanning modal
-    function showWiFiScanningModal() {
-        const modal = document.createElement('div');
-        modal.id = 'wifi-scanning-modal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-wifi mr-2 text-purple-500"></i>
-                        Advanced Printer Discovery
-                    </h3>
-                    <button onclick="closeWiFiScanningModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="text-center py-6">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                    <p class="text-gray-600 mb-3">Discovering printers using multiple methods...</p>
-                    <div class="text-xs text-gray-500 space-y-1 mb-3">
-                        <div class="flex items-center justify-between">
-                            <span>• mDNS/Bonjour Discovery</span>
-                            <i class="fas fa-search text-blue-400"></i>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>• ARP Table Analysis</span>
-                            <i class="fas fa-network-wired text-green-400"></i>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>• SNMP Device Detection</span>
-                            <i class="fas fa-server text-orange-400"></i>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>• UPnP/SSDP Discovery</span>
-                            <i class="fas fa-broadcast-tower text-red-400"></i>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-500">Advanced scan takes 10-15 seconds</p>
-                </div>
-                
-                <div class="flex justify-end">
-                    <button onclick="closeWiFiScanningModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-    }
-
-    // Close WiFi scanning modal
-    function closeWiFiScanningModal() {
-        const modal = document.getElementById('wifi-scanning-modal');
-        if (modal) {
-            modal.remove();
-        }
-    }
-
-    // Show enhanced WiFi scanning modal with progress
-    function showEnhancedWiFiScanningModal() {
-        const modal = document.createElement('div');
-        modal.id = 'enhanced-wifi-scanning-modal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-search mr-2 text-blue-500"></i>
-                        Advanced WiFi Printer Discovery
-                    </h3>
-                    <button onclick="closeEnhancedWiFiScanningModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="space-y-4">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700">Scan Progress</span>
-                            <span id="scan-found" class="text-sm text-blue-600">Found: 0 printers</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="scan-progress" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-wifi text-green-500"></i>
-                            <span id="scan-status" class="text-sm text-gray-600">Starting discovery...</span>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="animate-pulse text-blue-500">
-                            <i class="fas fa-search text-2xl"></i>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-2">Using multiple discovery methods to find printers</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-    }
-
-    // Close enhanced WiFi scanning modal
-    function closeEnhancedWiFiScanningModal() {
-        const modal = document.getElementById('enhanced-wifi-scanning-modal');
-        if (modal) {
-            modal.remove();
-        }
-    }
-
-    // Client-side WiFi scanning for hosted environments
-    async function performClientSideWiFiScan() {
-        console.log('Starting client-side WiFi scan for hosted environment...');
-        
-        // Show scanning modal
-        showWiFiScanningModal();
-        
-        const discoveredPrinters = [];
-        
-        try {
-            // For hosted environments, we need to use client-side scanning
-            // This involves scanning common IP ranges from the user's browser
-            
-            console.log('Performing client-side network scan...');
-            
-            // Get the user's local IP range (this is a simplified approach)
-            const localIPRange = await getUserLocalIPRange();
-            console.log('Detected local IP range:', localIPRange);
-            
-            // Scan common thermal printer ports
-            const thermalPorts = [9100, 9101, 9102, 515, 631];
-            
-            // Show progress
-            console.log('Starting client-side network scan...');
-            
-            // Scan the detected IP range
-            for (let i = 1; i <= 254; i++) {
-                const ip = `${localIPRange}.${i}`;
-                
-                // Test each port for this IP
-                for (const port of thermalPorts) {
-                    try {
-                        const isReachable = await testPrinterConnectivity(ip, port);
-                        if (isReachable) {
-                            discoveredPrinters.push({
-                                name: `Thermal Printer at ${ip}:${port}`,
-                                ip: ip,
-                                port: port,
-                                discovery_method: 'Client-side Scan',
-                                model: 'Thermal Printer',
-                                type: 'thermal'
-                            });
-                            console.log(`✅ Found thermal printer: ${ip}:${port}`);
-                        }
-                    } catch (error) {
-                        // Continue scanning
-                    }
-                }
-                
-                // Update progress every 10 IPs
-                if (i % 10 === 0) {
-                    console.log(`Scanned ${i} IPs, found ${discoveredPrinters.length} printers`);
-                }
-            }
-            
-            console.log(`Client-side scan completed. Found ${discoveredPrinters.length} printers`);
-            
-        } catch (error) {
-            console.error('Client-side scanning failed:', error);
-            console.log('Client-side scan failed');
-        }
-        
-        // Close scanning modal
-        closeWiFiScanningModal();
-        
-        if (discoveredPrinters.length > 0) {
-            showDiscoveredPrinters(discoveredPrinters);
-        } else {
-            // Show manual setup if no printers found
-            showNotification('No printers found automatically. Please add printers manually.', 'info');
-            showWiFiPrinterDiscovery();
-        }
-    }
-    
-    // Get user's local IP range (simplified approach)
-    async function getUserLocalIPRange() {
-        try {
-            // Try to get local IP using WebRTC
-            const pc = new RTCPeerConnection({iceServers: []});
-            pc.createDataChannel('');
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            
-            return new Promise((resolve) => {
-                pc.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        const candidate = event.candidate.candidate;
-                        const ipMatch = candidate.match(/(\d+\.\d+\.\d+)\.\d+/);
-                        if (ipMatch) {
-                            pc.close();
-                            resolve(ipMatch[1]);
-                        }
-                    }
-                };
-                
-                // Fallback to common ranges
-                setTimeout(() => {
-                    pc.close();
-                    resolve('192.168.1'); // Default fallback
-                }, 2000);
-            });
-        } catch (error) {
-            console.log('Could not detect local IP range, using fallback');
-            return '192.168.1'; // Default fallback
-        }
-    }
-    
-    // Test printer connectivity from client-side
-    async function testPrinterConnectivity(ip, port) {
-        return new Promise((resolve) => {
-            try {
-                const img = new Image();
-                const timeout = setTimeout(() => {
-                    resolve(false);
-                }, 1000);
-                
-                img.onload = () => {
-                    clearTimeout(timeout);
-                    resolve(true);
-                };
-                
-                img.onerror = () => {
-                    clearTimeout(timeout);
-                    resolve(false);
-                };
-                
-                // Try to connect to the printer port
-                img.src = `http://${ip}:${port}/favicon.ico?t=${Date.now()}`;
-            } catch (error) {
-                console.log(`Error testing ${ip}:${port}:`, error);
-                resolve(false);
-            }
-        });
-    }
-
-    // Enhanced WiFi printer scanning with real-time progress
-    async function performAdvancedWiFiScan() {
-        console.log('Starting advanced WiFi printer scan...');
-        
-        // Show enhanced scanning modal
-        showEnhancedWiFiScanningModal();
-        
-        const discoveredPrinters = [];
-        const scanSteps = [
-            { name: 'mDNS/Bonjour Discovery', method: 'mdns' },
-            { name: 'UPnP/SSDP Discovery', method: 'upnp' },
-            { name: 'SNMP Discovery', method: 'snmp' },
-            { name: 'Network Range Scan', method: 'network' },
-            { name: 'ARP Table Scan', method: 'arp' }
-        ];
-        
-        let currentStep = 0;
-        
-        // Update progress
-        function updateScanProgress(step, status, found = 0) {
-            const progressElement = document.getElementById('scan-progress');
-            const statusElement = document.getElementById('scan-status');
-            const foundElement = document.getElementById('scan-found');
-            
-            if (progressElement) {
-                progressElement.style.width = `${((step + 1) / scanSteps.length) * 100}%`;
-            }
-            
-            if (statusElement) {
-                statusElement.textContent = `${scanSteps[step].name}: ${status}`;
-            }
-            
-            if (foundElement) {
-                foundElement.textContent = `Found: ${found} printers`;
-            }
-        }
-        
-        try {
-            // Call backend scanning API
-            const response = await fetch('/api/scan-wifi-printers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({})
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                discoveredPrinters.push(...data.printers);
-                
-                // Simulate progress updates
-                for (let i = 0; i < scanSteps.length; i++) {
-                    updateScanProgress(i, 'Completed', discoveredPrinters.length);
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-                
-                // Close scanning modal
-                closeEnhancedWiFiScanningModal();
-                
-                if (discoveredPrinters.length > 0) {
-                    showDiscoveredPrinters(discoveredPrinters);
-                } else {
-                    showNotification('No WiFi printers found. Try manual setup.', 'warning');
-                    showWiFiPrinterDiscovery();
-                }
-            } else {
-                throw new Error(data.error || 'Scanning failed');
-            }
-            
-        } catch (error) {
-            console.error('Advanced WiFi scan error:', error);
-            closeEnhancedWiFiScanningModal();
-            showNotification(`Scanning failed: ${error.message}`, 'error');
-            showWiFiPrinterDiscovery();
-        }
-    }
-
-    // Test printer connection
-    async function testPrinterConnection(ip, port) {
-        return new Promise((resolve) => {
-            // Use fetch with proper error handling for HTTPS environments
-            const testUrl = `http://${ip}:${port}/`;
-            
-            // Create a timeout
-            const timeout = setTimeout(() => {
-                resolve(false);
-            }, 2000); // 2 second timeout
-            
-            // Try to fetch from the printer
-            fetch(testUrl, {
-                method: 'GET',
-                mode: 'no-cors', // This allows cross-origin requests
-                cache: 'no-cache'
-            })
-            .then(() => {
-                clearTimeout(timeout);
-                resolve(true);
-            })
-            .catch(() => {
-                // If fetch fails, try with a different approach
-                const img = new Image();
-                img.onload = () => {
-                    clearTimeout(timeout);
-                    resolve(true);
-                };
-                img.onerror = () => {
-                    clearTimeout(timeout);
-                    resolve(false);
-                };
-                
-                // Try to load an image from the printer
-                img.src = `http://${ip}:${port}/favicon.ico?t=${Date.now()}`;
-            });
-        });
-    }
 
     // Enhanced client-side printing for hosted environments with Bluetooth support
     async function performEnhancedClientSidePrint(content) {
@@ -2790,95 +2990,7 @@
         });
     }
 
-    // Show discovered printers
-    function showDiscoveredPrinters(printers) {
-        closeWiFiScanningModal();
-        
-        if (printers.length === 0) {
-            showNotification('No WiFi printers found. Try manual setup.', 'warning');
-            showWiFiPrinterDiscovery();
-            return;
-        }
-        
-        const modal = document.createElement('div');
-        modal.id = 'discovered-printers-modal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-wifi mr-2 text-purple-500"></i>
-                        Discovered WiFi Printers
-                    </h3>
-                    <button onclick="closeDiscoveredPrintersModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 mb-2">Found ${printers.length} printer(s) on your network:</p>
-                    <p class="text-xs text-blue-600 mb-4"><i class="fas fa-info-circle mr-1"></i>Click on any printer below to pair and connect</p>
-                    <div class="space-y-3 max-h-64 overflow-y-auto">
-                        ${printers.map(printer => {
-                            const thermalPorts = [9100, 9101, 9102, 515, 631];
-                            const isThermalPort = thermalPorts.includes(printer.port);
-                            const warningClass = isThermalPort ? '' : 'border-yellow-300 bg-yellow-50';
-                            const statusColor = isThermalPort ? 'bg-green-400' : 'bg-yellow-400';
-                            const statusText = isThermalPort ? 'Ready' : 'Check';
-                            
-                            return `
-                            <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all duration-200 group ${warningClass}" 
-                                 onclick="connectToDiscoveredPrinter('${printer.name}', '${printer.ip}', ${printer.port})"
-                                 title="Click to connect to this printer">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-800 group-hover:text-blue-700">${printer.name}</h4>
-                                        <p class="text-sm text-gray-600">${printer.model || 'Network Printer'}</p>
-                                        <p class="text-xs text-gray-500">${printer.ip}:${printer.port}</p>
-                                        ${printer.discovery_method ? `<p class="text-xs text-purple-500 mt-1">Found via: ${printer.discovery_method}</p>` : ''}
-                                        ${!isThermalPort ? `<p class="text-xs text-yellow-600 mt-1">⚠️ Port ${printer.port} may not be a thermal printer</p>` : ''}
-                                    </div>
-                                    <div class="flex items-center space-x-3">
-                                        <div class="text-center">
-                                            <span class="w-3 h-3 ${statusColor} rounded-full inline-block" title="${isThermalPort ? 'Likely thermal printer' : 'May not be thermal printer'}"></span>
-                                            <p class="text-xs ${isThermalPort ? 'text-green-600' : 'text-yellow-600'} mt-1">${statusText}</p>
-                                        </div>
-                                        <div class="bg-blue-500 group-hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors">
-                                            <i class="fas fa-plug mr-1"></i>
-                                            Connect
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        }).join('')}
-                    </div>
-                </div>
-                
-                <div class="flex space-x-3">
-                    <button onclick="showWiFiPrinterDiscovery()" 
-                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        <i class="fas fa-plus mr-2"></i>
-                        Manual Setup
-                    </button>
-                    <button onclick="closeDiscoveredPrintersModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-    }
 
-    // Close discovered printers modal
-    function closeDiscoveredPrintersModal() {
-        const modal = document.getElementById('discovered-printers-modal');
-        if (modal) {
-            modal.remove();
-        }
-    }
 
     // Connect to discovered printer
     async function connectToDiscoveredPrinter(name, ip, port) {
@@ -2953,7 +3065,8 @@
             showNotification(`✅ WiFi printer "${name}" paired and connected successfully!`, 'success');
             
             // Close modal and update UI
-            closeDiscoveredPrintersModal();
+            const modal = document.getElementById('wifi-printer-modal');
+            if (modal) modal.remove();
             
             // Update UI components
             console.log('Updating UI components...');
@@ -3203,163 +3316,72 @@
 
     // Show WiFi printer discovery interface
     function showWiFiPrinterDiscovery() {
-        const modal = document.createElement('div');
-        modal.id = 'wifi-printer-modal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        modal.innerHTML = `
-            <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-wifi mr-2 text-purple-500"></i>
-                        WiFi Printer Setup
-                    </h3>
-                    <button onclick="closeWiFiPrinterModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="space-y-4">
-                    <!-- Advanced Scanning Section -->
-                    <div class="bg-blue-50 rounded-lg p-6 text-center">
-                        <div class="mb-4">
-                            <i class="fas fa-wifi text-4xl text-blue-500 mb-3"></i>
-                            <h4 class="text-xl font-semibold text-blue-800 mb-2">
-                                WiFi Printer Discovery
-                            </h4>
-                            <p class="text-blue-600 mb-4">Automatically discover and connect to WiFi printers on your network using advanced scanning methods.</p>
-                        </div>
-                        
-                        <button onclick="performAdvancedWiFiScan()" 
-                                class="w-full bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors duration-200 text-lg font-medium">
-                            <i class="fas fa-search mr-2"></i>
-                            Start Advanced Scan
-                        </button>
-                        
-                        <p class="text-xs text-blue-500 mt-3">
-                            Uses mDNS, UPnP, SNMP, Network Range, and ARP discovery methods
-                        </p>
-                    </div>
-                    
-                    <div id="connected-printers-section" class="mt-4 p-3 bg-gray-50 rounded-lg hidden">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="font-medium text-gray-700">Connected Printers:</h4>
-                            <button onclick="cleanupWiFiPrinters()" 
-                                    class="text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded border border-red-300 hover:bg-red-50">
-                                <i class="fas fa-trash mr-1"></i>
-                                Clean Up
-                            </button>
-                        </div>
-                        <div id="connected-printers-list" class="space-y-2">
-                            <!-- Connected printers will be listed here -->
-                        </div>
-                    </div>
-                    
-                    <button onclick="closeWiFiPrinterModal()" 
-                            class="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        Close
-                    </button>
-                </div>
-                
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-700 mb-3">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        <strong>Advanced Discovery Methods:</strong>
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blue-600">
-                        <div class="flex items-center">
-                            <i class="fas fa-wifi mr-2"></i>
-                            <span>mDNS/Bonjour</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-search mr-2"></i>
-                            <span>UPnP/SSDP</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-network-wired mr-2"></i>
-                            <span>SNMP Discovery</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-globe mr-2"></i>
-                            <span>Network Range</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-list mr-2"></i>
-                            <span>ARP Table</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 p-2 bg-green-50 border-l-4 border-green-400">
-                        <p class="text-xs text-green-700">
-                            <strong>💡 Tip:</strong> Make sure your WiFi printer is connected to the same network and powered on for best results.
-                        </p>
-                    </div>
-                    <div id="hostedEnvironmentNotice" class="mt-2 p-3 bg-blue-50 border-l-4 border-blue-400 hidden">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-info-circle text-blue-400"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-blue-800">Hosted Environment Detected</h3>
-                                <div class="mt-1 text-xs text-blue-700">
-                                    <p>• Automatic printer discovery is limited in hosted environments</p>
-                                    <p>• Use manual setup below to add your printer's IP address</p>
-                                    <p>• Make sure your printer is on the same network as your device</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Update connected printers display when modal opens
-        updateConnectedPrintersDisplay();
-        
-        // Check if we're in a hosted environment and show notice
-        const isHosted = window.location.hostname.includes('mmuchafua.co.ke') || 
-                        window.location.hostname.includes('github.io') || 
-                        window.location.hostname.includes('netlify.app') ||
-                        window.location.hostname.includes('vercel.app') ||
-                        window.location.hostname.includes('herokuapp.com') ||
-                        window.location.hostname.includes('railway.app') ||
-                        window.location.hostname.includes('render.com') ||
-                        window.location.hostname.includes('fly.dev') ||
-                        window.location.hostname.includes('aws.amazon.com') ||
-                        window.location.hostname.includes('azure.com') ||
-                        window.location.hostname.includes('digitalocean.com') ||
-                        (window.location.hostname !== 'localhost' && 
-                         window.location.hostname !== '127.0.0.1' &&
-                         !window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/));
-        
-        if (isHosted) {
-            const hostedNotice = modal.querySelector('#hostedEnvironmentNotice');
-            if (hostedNotice) {
-                hostedNotice.classList.remove('hidden');
-            }
-        }
+        // Simply start scanning - the modal will handle everything
+        scanForWiFiPrinters();
     }
-
-    // Close WiFi printer modal
+    
     function closeWiFiPrinterModal() {
         const modal = document.getElementById('wifi-printer-modal');
         if (modal) {
             modal.remove();
         }
     }
+    
+    // Add manual printer entry
+    async function addManualPrinter() {
+        const ipInput = document.getElementById('manual-printer-ip');
+        const portInput = document.getElementById('manual-printer-port');
+        
+        if (!ipInput || !portInput) {
+            showNotification('Manual entry form not found. Please try again.', 'error');
+            return;
+        }
+        
+        const ip = ipInput.value.trim();
+        const port = parseInt(portInput.value) || 9100;
+        
+        if (!ip) {
+            showNotification('Please enter a printer IP address', 'error');
+            return;
+        }
+        
+        // Validate IP format
+        const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+        if (!ipPattern.test(ip)) {
+            showNotification('Please enter a valid IP address (e.g., 192.168.1.100)', 'error');
+            return;
+        }
+        
+        // Test connection first
+        showNotification(`Testing connection to ${ip}:${port}...`, 'info');
+        const isReachable = await testPrinterConnection(ip, port);
+        
+        if (isReachable) {
+            // Connect to the printer
+            const printerName = `Printer ${ip}:${port}`;
+            await connectToDiscoveredPrinter(printerName, ip, port);
+            const modal = document.getElementById('wifi-printer-modal');
+            if (modal) modal.remove();
+        } else {
+            // Still allow connection even if test fails (printer might be reachable for printing but not for testing)
+            if (confirm(`Could not test connection to ${ip}:${port}. Do you want to add it anyway?`)) {
+                const printerName = `Printer ${ip}:${port}`;
+                await connectToDiscoveredPrinter(printerName, ip, port);
+                const modal = document.getElementById('wifi-printer-modal');
+                if (modal) modal.remove();
+            }
+        }
+    }
 
     // Test WiFi printer from modal
     async function testWiFiPrinterFromModal() {
-        // This function is now deprecated - use advanced scanning instead
-        showNotification('Please use the "Start Advanced Scan" button to discover and connect to printers', 'info');
-        performAdvancedWiFiScan();
+        showNotification('Scanning for printers...', 'info');
+        scanForWiFiPrinters();
     }
 
     // Connect to WiFi printer (manual setup)
     async function connectToWiFiPrinter() {
-        // This function is now deprecated - use advanced scanning instead
-        showNotification('Please use the "Start Advanced Scan" button to discover and connect to printers', 'info');
-        performAdvancedWiFiScan();
+        scanForWiFiPrinters();
     }
 
     // Disconnect WiFi printer
@@ -3807,12 +3829,24 @@
                 console.log('Unified Printer Performance Metrics:', metrics);
             }
 
+            // Fetch double printing setting from database
+            let doublePrint = false;
+            try {
+                const response = await fetch('/api/pos/receipt-settings');
+                const data = await response.json();
+                if (data.success && data.settings && data.settings.double_print !== undefined) {
+                    doublePrint = data.settings.double_print;
+                }
+            } catch (error) {
+                console.error('Error fetching double print setting:', error);
+                // Fallback to cached settings
+                if (window.receiptSettings && window.receiptSettings.double_print !== undefined) {
+                    doublePrint = window.receiptSettings.double_print;
+                }
+            }
+            
             // Generate receipt content (receipt number will be passed from saveSaleToDatabase)
             const receiptContent = await generateReceiptContent();
-            
-            // Check double printing setting
-            const settings = JSON.parse(localStorage.getItem('pos-settings') || '{}');
-            const doublePrint = settings.printer?.doublePrint || false;
             
             let results;
             if (doublePrint) {
@@ -3876,9 +3910,21 @@
                 return;
             }
             
-            // Check double printing setting
-            const settings = JSON.parse(localStorage.getItem('pos-settings') || '{}');
-            const doublePrint = settings.printer?.doublePrint || false;
+            // Fetch double printing setting from database
+            let doublePrint = false;
+            try {
+                const response = await fetch('/api/pos/receipt-settings');
+                const data = await response.json();
+                if (data.success && data.settings && data.settings.double_print !== undefined) {
+                    doublePrint = data.settings.double_print;
+                }
+            } catch (error) {
+                console.error('Error fetching double print setting:', error);
+                // Fallback to cached settings
+                if (window.receiptSettings && window.receiptSettings.double_print !== undefined) {
+                    doublePrint = window.receiptSettings.double_print;
+                }
+            }
             
             let results;
             if (doublePrint) {
@@ -3960,12 +4006,18 @@
     
     function getBrowserName() {
         const userAgent = navigator.userAgent;
-        if (userAgent.includes('Opera Mini')) return 'Opera Mini';
-        if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
-        if (userAgent.includes('Edg')) return 'Edge';
-        if (userAgent.includes('Firefox')) return 'Firefox';
-        if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
-        if (userAgent.includes('Opera')) return 'Opera';
+        // Check for Opera Mini first (most specific)
+        if (userAgent.includes('Opera Mini') || userAgent.includes('OPiOS')) return 'Opera Mini';
+        // Check for Edge (Chromium-based) - must check before Chrome
+        if (userAgent.includes('Edg/') || userAgent.includes('EdgA/') || userAgent.includes('EdgiOS/')) return 'Edge';
+        // Check for Opera (must check before Chrome as Opera uses Chrome user agent)
+        if (userAgent.includes('OPR/') || userAgent.includes('Opera/')) return 'Opera';
+        // Check for Chrome (but not Edge or Opera)
+        if (userAgent.includes('Chrome/') && !userAgent.includes('Edg') && !userAgent.includes('OPR')) return 'Chrome';
+        // Check for Firefox
+        if (userAgent.includes('Firefox/')) return 'Firefox';
+        // Check for Safari (but not Chrome-based browsers)
+        if (userAgent.includes('Safari/') && !userAgent.includes('Chrome')) return 'Safari';
         return 'Unknown Browser';
     }
     
@@ -3973,7 +4025,8 @@
 
 
     // Universal Bluetooth scanning function - works on all compatible devices
-    async function scanForBluetoothPrinters() {
+    // Enhanced with auto-scan, auto-pair, and auto-connect to previously connected devices
+    async function scanForBluetoothPrinters(showPicker = false) {
         try {
             // Check if Web Bluetooth is supported
             if (!navigator.bluetooth || typeof navigator.bluetooth.requestDevice !== 'function') {
@@ -3981,58 +4034,192 @@
                 return false;
             }
 
-            // Show Bluetooth scanning interface
-            showBluetoothScanInterface();
-            updateScanningStatus('Starting scan...', true);
-            
+            // Check browser compatibility
+            const browserInfo = detectBluetoothBrowser();
+            if (!browserInfo.supportsBluetooth) {
+                showNotification(`Web Bluetooth is not fully supported in ${browserInfo.name}. Please use Chrome, Edge, or Opera for best results.`, 'error');
+                return false;
+            }
+
             // Use enhanced manager if available
             const manager = window.enhancedBluetoothPrinterManager || window.bluetoothPrinterManager;
             
             if (!manager) {
                 showNotification('Bluetooth manager not available. Please refresh the page.', 'error');
-                updateScanningStatus('Error: Manager not available', false);
                 return false;
             }
 
-            // Universal device request
-            const device = await navigator.bluetooth.requestDevice({
+            // First, try to auto-connect to previously paired devices (if getDevices is supported)
+            // getDevices() is available in Chrome 80+, Edge 80+, Opera 67+
+            // For older versions, we'll skip auto-connect and go straight to device picker
+            if (!showPicker && typeof navigator.bluetooth.getDevices === 'function') {
+                try {
+                    // Show scanning interface only if we're going to show status
+                    const statusElement = document.getElementById('bluetooth-devices-list');
+                    if (statusElement) {
+                        showBluetoothScanInterface();
+                        updateScanningStatus('Checking for previously connected printers...', true);
+                    }
+                    
+                    // Get previously paired devices - works in Chrome 80+, Edge 80+, Opera 67+
+                    const pairedDevices = await navigator.bluetooth.getDevices();
+                    
+                    if (pairedDevices.length > 0) {
+                        console.log(`Found ${pairedDevices.length} previously paired device(s)`);
+                        
+                        // Filter out devices that have recently failed
+                        const now = Date.now();
+                        const availableDevices = pairedDevices.filter(device => {
+                            const cached = failedDeviceCache.get(device.id);
+                            if (cached) {
+                                const timeSinceFailure = now - cached.lastAttempt;
+                                if (timeSinceFailure < FAILED_DEVICE_CACHE_TIME) {
+                                    if (cached.errorType === 'out_of_range') {
+                                        return false; // Skip devices that are out of range
+                                    }
+                                    if (cached.failureCount >= MAX_FAILURE_COUNT) {
+                                        return false; // Too many failures
+                                    }
+                                }
+                            }
+                            return true;
+                        });
+
+                        // Try to reconnect to each available paired device (connect to all available, up to 5)
+                        const maxAttempts = Math.min(availableDevices.length, 5);
+                        let connectionCount = 0;
+                        for (let i = 0; i < maxAttempts; i++) {
+                            const device = availableDevices[i];
+                            try {
+                                updateScanningStatus(`Connecting to ${device.name || 'Unknown Device'}... (${i + 1}/${maxAttempts})`, true);
+                                
+                                let server;
+                                if (device.gatt.connected) {
+                                    // Already connected, use existing connection
+                                    server = device.gatt;
+                                    console.log(`Device ${device.name} already connected`);
+                                } else {
+                                    // Connect to GATT server with timeout (works across Chrome, Edge, Opera)
+                                    const connectPromise = device.gatt.connect();
+                                    const timeoutPromise = new Promise((_, reject) => 
+                                        setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+                                    );
+                                    server = await Promise.race([connectPromise, timeoutPromise]);
+                                    console.log(`Successfully connected to ${device.name}`);
+                                }
+                                
+                                // Add printer to manager
+                                const printerId = await manager.addPrinter(device, server);
+                                
+                                // Clear failed cache for this device
+                                failedDeviceCache.delete(device.id);
+                                
+                                // Show success notification
+                                connectionCount++;
+                                showNotification(`Auto-connected to "${device.name || 'Unknown Device'}"! (${connectionCount}/${maxAttempts})`, 'success');
+                                
+                                // Continue to next device to allow multiple printer connections
+                                continue;
+                            } catch (error) {
+                                const deviceName = device.name || device.id;
+                                const errorMessage = error.message || error.toString();
+                                const isOutOfRange = errorMessage.includes('no longer in range') || 
+                                                   errorMessage.includes('not in range') ||
+                                                   errorMessage.includes('out of range') ||
+                                                   errorMessage.includes('unreachable') ||
+                                                   error.name === 'NetworkError';
+                                
+                                // Update failed device cache
+                                const cached = failedDeviceCache.get(device.id) || { failureCount: 0 };
+                                cached.lastAttempt = Date.now();
+                                cached.failureCount = (cached.failureCount || 0) + 1;
+                                cached.errorType = isOutOfRange ? 'out_of_range' : 'other';
+                                failedDeviceCache.set(device.id, cached);
+                                
+                                if (isOutOfRange) {
+                                    console.log(`Skipping ${deviceName}: device is out of range`);
+                                } else {
+                                    console.log(`Failed to auto-connect to ${deviceName}:`, errorMessage);
+                                }
+                                // Continue to next device
+                                continue;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('Error checking for paired devices:', error);
+                    // Continue to manual scan if auto-connect fails
+                }
+            }
+
+            // If auto-connect didn't work or showPicker is true, show the device picker
+            showBluetoothScanInterface();
+            updateScanningStatus('Scanning for Bluetooth devices...', true);
+            
+            // Universal device request with comprehensive service list
+            // Compatible with Chrome 56+, Edge 79+, Opera 43+
+            // Use acceptAllDevices for maximum compatibility across all browser versions
+            const deviceRequestOptions = {
                 acceptAllDevices: true,
                 optionalServices: [
                     '000018f0-0000-1000-8000-00805f9b34fb', // BLE thermal printer
                     '00001800-0000-1000-8000-00805f9b34fb', // Generic Access
                     '00001801-0000-1000-8000-00805f9b34fb', // Generic Attribute
-                    '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile
-                    '0000ffe0-0000-1000-8000-00805f9b34fb', // Custom service
-                    '0000ffe1-0000-1000-8000-00805f9b34fb'  // Custom characteristic
+                    '00001101-0000-1000-8000-00805f9b34fb', // Serial Port Profile (SPP)
+                    '0000ffe0-0000-1000-8000-00805f9b34fb', // Custom service (common in thermal printers)
+                    '0000ffe1-0000-1000-8000-00805f9b34fb', // Custom characteristic (common in thermal printers)
+                    '0000ff00-0000-1000-8000-00805f9b34fb', // Generic printer service
+                    '0000ff01-0000-1000-8000-00805f9b34fb'  // Generic printer characteristic
                 ]
-            });
+            };
+            
+            // Request device - works across Chrome, Edge, and Opera
+            const device = await navigator.bluetooth.requestDevice(deviceRequestOptions);
 
             // Check if device was selected (not cancelled)
             if (device) {
                 updateScanningStatus('Connecting to device...', true);
                 
-                // Connect to the device
-                const server = await device.gatt.connect();
-                
-                // Add printer to manager
-                const printerId = await manager.addPrinter(device, server);
-                
-                // Show success and close modal
-                showNotification(`Printer "${device.name || 'Unknown Device'}" connected successfully!`, 'success');
-                updateScanningStatus('Connected successfully!', false);
-                
-                // Update UI
-                updatePrinterSetupNotice();
-                updatePrinterControlButtons();
-                updateEmployeeValidationUI();
-                
-                // Close modal after successful connection
-                setTimeout(() => {
-                    hidePrinterSetupModal();
-                    hideBluetoothScanInterface();
-                }, 2000);
-                
-                return true;
+                try {
+                    // Connect to the device with timeout for better error handling
+                    // Works across Chrome, Edge, and Opera
+                    const connectPromise = device.gatt.connect();
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+                    );
+                    const server = await Promise.race([connectPromise, timeoutPromise]);
+                    
+                    // Add printer to manager
+                    const printerId = await manager.addPrinter(device, server);
+                    
+                    // Show success notification with connection count
+                    const connectedCount = manager.getConnectedPrinters().length;
+                    showNotification(`Printer "${device.name || 'Unknown Device'}" connected successfully! (${connectedCount} printer(s) connected)`, 'success');
+                    updateScanningStatus(`Connected successfully! (${connectedCount} printer(s) connected) - You can connect more printers`, false);
+                    
+                    // Update UI
+                    updatePrinterSetupNotice();
+                    updatePrinterControlButtons();
+                    updateEmployeeValidationUI();
+                    
+                    // Don't close modal immediately - allow user to connect more printers
+                    // Keep modal open so user can connect additional printers
+                    // Modal will close when user clicks cancel or after 5 seconds of inactivity
+                    setTimeout(() => {
+                        updateScanningStatus('Ready to connect more printers... Click "Scan for Bluetooth Printers" again or close this window', false);
+                    }, 2000);
+                    
+                    return true;
+                } catch (connectError) {
+                    console.error('Error connecting to device:', connectError);
+                    if (connectError.message && connectError.message.includes('timeout')) {
+                        showNotification('Connection timeout. Make sure your printer is nearby and in pairing mode.', 'error');
+                    } else {
+                        showNotification(`Failed to connect: ${connectError.message || 'Unknown error'}`, 'error');
+                    }
+                    updateScanningStatus('Connection failed', false);
+                    return false;
+                }
             } else {
                 // User cancelled the selection
                 console.log('User cancelled Bluetooth device selection');
@@ -4071,6 +4258,50 @@
             
             return false;
         }
+    }
+
+    // Enhanced browser detection for Bluetooth compatibility
+    // Works with all versions of Chrome, Edge, and Opera
+    function detectBluetoothBrowser() {
+        const userAgent = navigator.userAgent;
+        
+        // More accurate browser detection - check in order of specificity
+        // Edge (Chromium-based) - check first as it contains "Chrome" in user agent
+        const isEdge = /Edg\/|EdgA\/|EdgiOS\//.test(userAgent);
+        // Opera - check before Chrome as it also contains "Chrome" in user agent
+        const isOpera = /OPR\/|Opera\//.test(userAgent);
+        const isOperaMini = /Opera Mini|OPiOS/.test(userAgent);
+        // Chrome - must exclude Edge and Opera
+        const isChrome = /Chrome\//.test(userAgent) && !isEdge && !isOpera && !isOperaMini;
+        const isFirefox = /Firefox\//.test(userAgent);
+        const isSafari = /Safari\//.test(userAgent) && !/Chrome/.test(userAgent);
+        
+        // Check for Web Bluetooth support (available in Chrome 56+, Edge 79+, Opera 43+)
+        const supportsBluetooth = !!(navigator.bluetooth && typeof navigator.bluetooth.requestDevice === 'function');
+        // getDevices() is available in Chrome 80+, Edge 80+, Opera 67+
+        const supportsGetDevices = !!(navigator.bluetooth && typeof navigator.bluetooth.getDevices === 'function');
+        
+        let browserName = 'Unknown';
+        if (isChrome) browserName = 'Chrome';
+        else if (isEdge) browserName = 'Edge';
+        else if (isOpera) browserName = 'Opera';
+        else if (isOperaMini) browserName = 'Opera Mini';
+        else if (isFirefox) browserName = 'Firefox';
+        else if (isSafari) browserName = 'Safari';
+        
+        return {
+            name: browserName,
+            isChrome,
+            isEdge,
+            isOpera,
+            isOperaMini,
+            isFirefox,
+            isSafari,
+            supportsBluetooth,
+            supportsGetDevices,
+            // Compatible if Web Bluetooth is supported and browser is Chrome, Edge, or Opera
+            isCompatible: supportsBluetooth && (isChrome || isEdge || isOpera || isOperaMini)
+        };
     }
 
     async function printViaWebBluetooth(printerId, content) {
@@ -4502,22 +4733,24 @@
                 // Generate mobile cart HTML directly from currentOrder instead of cloning desktop cart
                 console.log('Generating mobile cart HTML for', currentOrder.length, 'items');
                 const mobileOrderItemsHTML = currentOrder.map(item => `
-                    <div class="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg" data-item-id="${item.id}">
-                        <div class="flex-1 min-w-0 mr-2">
-                            <h4 class="font-medium text-gray-800 text-xs sm:text-sm lg:text-base truncate">${item.name}</h4>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200" data-item-id="${item.id}">
+                        <div class="flex-1 min-w-0 w-full sm:w-auto">
+                            <h4 class="font-medium text-gray-800 text-sm sm:text-base lg:text-lg truncate mb-1">${item.name}</h4>
                             <p class="text-xs sm:text-sm text-gray-600">KSh ${item.price.toFixed(2)} each</p>
                         </div>
-                        <div class="flex items-center space-x-1 sm:space-x-2">
-                            <button class="remove-item w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors duration-200 touch-target" data-item-id="${item.id}">
-                                <i class="fas fa-minus text-xs sm:text-sm"></i>
-                            </button>
-                            <span class="w-6 sm:w-7 lg:w-8 text-center font-medium text-xs sm:text-sm lg:text-base">${item.quantity}</span>
-                            <button class="add-item w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-primary-orange text-white rounded-full flex items-center justify-center hover:bg-secondary-orange transition-colors duration-200 touch-target" data-item-id="${item.id}">
-                                <i class="fas fa-plus text-xs sm:text-sm"></i>
-                            </button>
-                        </div>
-                        <div class="ml-1 sm:ml-2 lg:ml-4">
-                            <span class="font-semibold text-gray-800 text-xs sm:text-sm lg:text-base">KSh ${(item.price * item.quantity).toFixed(2)}</span>
+                        <div class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3 sm:gap-2">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <button class="remove-item w-8 h-8 sm:w-9 sm:h-9 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 active:scale-95 transition-all duration-200 touch-target" data-item-id="${item.id}" aria-label="Decrease quantity">
+                                    <i class="fas fa-minus text-xs sm:text-sm"></i>
+                                </button>
+                                <span class="w-8 sm:w-10 text-center font-semibold text-sm sm:text-base lg:text-lg text-gray-800">${item.quantity}</span>
+                                <button class="add-item w-8 h-8 sm:w-9 sm:h-9 bg-primary-orange text-white rounded-full flex items-center justify-center hover:bg-secondary-orange active:scale-95 transition-all duration-200 touch-target" data-item-id="${item.id}" aria-label="Increase quantity">
+                                    <i class="fas fa-plus text-xs sm:text-sm"></i>
+                                </button>
+                            </div>
+                            <div class="ml-auto sm:ml-2 lg:ml-4">
+                                <span class="font-bold text-gray-800 text-sm sm:text-base lg:text-lg">KSh ${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
                 `).join('');
@@ -4549,6 +4782,11 @@
                         mobileTaxLine.classList.remove('hidden');
                     }
                 }
+            }
+            
+            // Update cart badge after syncing
+            if (window.updateMobileCartBadge) {
+                window.updateMobileCartBadge();
             }
         };
         
@@ -5315,7 +5553,45 @@
         }
     }
 
-    // Update receipt generation to include tally and employee with ESC/POS commands
+    // Function to get the base URL (automatically adapts to hosted domain)
+    function getBaseUrl() {
+        // Use window.location.origin which automatically gives:
+        // - Localhost: http://127.0.0.1:5000 or http://localhost:5000
+        // - Production: https://yourdomain.com or http://yourdomain.com
+        // This ensures the QR code works on any domain where the app is hosted
+        return window.location.origin;
+    }
+
+    // Function to generate ESC/POS QR code commands
+    function generateQRCodeESC_POS(data) {
+        // ESC/POS QR code commands for thermal printers
+        // Model: 2, Error Correction: L (48), Size: 6
+        
+        // Step 1: Set QR code model (Model 2)
+        let qrCommand = '\x1D\x28\x6B\x04\x00\x31\x41\x32\x00';
+        
+        // Step 2: Set QR code size (1-16, we use 6 for good visibility)
+        qrCommand += '\x1D\x28\x6B\x03\x00\x31\x43\x06';
+        
+        // Step 3: Set error correction level (L=48, M=49, Q=50, H=51)
+        // L level (7% recovery) is fastest and sufficient for URLs
+        qrCommand += '\x1D\x28\x6B\x03\x00\x31\x45\x30';
+        
+        // Step 4: Store QR code data
+        // pL pH fn a m nL nH d1...dk
+        const dataLength = data.length + 3;
+        const pL = dataLength & 0xFF;
+        const pH = (dataLength >> 8) & 0xFF;
+        qrCommand += '\x1D\x28\x6B' + String.fromCharCode(pL) + String.fromCharCode(pH) + '\x31\x50\x30';
+        qrCommand += data;
+        
+        // Step 5: Print the QR code
+        qrCommand += '\x1D\x28\x6B\x03\x00\x31\x51\x30';
+        
+        return qrCommand;
+    }
+
+    // Update receipt generation to use dynamic receipt settings with ESC/POS commands
     async function generateReceiptContent(receiptNumber, copyType = null) {
         if (!currentEmployee) {
             showNotification('Please validate employee code first', 'error');
@@ -5327,8 +5603,103 @@
             return null;
         }
 
+        // Always fetch fresh settings from database FIRST (critical for production)
+        let hotelSettings = {};
+        let receiptSettings = {};
+        
+        try {
+            // Use Promise.allSettled for better error handling in production
+            const [hotelResponse, receiptResponse] = await Promise.allSettled([
+                fetch('/api/pos/hotel-settings').catch(err => {
+                    console.error('Error fetching hotel settings:', err);
+                    return { ok: false, json: () => Promise.resolve({ success: false }) };
+                }),
+                fetch('/api/pos/receipt-settings').catch(err => {
+                    console.error('Error fetching receipt settings:', err);
+                    return { ok: false, json: () => Promise.resolve({ success: false }) };
+                })
+            ]);
+            
+            // Process hotel settings
+            if (hotelResponse.status === 'fulfilled' && hotelResponse.value.ok) {
+                const hotelData = await hotelResponse.value.json();
+                if (hotelData.success) {
+                    hotelSettings = hotelData;
+                }
+            }
+            
+            // Process receipt settings
+            if (receiptResponse.status === 'fulfilled' && receiptResponse.value.ok) {
+                const receiptData = await receiptResponse.value.json();
+                if (receiptData.success && receiptData.settings) {
+                    receiptSettings = receiptData.settings;
+                    // Update cached settings for future use
+                    window.receiptSettings = receiptSettings;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching settings for receipt:', error);
+        }
+        
+        // Fallback to cached settings only if fetch fails or returns empty
+        if (!receiptSettings || Object.keys(receiptSettings).length === 0) {
+            if (window.receiptSettings && Object.keys(window.receiptSettings).length > 0) {
+                receiptSettings = window.receiptSettings;
+                console.log('Using cached receipt settings');
+            } else {
+                // Default settings if database fetch fails
+                receiptSettings = {
+                    receipt_width: '58mm',
+                    receipt_font_size: 'medium',
+                    receipt_bold_headers: true,
+                    receipt_number_format: 'sequential',
+                    receipt_number_prefix: 'POS',
+                    receipt_starting_number: 1001,
+                    receipt_header_title: '',
+                    receipt_header_subtitle: '',
+                    receipt_header_message: '',
+                    receipt_show_logo: false,
+                    receipt_show_address: true,
+                    receipt_show_contact: true,
+                    receipt_footer_message: '',
+                    receipt_show_datetime: true,
+                    receipt_show_cashier: true,
+                    receipt_show_payment: true,
+                    receipt_qr_text: '',
+                    receipt_show_qr: false,
+                    // Printing settings defaults
+                    include_tax: true,
+                    show_till: true,
+                    double_print: false,
+                    show_images: true
+                };
+                console.warn('Using default receipt settings - database fetch failed');
+            }
+        }
+        
+        // Fallback to cached hotel settings if fetch fails
+        if (!hotelSettings || Object.keys(hotelSettings).length === 0) {
+            if (window.hotelSettings && Object.keys(window.hotelSettings).length > 0) {
+                hotelSettings = window.hotelSettings;
+                console.log('Using cached hotel settings');
+            } else {
+                hotelSettings = {
+                    hotel_name: hotelName || 'Hotel POS',
+                    company_email: '',
+                    company_phone: '',
+                    hotel_address: '',
+                    payment_method: 'buy_goods',
+                    till_number: '',
+                    business_number: '',
+                    account_number: ''
+                };
+                console.warn('Using default hotel settings - database fetch failed');
+            }
+        }
+        
+        // Calculate totals using settings from database
         const subtotal = currentOrder.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const includeTax = getTaxSetting();
+        const includeTax = receiptSettings.include_tax !== undefined ? receiptSettings.include_tax : true;
         const tax = includeTax ? subtotal * 0.08 : 0;
         const total = subtotal + tax;
         
@@ -5342,25 +5713,65 @@
         // Initialize printer
         receipt += '\x1B\x40'; // ESC @ - Initialize printer
         
-        // Fetch hotel name from database
-        let displayHotelName = hotelName; // Default fallback
-        try {
-            const response = await fetch('/api/pos/hotel-settings');
-            const data = await response.json();
-            if (data.success && data.hotel_name) {
-                displayHotelName = data.hotel_name;
-            }
-        } catch (error) {
-            console.error('Error fetching hotel name for receipt:', error);
-            // Use default hotelName if fetch fails
+        // Get display name (use receipt header title if set, otherwise hotel name)
+        let displayHotelName = receiptSettings.receipt_header_title || hotelSettings.hotel_name || hotelName;
+        
+        // Header section with receipt settings
+        receipt += '\x1B\x61\x01'; // ESC a 1 - Center alignment
+        
+        // Apply font size based on settings
+        if (receiptSettings.receipt_font_size === 'large') {
+            receipt += '\x1B\x21\x30'; // ESC ! 0x30 - Double height and width
+        } else if (receiptSettings.receipt_font_size === 'small') {
+            receipt += '\x1B\x21\x08'; // ESC ! 0x08 - Small font
+        } else {
+            receipt += '\x1B\x21\x00'; // ESC ! 0x00 - Normal text
         }
         
-        // Center alignment and double height for header
-        receipt += '\x1B\x61\x01'; // ESC a 1 - Center alignment
-        receipt += '\x1B\x21\x30'; // ESC ! 0x30 - Double height and width
+        // Apply bold headers if enabled
+        if (receiptSettings.receipt_bold_headers) {
+            receipt += '\x1B\x45\x01'; // ESC E 1 - Bold on
+        }
+        
         receipt += displayHotelName + '\n';
+        
+        // Reset formatting
         receipt += '\x1B\x21\x00'; // ESC ! 0x00 - Normal text
-        receipt += 'Restaurant\n';
+        receipt += '\x1B\x45\x00'; // ESC E 0 - Bold off
+        
+        // Add subtitle if set
+        if (receiptSettings.receipt_header_subtitle) {
+            receipt += receiptSettings.receipt_header_subtitle + '\n';
+        }
+        
+        // Add address if enabled
+        if (receiptSettings.receipt_show_address) {
+            // Use receipt-specific address if set, otherwise fall back to hotel address
+            const address = receiptSettings.receipt_address || hotelSettings.hotel_address;
+            if (address) {
+                receipt += address + '\n';
+            }
+        }
+        
+        // Add contact info if enabled
+        if (receiptSettings.receipt_show_contact) {
+            // Use receipt-specific phone if set, otherwise fall back to hotel phone
+            const phone = receiptSettings.receipt_phone || hotelSettings.company_phone;
+            if (phone) {
+                receipt += `Phone: ${phone}\n`;
+            }
+            // Use receipt-specific email if set, otherwise fall back to hotel email
+            const email = receiptSettings.receipt_email || hotelSettings.company_email;
+            if (email) {
+                receipt += `Email: ${email}\n`;
+            }
+        }
+        
+        // Add header message if set
+        if (receiptSettings.receipt_header_message) {
+            receipt += receiptSettings.receipt_header_message + '\n';
+        }
+        
         receipt += '\x1B\x61\x00'; // ESC a 0 - Left alignment
         
         // Separator line
@@ -5376,11 +5787,29 @@
             receipt += '--------------------------------\n';
         }
         
-        // Order details
-        receipt += `Date: ${dateStr}\n`;
-        receipt += `Time: ${timeStr}\n`;
-        receipt += `Receipt #: ${receiptNumber.toString().padStart(4, '0')}\n`;
-        receipt += `Served by: ${currentEmployee.name}\n`;
+        // Order details with receipt settings
+        // Format receipt number based on settings
+        let formattedReceiptNumber = receiptNumber.toString();
+        if (receiptSettings.receipt_number_format === 'sequential') {
+            formattedReceiptNumber = `${receiptSettings.receipt_number_prefix || 'POS'}${receiptNumber.toString().padStart(4, '0')}`;
+        } else if (receiptSettings.receipt_number_format === 'date_time') {
+            const now = new Date();
+            formattedReceiptNumber = `${receiptSettings.receipt_number_prefix || 'POS'}${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
+        }
+        
+        receipt += `Receipt #: ${formattedReceiptNumber}\n`;
+        
+        // Add date/time if enabled
+        if (receiptSettings.receipt_show_datetime) {
+            receipt += `Date: ${dateStr}\n`;
+            receipt += `Time: ${timeStr}\n`;
+        }
+        
+        // Add cashier if enabled
+        if (receiptSettings.receipt_show_cashier) {
+            receipt += `Served by: ${currentEmployee.name}\n`;
+        }
+        
         receipt += '--------------------------------\n';
         
         // Items
@@ -5401,46 +5830,58 @@
         receipt += '--------------------------------\n';
         receipt += `TOTAL:        KSh ${total.toFixed(2)}\n`;
         
-        // Payment Methods Section
-        receipt += '\n';
-        receipt += 'PAYMENT METHODS:\n';
-        receipt += '--------------------------------\n';
-        
-        // M-Pesa payment information (only if Show Till setting is enabled)
-        if (getTillSetting()) {
-            try {
-                const response = await fetch('/api/pos/hotel-settings');
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Add M-Pesa payment method if configured
-                    if (data.payment_method === 'buy_goods' && data.till_number) {
-                        receipt += `M-Pesa Buy Goods:\n`;
-                        receipt += `Till Number: ${data.till_number}\n`;
-                        receipt += '\n';
-                    } else if (data.payment_method === 'paybill' && data.business_number) {
-                        receipt += `M-Pesa Paybill:\n`;
-                        receipt += `Business No: ${data.business_number}\n`;
-                        if (data.account_number) {
-                            receipt += `Account: ${data.account_number}\n`;
-                        }
-                        receipt += '\n';
+        // Payment Methods Section (only if Show Till setting is enabled) - use database setting
+        const showTill = receiptSettings.show_till !== undefined ? receiptSettings.show_till : true;
+        if (showTill) {
+            receipt += '\n';
+            receipt += 'PAYMENT METHODS:\n';
+            receipt += '--------------------------------\n';
+            
+            // M-Pesa payment information
+            // Add M-Pesa payment method if configured
+            if (hotelSettings.payment_method === 'buy_goods' && hotelSettings.till_number) {
+                    receipt += `M-Pesa Buy Goods:\n`;
+                    receipt += `Till Number: ${hotelSettings.till_number}\n`;
+                    receipt += '\n';
+                } else if (hotelSettings.payment_method === 'paybill' && hotelSettings.business_number) {
+                    receipt += `M-Pesa Paybill:\n`;
+                    receipt += `Business No: ${hotelSettings.business_number}\n`;
+                    if (hotelSettings.account_number) {
+                        receipt += `Account: ${hotelSettings.account_number}\n`;
                     }
+                    receipt += '\n';
                 }
-            } catch (error) {
-                console.error('Error fetching payment methods for receipt:', error);
-            }
+            
+            // Always add cash payment
+            receipt += 'Cash Payment: Available\n';
+            receipt += '\n';
         }
         
-        // Always add cash payment
-        receipt += 'Cash Payment: Available\n';
-        receipt += '\n';
-        
-        
-        // Footer
+        // Footer with receipt settings
         receipt += '\x1B\x61\x01'; // Center alignment
-        receipt += 'Thank you for your business!\n';
-        receipt += 'Visit us again soon!\n';
+        
+        // Use custom footer message if set, otherwise default
+        if (receiptSettings.receipt_footer_message) {
+            receipt += receiptSettings.receipt_footer_message + '\n';
+        } else {
+            receipt += 'Thank you for your business!\n';
+            receipt += 'Visit us again soon!\n';
+        }
+        
+        // Add QR code if enabled
+        if (receiptSettings.receipt_show_qr) {
+            receipt += '\n';
+            // Generate QR code URL for this specific receipt
+            const baseUrl = window.location.origin;
+            const qrUrl = `${baseUrl}/receipt/${receiptNumber}`;
+            
+            // Generate and add ESC/POS QR code commands
+            receipt += '\x1B\x61\x01'; // Center alignment for QR code
+            receipt += generateQRCodeESC_POS(qrUrl);
+            receipt += '\n\n'; // Add some space after QR code
+            receipt += '\x1B\x61\x00'; // Reset to left alignment
+        }
+        
         receipt += '\x1B\x61\x00'; // Left alignment
         
         // Cut paper
@@ -5861,11 +6302,33 @@
         receiptContent += '--------------------------------\n';
         receiptContent += `TOTAL:        KSh ${totalAmount.toFixed(2)}\n`;
         
-        // Footer
+        // Footer with receipt settings
         receiptContent += '\n';
         receiptContent += '\x1B\x61\x01'; // Center alignment
-        receiptContent += 'Thank you for your business!\n';
-        receiptContent += 'Visit us again soon!\n';
+        
+        // Use custom footer message if set, otherwise default
+        if (window.receiptSettings && window.receiptSettings.receipt_footer_message) {
+            receiptContent += window.receiptSettings.receipt_footer_message + '\n';
+        } else {
+            receiptContent += 'Thank you for your business!\n';
+            receiptContent += 'Visit us again soon!\n';
+        }
+        
+        // Add QR code if enabled
+        if (window.receiptSettings && window.receiptSettings.receipt_show_qr) {
+            receiptContent += '\n';
+            // Generate QR code URL for this specific receipt
+            // getBaseUrl() automatically uses the current domain (localhost or hosted)
+            const baseUrl = getBaseUrl();
+            const qrUrl = `${baseUrl}/receipt/${receipt.id}`;
+            
+            // Generate and add ESC/POS QR code commands
+            receiptContent += '\x1B\x61\x01'; // Center alignment for QR code
+            receiptContent += generateQRCodeESC_POS(qrUrl);
+            receiptContent += '\n\n'; // Add some space after QR code
+            receiptContent += '\x1B\x61\x00'; // Reset to left alignment
+        }
+        
         receiptContent += '\x1B\x61\x00'; // Left alignment
         
         // Cut paper

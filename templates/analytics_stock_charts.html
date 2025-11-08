@@ -1,0 +1,861 @@
+{% extends "role_base.html" %}
+
+{% block title %}Analytics Charts - Stock Analytics{% endblock %}
+
+{% block sidebar_icon %}chart-line{% endblock %}
+{% block sidebar_title %}Analytics{% endblock %}
+
+{% block sidebar_nav %}
+<!-- Stock Analytics Overview -->
+<a href="/analytics/stock" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-warehouse text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Overview</p>
+        <p class="text-xs text-white/70">Main dashboard</p>
+    </div>
+</a>
+
+<!-- Stock Inventory -->
+<a href="/analytics/stock/inventory" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-boxes text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Inventory Management</p>
+        <p class="text-xs text-white/70">Stock levels & alerts</p>
+    </div>
+</a>
+
+<!-- Stock Charts -->
+<a href="/analytics/stock/charts" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center mr-4">
+        <i class="fas fa-chart-bar text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Analytics Charts</p>
+        <p class="text-xs text-white/70">Visual data analysis</p>
+    </div>
+</a>
+
+<!-- Stock Reports -->
+<a href="/analytics/stock/reports" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-file-alt text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Reports</p>
+        <p class="text-xs text-white/70">Detailed reports</p>
+    </div>
+</a>
+
+<!-- Stock Recommendations -->
+<a href="/analytics/stock/recommendations" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-robot text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Smart Recommendations</p>
+        <p class="text-xs text-white/70">Reorder suggestions</p>
+    </div>
+</a>
+
+<!-- Stock Audits -->
+<a href="/stock-audits" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-clipboard-check text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Stock Audits</p>
+        <p class="text-xs text-white/70">Transaction history</p>
+    </div>
+</a>
+
+<!-- Back to Analytics Dashboard -->
+<a href="/analytics" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group mt-4 border-t border-white/20 pt-4">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-arrow-left text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Analytics</p>
+        <p class="text-xs text-white/70">Return to main analytics</p>
+    </div>
+</a>
+
+<!-- Back to Dashboard -->
+<a href="{% if employee_role == 'admin' %}/admin/dashboard{% elif employee_role == 'manager' %}/manager/dashboard{% else %}/employee/dashboard{% endif %}" class="nav-item flex items-center px-4 py-4 text-white rounded-2xl hover:bg-white/20 transition-all duration-200 group">
+    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition-colors">
+        <i class="fas fa-home text-white text-lg"></i>
+    </div>
+    <div>
+        <p class="font-semibold">Back to Dashboard</p>
+        <p class="text-xs text-white/70">Return to main dashboard</p>
+    </div>
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Enhanced Charts Analytics Header -->
+<div class="relative overflow-hidden bg-gradient-to-br from-green-900 via-emerald-900 to-teal-900 rounded-2xl sm:rounded-3xl mb-4 sm:mb-8 shadow-2xl">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 sm:space-y-6 lg:space-y-0">
+            <div class="text-white">
+                <div class="flex items-center space-x-3 mb-3">
+                    <a href="/analytics/stock" class="text-white/70 hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </a>
+                    <div class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-white text-sm"></i>
+                    </div>
+                    <!-- Manager Role Badge -->
+                    <div class="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-3 py-1.5">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-user-tie text-white text-sm"></i>
+                            <span class="text-white text-sm font-medium">Manager</span>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
+                    Analytics Charts
+                </h1>
+                <p class="text-green-100 text-base sm:text-lg lg:text-xl font-medium">Visual data analysis and trend insights for inventory management</p>
+            </div>
+            
+            <!-- Enhanced Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                <button id="refreshChartsBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Refresh Charts
+                </button>
+                <button id="exportChartsBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Charts
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Date Filter Controls -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden mb-4 sm:mb-6">
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-sm"></i>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">Date Filter</h2>
+                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full" id="dateFilterStatus">All Time</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="resetDateFilterBtn" class="bg-gray-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-undo mr-1"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Filter Type Selection -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Filter Type</label>
+                <select id="dateFilterType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <option value="day">Single Day</option>
+                    <option value="range">Date Range</option>
+                    <option value="month">Month</option>
+                    <option value="preset">Preset Periods</option>
+                </select>
+            </div>
+            
+            <!-- Single Day Filter -->
+            <div id="singleDayFilter" class="date-filter-section">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Date</label>
+                <input type="date" id="singleDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div id="dateRangeFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Date Range</label>
+                <div class="space-y-2">
+                    <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Start Date">
+                    <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="End Date">
+                </div>
+            </div>
+            
+            <!-- Month Filter -->
+            <div id="monthFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Month</label>
+                <input type="month" id="monthSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            </div>
+            
+            <!-- Preset Periods -->
+            <div id="presetFilter" class="date-filter-section hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Preset Periods</label>
+                <select id="presetPeriod" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="last7days">Last 7 Days</option>
+                    <option value="last30days">Last 30 Days</option>
+                    <option value="last90days">Last 90 Days</option>
+                    <option value="thisMonth">This Month</option>
+                    <option value="lastMonth">Last Month</option>
+                    <option value="thisYear">This Year</option>
+                    <option value="lastYear">Last Year</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Apply Filter Button -->
+        <div class="mt-4 flex justify-end">
+            <button id="applyDateFilterBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                <i class="fas fa-filter mr-2"></i>Apply Filter
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Visual Analytics Charts -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <!-- Price vs Stock Analysis Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Price vs Stock Analysis</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="priceStockChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stock In vs Stock Out Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exchange-alt text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Stock Flow Analysis</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="stockInOutChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Analytics Charts -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+    <!-- Usage Trends Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Usage Trends</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="usageTrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reorder Frequency Chart -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100/50 overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border-b border-gray-200/50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shopping-cart text-white text-xs sm:text-sm"></i>
+                </div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800">Reorder Frequency</h3>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 lg:p-6">
+            <div class="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <canvas id="reorderFrequencyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Global function for showing notifications
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>
+                ${message}
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Wait for page to be fully loaded
+    window.addEventListener('load', function() {
+        let usageTrendsChart = null;
+        let reorderFrequencyChart = null;
+        let priceStockChart = null;
+        let stockInOutChart = null;
+        let currentChartsData = null;
+
+        // Initialize page
+        function initChartsAnalytics() {
+            console.log('Charts Analytics page loaded');
+            
+            // Initialize date filters
+            initializeDateFilters();
+            
+            // Initialize buttons
+            initializeButtons();
+            
+            // Load initial data
+            loadChartsData();
+        }
+
+        // Initialize date filters (same as other pages)
+        function initializeDateFilters() {
+            const dateFilterType = document.getElementById('dateFilterType');
+            const applyDateFilterBtn = document.getElementById('applyDateFilterBtn');
+            const resetDateFilterBtn = document.getElementById('resetDateFilterBtn');
+            
+            if (dateFilterType) {
+                dateFilterType.addEventListener('change', handleDateFilterTypeChange);
+            }
+            
+            if (applyDateFilterBtn) {
+                applyDateFilterBtn.addEventListener('click', applyDateFilter);
+            }
+            
+            if (resetDateFilterBtn) {
+                resetDateFilterBtn.addEventListener('click', resetDateFilter);
+            }
+            
+            // Set default values
+            const today = new Date().toISOString().split('T')[0];
+            const singleDateInput = document.getElementById('singleDate');
+            if (singleDateInput) {
+                singleDateInput.value = today;
+            }
+            
+            // Set default month to current month
+            const monthSelect = document.getElementById('monthSelect');
+            if (monthSelect) {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                monthSelect.value = currentMonth;
+            }
+            
+            // Set default filter type to month and apply current month filter
+            if (dateFilterType) {
+                dateFilterType.value = 'month';
+                handleDateFilterTypeChange();
+                
+                // Apply current month filter by default
+                setTimeout(() => {
+                    window.isDefaultLoad = true;
+                    applyDateFilter();
+                }, 100);
+            }
+        }
+
+        // Handle date filter type change
+        function handleDateFilterTypeChange() {
+            const filterType = document.getElementById('dateFilterType').value;
+            const sections = document.querySelectorAll('.date-filter-section');
+            
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            switch(filterType) {
+                case 'day':
+                    document.getElementById('singleDayFilter').classList.remove('hidden');
+                    break;
+                case 'range':
+                    document.getElementById('dateRangeFilter').classList.remove('hidden');
+                    break;
+                case 'month':
+                    document.getElementById('monthFilter').classList.remove('hidden');
+                    break;
+                case 'preset':
+                    document.getElementById('presetFilter').classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // Apply date filter
+        function applyDateFilter() {
+            const filterType = document.getElementById('dateFilterType').value;
+            let filterData = {};
+            
+            switch(filterType) {
+                case 'day':
+                    const singleDate = document.getElementById('singleDate').value;
+                    if (!singleDate) {
+                        showNotification('Please select a date', 'error');
+                        return;
+                    }
+                    filterData = {
+                        filterType: 'day',
+                        date: singleDate
+                    };
+                    updateDateFilterStatus(`Single Day: ${formatDate(singleDate)}`);
+                    break;
+                    
+                case 'range':
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    if (!startDate || !endDate) {
+                        showNotification('Please select both start and end dates', 'error');
+                        return;
+                    }
+                    if (new Date(startDate) > new Date(endDate)) {
+                        showNotification('Start date cannot be after end date', 'error');
+                        return;
+                    }
+                    filterData = {
+                        filterType: 'range',
+                        startDate: startDate,
+                        endDate: endDate
+                    };
+                    updateDateFilterStatus(`Range: ${formatDate(startDate)} - ${formatDate(endDate)}`);
+                    break;
+                    
+                case 'month':
+                    const monthSelect = document.getElementById('monthSelect').value;
+                    if (!monthSelect) {
+                        const currentMonth = new Date().toISOString().slice(0, 7);
+                        document.getElementById('monthSelect').value = currentMonth;
+                        filterData = {
+                            filterType: 'month',
+                            month: currentMonth
+                        };
+                        updateDateFilterStatus(`Month: ${formatMonth(currentMonth)}`);
+                    } else {
+                        filterData = {
+                            filterType: 'month',
+                            month: monthSelect
+                        };
+                        updateDateFilterStatus(`Month: ${formatMonth(monthSelect)}`);
+                    }
+                    break;
+                    
+                case 'preset':
+                    const presetPeriod = document.getElementById('presetPeriod').value;
+                    filterData = {
+                        filterType: 'preset',
+                        period: presetPeriod
+                    };
+                    updateDateFilterStatus(`Preset: ${presetPeriod.replace(/([A-Z])/g, ' $1').trim()}`);
+                    break;
+            }
+            
+            window.currentDateFilter = filterData;
+            loadChartsData();
+            
+            if (!window.isDefaultLoad) {
+                showNotification('Date filter applied successfully!', 'success');
+            }
+            window.isDefaultLoad = false;
+        }
+
+        // Reset date filter
+        function resetDateFilter() {
+            document.getElementById('singleDate').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('monthSelect').value = '';
+            document.getElementById('presetPeriod').value = 'today';
+            
+            document.getElementById('dateFilterType').value = 'day';
+            handleDateFilterTypeChange();
+            
+            window.currentDateFilter = null;
+            updateDateFilterStatus('All Time');
+            loadChartsData();
+            
+            showNotification('Date filter reset successfully!', 'success');
+        }
+
+        // Update date filter status display
+        function updateDateFilterStatus(status) {
+            const statusElement = document.getElementById('dateFilterStatus');
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Format month for display
+        function formatMonth(monthString) {
+            const date = new Date(monthString + '-01');
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long' 
+            });
+        }
+
+        // Initialize buttons
+        function initializeButtons() {
+            const refreshBtn = document.getElementById('refreshChartsBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    const icon = refreshBtn.querySelector('i');
+                    icon.classList.add('fa-spin');
+                    refreshBtn.disabled = true;
+                    
+                    loadChartsData();
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-spin');
+                        refreshBtn.disabled = false;
+                    }, 2000);
+                });
+            }
+            
+            const exportBtn = document.getElementById('exportChartsBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportChartsData);
+            }
+        }
+
+        // Load charts data
+        function loadChartsData() {
+            console.log('Loading charts data...');
+            
+            let requestData = {
+                dataType: 'general'
+            };
+            
+            if (window.currentDateFilter) {
+                requestData = {
+                    ...requestData,
+                    ...window.currentDateFilter
+                };
+            } else {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                requestData = {
+                    ...requestData,
+                    filterType: 'month',
+                    month: currentMonth
+                };
+            }
+            
+            console.log('Request data:', requestData);
+            
+            fetch('/api/analytics/stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Charts data received:', data);
+                if (data.success) {
+                    currentChartsData = data.analytics;
+                    updateChartsDisplay(data.analytics);
+                } else {
+                    console.error('Error loading charts:', data.message);
+                    showErrorState(data.message || 'Failed to load charts data');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading charts:', error);
+                showErrorState('Network error: ' + error.message);
+            });
+        }
+
+        // Update charts display
+        function updateChartsDisplay(analytics) {
+            console.log('Updating charts display:', analytics);
+            
+            // Update charts
+            updateUsageTrendsChart(analytics.chartData?.usageTrends);
+            updateReorderFrequencyChart(analytics.chartData?.reorderFrequency);
+            updatePriceStockChart(analytics.chartData?.priceStockAnalysis);
+            updateStockInOutChart(analytics.chartData?.stockInOutAnalysis);
+        }
+
+        // Update usage trends chart
+        function updateUsageTrendsChart(chartData) {
+            const ctx = document.getElementById('usageTrendsChart');
+            if (!ctx || !chartData) return;
+            
+            if (usageTrendsChart) {
+                usageTrendsChart.destroy();
+            }
+            
+            usageTrendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels || [],
+                    datasets: [{
+                        label: 'Daily Usage',
+                        data: chartData.data || [],
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update reorder frequency chart
+        function updateReorderFrequencyChart(chartData) {
+            const ctx = document.getElementById('reorderFrequencyChart');
+            if (!ctx || !chartData) return;
+            
+            if (reorderFrequencyChart) {
+                reorderFrequencyChart.destroy();
+            }
+            
+            reorderFrequencyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels || [],
+                    datasets: [{
+                        label: 'Reorder Frequency',
+                        data: chartData.data || [],
+                        backgroundColor: 'rgba(251, 146, 60, 0.8)',
+                        borderColor: 'rgba(251, 146, 60, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update price vs stock analysis chart
+        function updatePriceStockChart(chartData) {
+            const ctx = document.getElementById('priceStockChart');
+            if (!ctx || !chartData) return;
+            
+            if (priceStockChart) {
+                priceStockChart.destroy();
+            }
+            
+            priceStockChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels || [],
+                    datasets: [{
+                        label: 'Stock Quantity',
+                        data: chartData.stockData || [],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Item Price ($)',
+                        data: chartData.priceData || [],
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Stock Quantity'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Price ($)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update stock in vs stock out chart
+        function updateStockInOutChart(chartData) {
+            const ctx = document.getElementById('stockInOutChart');
+            if (!ctx || !chartData) return;
+            
+            if (stockInOutChart) {
+                stockInOutChart.destroy();
+            }
+            
+            stockInOutChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels || [],
+                    datasets: [{
+                        label: 'Stock In',
+                        data: chartData.stockIn || [],
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Stock Out',
+                        data: chartData.stockOut || [],
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Daily Revenue ($)',
+                        data: chartData.revenue || [],
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Quantity'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Revenue ($)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        // Export charts data
+        function exportChartsData() {
+            if (!currentChartsData) {
+                showNotification('No charts data to export', 'error');
+                return;
+            }
+            
+            showNotification('Charts export feature coming soon!', 'info');
+        }
+
+        // Show error state
+        function showErrorState(message = 'Error loading data') {
+            showNotification(message, 'error');
+        }
+
+        // Initialize charts analytics
+        initChartsAnalytics();
+    });
+</script>
+{% endblock %}
